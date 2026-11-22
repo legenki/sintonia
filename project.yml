@@ -22,6 +22,60 @@ targets:
       - path: App/Resources
     info:
       path: App/Info.plist
+      properties:
+        CFBundleDisplayName: WaveForge
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        LSSupportsOpeningDocumentsInPlace: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - audio
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: WaveForge Preset
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - com.waveforge.preset
+          - CFBundleTypeName: BrainWave Generator Preset
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.noromaa.bwg
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.waveforge.preset
+            UTTypeDescription: WaveForge Preset
+            UTTypeConformsTo:
+              - public.json
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - waveforge
+              public.mime-type:
+                - application/vnd.waveforge.preset+json
+                - application/json
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: com.noromaa.bwg
+            UTTypeDescription: BrainWave Generator Preset
+            UTTypeConformsTo:
+              - public.plain-text
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - bwg
+              public.mime-type:
+                - text/plain
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app
