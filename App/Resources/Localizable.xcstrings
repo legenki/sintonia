@@ -81,6 +81,22 @@
         }
       }
     },
+    "Add another voice to enable tracking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add another voice to enable tracking"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавьте ещё один голос для настройки слежения"
+          }
+        }
+      }
+    },
     "All": {
       "localizations": {
         "en": {
@@ -93,6 +109,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Все"
+          }
+        }
+      }
+    },
+    "All other voices form a tracking chain back to this voice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All other voices form a tracking chain back to this voice"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остальные голоса образуют цепочку слежения к этому голосу"
           }
         }
       }
@@ -337,6 +369,22 @@
         }
       }
     },
+    "Binaural mode uses L/R ear separation instead of pan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Binaural mode uses L/R ear separation instead of pan"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бинауральный режим использует разделение L/R вместо панорамы"
+          }
+        }
+      }
+    },
     "Binaural playback was automatically paused because headphones were disconnected.": {
       "localizations": {
         "en": {
@@ -449,6 +497,54 @@
         }
       }
     },
+    "Category": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Категория"
+          }
+        }
+      }
+    },
+    "Center": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Center"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр"
+          }
+        }
+      }
+    },
+    "Ch %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ch %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кан. %lld"
+          }
+        }
+      }
+    },
     "Close": {
       "localizations": {
         "en": {
@@ -493,6 +589,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Редактор кривых"
+          }
+        }
+      }
+    },
+    "Curves": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curves"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кривые"
           }
         }
       }
@@ -577,6 +689,22 @@
         }
       }
     },
+    "Discard Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard Changes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить изменения"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "en": {
@@ -605,6 +733,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дублировать"
+          }
+        }
+      }
+    },
+    "Duration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Длительность"
           }
         }
       }
@@ -653,6 +797,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Включить шум"
+          }
+        }
+      }
+    },
+    "Enabled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включён"
           }
         }
       }
@@ -829,6 +989,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Внешний WAV-фон не поддерживается."
+          }
+        }
+      }
+    },
+    "Fade In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fade In"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нарастание"
+          }
+        }
+      }
+    },
+    "Fade Out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fade Out"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Затухание"
           }
         }
       }
@@ -1073,6 +1265,22 @@
         }
       }
     },
+    "Invalid preset configuration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid preset configuration"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Некорректные параметры пресета"
+          }
+        }
+      }
+    },
     "Isochronic": {
       "localizations": {
         "en": {
@@ -1117,6 +1325,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Мягкость"
+          }
+        }
+      }
+    },
+    "Keep Editing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Editing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить"
           }
         }
       }
@@ -1553,6 +1777,22 @@
         }
       }
     },
+    "Preset": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preset"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пресет"
+          }
+        }
+      }
+    },
     "Preset Imported": {
       "localizations": {
         "en": {
@@ -1565,6 +1805,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пресет импортирован"
+          }
+        }
+      }
+    },
+    "Preset Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preset Name"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название пресета"
           }
         }
       }
@@ -1601,6 +1857,22 @@
         }
       }
     },
+    "Pulse Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulse Source"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Источник пульса"
+          }
+        }
+      }
+    },
     "Pulse Sync": {
       "localizations": {
         "en": {
@@ -1613,6 +1885,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Синхронизация пульса"
+          }
+        }
+      }
+    },
+    "Rack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rack"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стойка"
           }
         }
       }
@@ -1757,6 +2045,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сохранить копию"
+          }
+        }
+      }
+    },
+    "Saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранено"
+          }
+        }
+      }
+    },
+    "Saving creates a Custom copy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving creates a Custom copy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "При сохранении создаётся пользовательская копия"
           }
         }
       }
@@ -2177,6 +2497,38 @@
         }
       }
     },
+    "Tracked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracked"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежение"
+          }
+        }
+      }
+    },
+    "Tracked from Ch %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracked from Ch %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежение за кан. %lld"
+          }
+        }
+      }
+    },
     "Tracking": {
       "localizations": {
         "en": {
@@ -2273,6 +2625,22 @@
         }
       }
     },
+    "Voice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос"
+          }
+        }
+      }
+    },
     "Voice %lld": {
       "localizations": {
         "en": {
@@ -2289,6 +2657,22 @@
         }
       }
     },
+    "Voice Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Name"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя голоса"
+          }
+        }
+      }
+    },
     "Voice Volume": {
       "localizations": {
         "en": {
@@ -2301,6 +2685,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Громкость голоса"
+          }
+        }
+      }
+    },
+    "Voices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voices"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голоса"
           }
         }
       }
@@ -2413,6 +2813,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Белый"
+          }
+        }
+      }
+    },
+    "You have unsaved studio edits. Save before closing?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have unsaved studio edits. Save before closing?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В студии есть несохранённые изменения. Сохранить перед выходом?"
           }
         }
       }

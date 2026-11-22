@@ -11,13 +11,17 @@
 		1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3980221A9DB7289EAA39172 /* Assets.xcassets */; };
 		2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */; };
 		39E7391AEB2B70FDBB0DEE8D /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = 66A8B71544D85A5E4A7730E8 /* WaveForgeExport */; };
+		3A904F6BC99B568A4780914D /* StudioRackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9B3CFC4BF7F5404768A503 /* StudioRackView.swift */; };
+		3C8917FC3759A9DE0E2CBCE6 /* NoiseInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4398134C066F90F891B89B /* NoiseInspectorView.swift */; };
 		3D44472F3A222C2DD290E5D9 /* LEDMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A025A26AFE64FD077870558 /* LEDMeterView.swift */; };
 		4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */; };
+		4F8AE3B006F19E05C4A76CAF /* VoiceInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C8DA78635A0F4B37F4C53 /* VoiceInspectorView.swift */; };
 		52C1107D2E5770616DF0CDCD /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D91994D81AAD8FF9CFC914 /* ExportSheetView.swift */; };
 		6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A08FE57AB4D586E976D277B /* Localizable.xcstrings */; };
 		6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 634A501714AFC747DBA375D0 /* SynthCore */; };
 		6DC151EA1F764D6466C55214 /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA399037651AE61D8072CFE6 /* StudioTheme.swift */; };
 		7B07515A5EDE0D69140661B2 /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = E20030EEA773F500543A2EA5 /* WaveForgeExport */; };
+		9759474B9E571879E066049F /* CurveEditorCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */; };
 		9A2C6F53D369F5536580E762 /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C840F707E55200BF6FF9D43E /* MiniTimelineScrubber.swift */; };
 		A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = A07279C567B879C7AB56DC47 /* SynthCore */; };
 		B040F70E42CF32CB4530506D /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = A876AEAE305E4FB3D6C74172 /* PresetKit */; };
@@ -27,6 +31,7 @@
 		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
 		C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A2343316E4EED6A709667 /* WaveForgeApp.swift */; };
 		CC4132A03F5C790B57A0185F /* AboutSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA284825B239B13DFF399F16 /* AboutSheetView.swift */; };
+		E264DA4237A82241D9D2D08A /* CurveEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */; };
 		F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorCanvas.swift; sourceTree = "<group>"; };
+		247C8DA78635A0F4B37F4C53 /* VoiceInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInspectorView.swift; sourceTree = "<group>"; };
 		31488F69B99BBEB09D8B3EC4 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		38D91994D81AAD8FF9CFC914 /* ExportSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheetView.swift; sourceTree = "<group>"; };
 		39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineController.swift; sourceTree = "<group>"; };
@@ -49,6 +56,8 @@
 		5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwarePickers.swift; sourceTree = "<group>"; };
 		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorView.swift; sourceTree = "<group>"; };
+		9B4398134C066F90F891B89B /* NoiseInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseInspectorView.swift; sourceTree = "<group>"; };
 		A18A2343316E4EED6A709667 /* WaveForgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeApp.swift; sourceTree = "<group>"; };
 		AA399037651AE61D8072CFE6 /* StudioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioTheme.swift; sourceTree = "<group>"; };
 		B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioFader.swift; sourceTree = "<group>"; };
@@ -59,6 +68,7 @@
 		F3980221A9DB7289EAA39172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA284825B239B13DFF399F16 /* AboutSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSheetView.swift; sourceTree = "<group>"; };
 		FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OscilloscopeView.swift; sourceTree = "<group>"; };
+		FF9B3CFC4BF7F5404768A503 /* StudioRackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioRackView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +144,18 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		858AC618844F98EAF20BAD68 /* Studio */ = {
+			isa = PBXGroup;
+			children = (
+				0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */,
+				8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */,
+				9B4398134C066F90F891B89B /* NoiseInspectorView.swift */,
+				FF9B3CFC4BF7F5404768A503 /* StudioRackView.swift */,
+				247C8DA78635A0F4B37F4C53 /* VoiceInspectorView.swift */,
+			);
+			path = Studio;
+			sourceTree = "<group>";
+		};
 		93F0D0E01DE527B739C7BA75 /* AudioRuntime */ = {
 			isa = PBXGroup;
 			children = (
@@ -184,6 +206,7 @@
 				A18A2343316E4EED6A709667 /* WaveForgeApp.swift */,
 				11D9F21C32316B545D346D3C /* Components */,
 				ACB30AC10D963433A2B90CAB /* Player */,
+				858AC618844F98EAF20BAD68 /* Studio */,
 			);
 			path = StudioUI;
 			sourceTree = "<group>";
@@ -306,15 +329,20 @@
 			files = (
 				CC4132A03F5C790B57A0185F /* AboutSheetView.swift in Sources */,
 				2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */,
+				9759474B9E571879E066049F /* CurveEditorCanvas.swift in Sources */,
+				E264DA4237A82241D9D2D08A /* CurveEditorView.swift in Sources */,
 				52C1107D2E5770616DF0CDCD /* ExportSheetView.swift in Sources */,
 				B292A462668A948122F4514B /* HardwarePickers.swift in Sources */,
 				3D44472F3A222C2DD290E5D9 /* LEDMeterView.swift in Sources */,
 				9A2C6F53D369F5536580E762 /* MiniTimelineScrubber.swift in Sources */,
+				3C8917FC3759A9DE0E2CBCE6 /* NoiseInspectorView.swift in Sources */,
 				4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */,
 				BAC335182D0F0695867001EA /* PlayerView.swift in Sources */,
 				F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */,
 				0E52CA0AD5FC745ECF02D986 /* StudioKnob.swift in Sources */,
+				3A904F6BC99B568A4780914D /* StudioRackView.swift in Sources */,
 				6DC151EA1F764D6466C55214 /* StudioTheme.swift in Sources */,
+				4F8AE3B006F19E05C4A76CAF /* VoiceInspectorView.swift in Sources */,
 				C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
