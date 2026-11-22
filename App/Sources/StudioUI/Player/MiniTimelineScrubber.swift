@@ -9,7 +9,7 @@ public struct MiniTimelineScrubber: View {
     private let engine: AudioEngineController
 
     @State private var samples: [SparklineSample]
-    @State private var isScrubbing = false
+    @GestureState private var isScrubbing = false
     @State private var scrubTime: Double = 0.0
     @State private var lastSeekCommittedTime: Double = -.infinity
     @State private var scrubHaptic = UIImpactFeedbackGenerator(style: .light)
@@ -81,6 +81,9 @@ public struct MiniTimelineScrubber: View {
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
+                        .updating($isScrubbing) { _, state, _ in
+                            state = true
+                        }
                         .onChanged { gesture in
                             handleDragChanged(locationX: gesture.location.x, width: size.width)
                         }
@@ -109,6 +112,12 @@ public struct MiniTimelineScrubber: View {
                     .foregroundStyle(StudioTheme.secondaryText)
             }
             .padding(.horizontal, 2)
+        }
+        .onChange(of: isScrubbing) { _, scrubbing in
+            if scrubbing {
+                scrubHaptic.prepare()
+                scrubHaptic.impactOccurred(intensity: 0.45)
+            }
         }
         .onChange(of: engine.currentPreset) { _, newPreset in
             samples = Self.buildSamples(for: newPreset)
@@ -293,11 +302,6 @@ public struct MiniTimelineScrubber: View {
         let fraction = min(1.0, max(0.0, Double(locationX / safeWidth)))
         let targetTime = fraction * effectiveDuration
 
-        if !isScrubbing {
-            isScrubbing = true
-            scrubHaptic.prepare()
-            scrubHaptic.impactOccurred(intensity: 0.45)
-        }
         scrubTime = targetTime
 
         if abs(targetTime - lastSeekCommittedTime) >= 0.25 {
@@ -311,7 +315,6 @@ public struct MiniTimelineScrubber: View {
         let fraction = min(1.0, max(0.0, Double(locationX / safeWidth)))
         let targetTime = fraction * effectiveDuration
 
-        isScrubbing = false
         lastSeekCommittedTime = targetTime
         engine.seek(to: targetTime)
         scrubHaptic.impactOccurred(intensity: 0.55)
