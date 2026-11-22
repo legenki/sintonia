@@ -33,6 +33,22 @@
         }
       }
     },
+    "Active Voices" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Voices"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Активные голоса"
+          }
+        }
+      }
+    },
     "Add Point" : {
       "localizations" : {
         "en" : {
@@ -445,6 +461,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пользовательские"
+          }
+        }
+      }
+    },
+    "Cycle Display Mode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cycle Display Mode"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить режим дисплея"
           }
         }
       }
@@ -1313,6 +1345,22 @@
         }
       }
     },
+    "Oscilloscope" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oscilloscope"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осциллограф"
+          }
+        }
+      }
+    },
     "Pan" : {
       "localizations" : {
         "en" : {
@@ -1789,6 +1837,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Меандр"
+          }
+        }
+      }
+    },
+    "Stereo Level Meter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stereo Level Meter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стерео-индикатор уровня"
           }
         }
       }

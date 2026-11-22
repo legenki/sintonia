@@ -7,17 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E52CA0AD5FC745ECF02D986 /* StudioKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1A6C8D479694991647091 /* StudioKnob.swift */; };
 		1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3980221A9DB7289EAA39172 /* Assets.xcassets */; };
 		2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */; };
 		39E7391AEB2B70FDBB0DEE8D /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = 66A8B71544D85A5E4A7730E8 /* WaveForgeExport */; };
+		3D44472F3A222C2DD290E5D9 /* LEDMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A025A26AFE64FD077870558 /* LEDMeterView.swift */; };
+		4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */; };
 		6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A08FE57AB4D586E976D277B /* Localizable.xcstrings */; };
 		6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 634A501714AFC747DBA375D0 /* SynthCore */; };
+		6DC151EA1F764D6466C55214 /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA399037651AE61D8072CFE6 /* StudioTheme.swift */; };
 		7B07515A5EDE0D69140661B2 /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = E20030EEA773F500543A2EA5 /* WaveForgeExport */; };
 		A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = A07279C567B879C7AB56DC47 /* SynthCore */; };
 		B040F70E42CF32CB4530506D /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = A876AEAE305E4FB3D6C74172 /* PresetKit */; };
+		B292A462668A948122F4514B /* HardwarePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */; };
 		B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 309397BCCE07B24B821A2747 /* PresetKit */; };
 		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
 		C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A2343316E4EED6A709667 /* WaveForgeApp.swift */; };
+		F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,13 +38,19 @@
 
 /* Begin PBXFileReference section */
 		39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineController.swift; sourceTree = "<group>"; };
+		39C1A6C8D479694991647091 /* StudioKnob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioKnob.swift; sourceTree = "<group>"; };
+		4A025A26AFE64FD077870558 /* LEDMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEDMeterView.swift; sourceTree = "<group>"; };
+		5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwarePickers.swift; sourceTree = "<group>"; };
 		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A18A2343316E4EED6A709667 /* WaveForgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeApp.swift; sourceTree = "<group>"; };
+		AA399037651AE61D8072CFE6 /* StudioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioTheme.swift; sourceTree = "<group>"; };
+		B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioFader.swift; sourceTree = "<group>"; };
 		D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimeTests.swift; sourceTree = "<group>"; };
 		E8AC1E2DF8CE245C865C3D6A /* WaveForgeCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WaveForgeCore; path = Packages/WaveForgeCore; sourceTree = SOURCE_ROOT; };
 		F212DA1E2099F295F26BAC6F /* WaveForge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WaveForge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3980221A9DB7289EAA39172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OscilloscopeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +85,19 @@
 				73183DE23CC7EA9018E55444 /* Tests */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		11D9F21C32316B545D346D3C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */,
+				4A025A26AFE64FD077870558 /* LEDMeterView.swift */,
+				FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */,
+				B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */,
+				39C1A6C8D479694991647091 /* StudioKnob.swift */,
+				AA399037651AE61D8072CFE6 /* StudioTheme.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		63AEBF2A98B180C7E6B98431 /* Products */ = {
@@ -138,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				A18A2343316E4EED6A709667 /* WaveForgeApp.swift */,
+				11D9F21C32316B545D346D3C /* Components */,
 			);
 			path = StudioUI;
 			sourceTree = "<group>";
@@ -259,6 +285,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */,
+				B292A462668A948122F4514B /* HardwarePickers.swift in Sources */,
+				3D44472F3A222C2DD290E5D9 /* LEDMeterView.swift in Sources */,
+				4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */,
+				F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */,
+				0E52CA0AD5FC745ECF02D986 /* StudioKnob.swift in Sources */,
+				6DC151EA1F764D6466C55214 /* StudioTheme.swift in Sources */,
 				C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
