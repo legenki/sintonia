@@ -434,4 +434,49 @@ struct SynthRendererTests {
             }
         }
     }
+
+    @Test func telemetryTripleBufferNeverTearsUnderConcurrentPushAndRead() async {
+        let ring = TelemetryRingBuffer()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                var bufL = [Float](repeating: 0, count: 1024)
+                var bufR = [Float](repeating: 0, count: 1024)
+                for step in 1...400 {
+                    let vL = Float(step) * 0.001
+                    let vR = -vL
+                    for i in 0..<1024 {
+                        bufL[i] = vL
+                        bufR[i] = vR
+                    }
+                    bufL.withUnsafeBufferPointer { lPtr in
+                        bufR.withUnsafeBufferPointer { rPtr in
+                            ring.push(left: lPtr.baseAddress!, right: rPtr.baseAddress!, count: 1024)
+                        }
+                    }
+                    if step.isMultiple(of: 20) {
+                        await Task.yield()
+                    }
+                }
+            }
+            group.addTask {
+                var frame = TelemetryFrame()
+                var lastSeenVal: Float = 0.0
+                for _ in 0..<400 {
+                    ring.readLatest(into: &frame)
+                    let expected = frame.leftSamples[0]
+                    #expect(expected >= lastSeenVal - 1e-6)
+                    lastSeenVal = expected
+                    for i in 0..<1024 {
+                        #expect(frame.leftSamples[i] == expected)
+                        #expect(frame.rightSamples[i] == -expected)
+                    }
+                    #expect(abs(frame.peakL - expected) < 1e-6)
+                    #expect(abs(frame.rmsL - expected) < 1e-4)
+                    #expect(abs(frame.peakR - expected) < 1e-6)
+                    #expect(abs(frame.rmsR - expected) < 1e-4)
+                    await Task.yield()
+                }
+            }
+        }
+    }
 }

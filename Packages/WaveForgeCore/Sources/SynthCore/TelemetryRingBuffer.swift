@@ -28,35 +28,75 @@ public struct TelemetryFrame: Sendable, Equatable {
     }
 }
 
+private struct TelemetryPODSlot {
+    let leftSamples: UnsafeMutablePointer<Float>
+    let rightSamples: UnsafeMutablePointer<Float>
+    var rmsL: Float
+    var rmsR: Float
+    var peakL: Float
+    var peakR: Float
+}
+
+/// Wait-free 3-slot POD triple-buffered storage for zero-allocation SPSC audio telemetry.
 internal struct TelemetryStorage: ~Copyable {
     static let capacity = TelemetryFrame.capacity
     private static let mask = capacity - 1
+    private static let slotCount = 3
 
-    private let leftRing: UnsafeMutablePointer<Atomic<UInt32>>
-    private let rightRing: UnsafeMutablePointer<Atomic<UInt32>>
-    private let writeHead = Atomic<Int>(0)
-    private let sequence = Atomic<UInt64>(0)
-    private let rmsLBits = Atomic<UInt32>(0)
-    private let rmsRBits = Atomic<UInt32>(0)
-    private let peakLBits = Atomic<UInt32>(0)
-    private let peakRBits = Atomic<UInt32>(0)
+    // Private rolling 1024-frame ring owned exclusively by the audio writer (`push`).
+    private let writerLeft: UnsafeMutablePointer<Float>
+    private let writerRight: UnsafeMutablePointer<Float>
+    private let writerHead = Atomic<Int>(0)
+
+    // Pre-allocated 3-slot POD triple buffer swapped via `middleState` with `.acquiringAndReleasing`.
+    private let slots: UnsafeMutablePointer<TelemetryPODSlot>
+    private let middleState = Atomic<Int>(2) // (dirtyBit << 2) | slotIndex -> clean, slot 2
+    private let producerIndex = Atomic<Int>(1) // Owned exclusively by `push`.
+    private let readerIndex = Atomic<Int>(0)   // Owned exclusively by `readLatest` under `readerLock`.
+    private let readerLock = Atomic<Bool>(false) // Non-audio reader guard only; `push` never touches this.
 
     init() {
-        let lPtr = UnsafeMutablePointer<Atomic<UInt32>>.allocate(capacity: Self.capacity)
-        let rPtr = UnsafeMutablePointer<Atomic<UInt32>>.allocate(capacity: Self.capacity)
-        for i in 0..<Self.capacity {
-            (lPtr + i).initialize(to: Atomic<UInt32>(0))
-            (rPtr + i).initialize(to: Atomic<UInt32>(0))
+        let wL = UnsafeMutablePointer<Float>.allocate(capacity: Self.capacity)
+        wL.initialize(repeating: 0.0, count: Self.capacity)
+        let wR = UnsafeMutablePointer<Float>.allocate(capacity: Self.capacity)
+        wR.initialize(repeating: 0.0, count: Self.capacity)
+        self.writerLeft = wL
+        self.writerRight = wR
+
+        let allocatedSlots = UnsafeMutablePointer<TelemetryPODSlot>.allocate(capacity: Self.slotCount)
+        for i in 0..<Self.slotCount {
+            let lBuf = UnsafeMutablePointer<Float>.allocate(capacity: Self.capacity)
+            lBuf.initialize(repeating: 0.0, count: Self.capacity)
+            let rBuf = UnsafeMutablePointer<Float>.allocate(capacity: Self.capacity)
+            rBuf.initialize(repeating: 0.0, count: Self.capacity)
+            (allocatedSlots + i).initialize(
+                to: TelemetryPODSlot(
+                    leftSamples: lBuf,
+                    rightSamples: rBuf,
+                    rmsL: 0.0,
+                    rmsR: 0.0,
+                    peakL: 0.0,
+                    peakR: 0.0
+                )
+            )
         }
-        self.leftRing = lPtr
-        self.rightRing = rPtr
+        self.slots = allocatedSlots
     }
 
     deinit {
-        leftRing.deinitialize(count: Self.capacity)
-        leftRing.deallocate()
-        rightRing.deinitialize(count: Self.capacity)
-        rightRing.deallocate()
+        writerLeft.deinitialize(count: Self.capacity)
+        writerLeft.deallocate()
+        writerRight.deinitialize(count: Self.capacity)
+        writerRight.deallocate()
+
+        for i in 0..<Self.slotCount {
+            slots[i].leftSamples.deinitialize(count: Self.capacity)
+            slots[i].leftSamples.deallocate()
+            slots[i].rightSamples.deinitialize(count: Self.capacity)
+            slots[i].rightSamples.deallocate()
+        }
+        slots.deinitialize(count: Self.slotCount)
+        slots.deallocate()
     }
 
     func push(left: UnsafePointer<Float>, right: UnsafePointer<Float>, count: Int) {
@@ -65,10 +105,7 @@ internal struct TelemetryStorage: ~Copyable {
         let startIndex = count > Self.capacity ? (count - Self.capacity) : 0
         let sampleCount = count - startIndex
 
-        let seqStart = sequence.load(ordering: .relaxed)
-        _ = sequence.exchange(seqStart &+ 1, ordering: .acquiringAndReleasing)
-
-        var head = writeHead.load(ordering: .relaxed) & Self.mask
+        var head = writerHead.load(ordering: .relaxed) & Self.mask
         var sumSqL = 0.0
         var sumSqR = 0.0
         var maxPeakL: Float = 0.0
@@ -80,8 +117,8 @@ internal struct TelemetryStorage: ~Copyable {
             let sL: Float = rawL.isFinite ? rawL : 0.0
             let sR: Float = rawR.isFinite ? rawR : 0.0
 
-            (leftRing + head).pointee.store(sL.bitPattern, ordering: .relaxed)
-            (rightRing + head).pointee.store(sR.bitPattern, ordering: .relaxed)
+            writerLeft[head] = sL
+            writerRight[head] = sR
             head = (head + 1) & Self.mask
 
             let dL = Double(sL)
@@ -95,17 +132,33 @@ internal struct TelemetryStorage: ~Copyable {
             if aR > maxPeakR { maxPeakR = aR }
         }
 
+        writerHead.store(head, ordering: .relaxed)
+
         let invN = 1.0 / Double(sampleCount)
         let rmsL = Float((sumSqL * invN).squareRoot())
         let rmsR = Float((sumSqR * invN).squareRoot())
 
-        writeHead.store(head, ordering: .releasing)
-        rmsLBits.store((rmsL.isFinite ? rmsL : 0.0).bitPattern, ordering: .relaxed)
-        rmsRBits.store((rmsR.isFinite ? rmsR : 0.0).bitPattern, ordering: .relaxed)
-        peakLBits.store((maxPeakL.isFinite ? maxPeakL : 0.0).bitPattern, ordering: .relaxed)
-        peakRBits.store((maxPeakR.isFinite ? maxPeakR : 0.0).bitPattern, ordering: .relaxed)
+        // Linearize the chronological 1024-frame history into the private producer slot.
+        let prodIdx = producerIndex.load(ordering: .relaxed)
+        let tailCount = Self.capacity - head
+        let dstL = slots[prodIdx].leftSamples
+        let dstR = slots[prodIdx].rightSamples
 
-        sequence.store(seqStart &+ 2, ordering: .releasing)
+        dstL.update(from: writerLeft + head, count: tailCount)
+        dstR.update(from: writerRight + head, count: tailCount)
+        if head > 0 {
+            (dstL + tailCount).update(from: writerLeft, count: head)
+            (dstR + tailCount).update(from: writerRight, count: head)
+        }
+
+        slots[prodIdx].rmsL = rmsL.isFinite ? rmsL : 0.0
+        slots[prodIdx].rmsR = rmsR.isFinite ? rmsR : 0.0
+        slots[prodIdx].peakL = maxPeakL.isFinite ? maxPeakL : 0.0
+        slots[prodIdx].peakR = maxPeakR.isFinite ? maxPeakR : 0.0
+
+        // Publish completed slot to consumer with acquire-release happens-before synchronization.
+        let prevMiddle = middleState.exchange((1 << 2) | prodIdx, ordering: .acquiringAndReleasing)
+        producerIndex.store(prevMiddle & 0b11, ordering: .relaxed)
     }
 
     func readLatest(into frame: inout TelemetryFrame) {
@@ -116,33 +169,30 @@ internal struct TelemetryStorage: ~Copyable {
             frame.rightSamples = [Float](repeating: 0, count: Self.capacity)
         }
 
-        for _ in 0..<8 {
-            let s1 = sequence.load(ordering: .acquiring)
-            if (s1 & 1) != 0 { continue }
-
-            let head = writeHead.load(ordering: .acquiring) & Self.mask
-            let rmsL = Float(bitPattern: rmsLBits.load(ordering: .relaxed))
-            let rmsR = Float(bitPattern: rmsRBits.load(ordering: .relaxed))
-            let peakL = Float(bitPattern: peakLBits.load(ordering: .relaxed))
-            let peakR = Float(bitPattern: peakRBits.load(ordering: .relaxed))
-
-            for i in 0..<Self.capacity {
-                let idx = (head + i) & Self.mask
-                frame.leftSamples[i] = Float(bitPattern: (leftRing + idx).pointee.load(ordering: .relaxed))
-                frame.rightSamples[i] = Float(bitPattern: (rightRing + idx).pointee.load(ordering: .relaxed))
-            }
-
-            let fence = Atomic<Int>(0)
-            _ = fence.exchange(0, ordering: .acquiringAndReleasing)
-            let s2 = sequence.load(ordering: .acquiring)
-            if s1 == s2 {
-                frame.rmsL = rmsL.isFinite ? rmsL : 0.0
-                frame.rmsR = rmsR.isFinite ? rmsR : 0.0
-                frame.peakL = peakL.isFinite ? peakL : 0.0
-                frame.peakR = peakR.isFinite ? peakR : 0.0
-                return
-            }
+        while readerLock.exchange(true, ordering: .acquiring) {
+            // Reader-only atomic guard; the audio thread (`push`) never touches this.
         }
+        defer { readerLock.store(false, ordering: .releasing) }
+
+        var readIdx = readerIndex.load(ordering: .relaxed)
+        let currentMiddle = middleState.load(ordering: .relaxed)
+        if (currentMiddle & 0b100) != 0 {
+            let swapped = middleState.exchange(readIdx, ordering: .acquiringAndReleasing)
+            readIdx = swapped & 0b11
+            readerIndex.store(readIdx, ordering: .relaxed)
+        }
+
+        let slot = slots[readIdx]
+        frame.leftSamples.withUnsafeMutableBufferPointer { dstL in
+            dstL.baseAddress?.update(from: slot.leftSamples, count: Self.capacity)
+        }
+        frame.rightSamples.withUnsafeMutableBufferPointer { dstR in
+            dstR.baseAddress?.update(from: slot.rightSamples, count: Self.capacity)
+        }
+        frame.rmsL = slot.rmsL
+        frame.rmsR = slot.rmsR
+        frame.peakL = slot.peakL
+        frame.peakR = slot.peakR
     }
 }
 
