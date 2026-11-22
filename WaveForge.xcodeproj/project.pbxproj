@@ -1,0 +1,537 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3980221A9DB7289EAA39172 /* Assets.xcassets */; };
+		6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A08FE57AB4D586E976D277B /* Localizable.xcstrings */; };
+		6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 634A501714AFC747DBA375D0 /* SynthCore */; };
+		A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = A07279C567B879C7AB56DC47 /* SynthCore */; };
+		B040F70E42CF32CB4530506D /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = A876AEAE305E4FB3D6C74172 /* PresetKit */; };
+		B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 309397BCCE07B24B821A2747 /* PresetKit */; };
+		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
+		C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A2343316E4EED6A709667 /* WaveForgeApp.swift */; };
+		CDC0CC26EA90FEDE41DA8CF1 /* AudioRuntimePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D0B74F1C6CEB6BA48F2240B2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D2C5D8BC398DC7C39240D83 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1EA4A79579FBCD96DDDD942C;
+			remoteInfo = WaveForge;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A18A2343316E4EED6A709667 /* WaveForgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeApp.swift; sourceTree = "<group>"; };
+		D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimeTests.swift; sourceTree = "<group>"; };
+		E8AC1E2DF8CE245C865C3D6A /* WaveForgeCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WaveForgeCore; path = Packages/WaveForgeCore; sourceTree = SOURCE_ROOT; };
+		EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimePlaceholder.swift; sourceTree = "<group>"; };
+		F212DA1E2099F295F26BAC6F /* WaveForge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WaveForge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3980221A9DB7289EAA39172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0D46C0D5D60B58E0B9F122D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */,
+				B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		103C3FBC146B6548B195B5EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */,
+				B040F70E42CF32CB4530506D /* PresetKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0E62FEF64A711D25C75AD3BA /* App */ = {
+			isa = PBXGroup;
+			children = (
+				E6C7E49A142979193B2FD427 /* Resources */,
+				8117127C4847DB750BB475BE /* Sources */,
+				73183DE23CC7EA9018E55444 /* Tests */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		63AEBF2A98B180C7E6B98431 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F212DA1E2099F295F26BAC6F /* WaveForge.app */,
+				847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		73183DE23CC7EA9018E55444 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				AB80ADAEC117D7A06A33D067 /* AudioRuntimeTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		8117127C4847DB750BB475BE /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				93F0D0E01DE527B739C7BA75 /* AudioRuntime */,
+				EA415BA5C79BDA18BDEA19C5 /* StudioUI */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		93F0D0E01DE527B739C7BA75 /* AudioRuntime */ = {
+			isa = PBXGroup;
+			children = (
+				EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */,
+			);
+			path = AudioRuntime;
+			sourceTree = "<group>";
+		};
+		AB80ADAEC117D7A06A33D067 /* AudioRuntimeTests */ = {
+			isa = PBXGroup;
+			children = (
+				D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */,
+			);
+			path = AudioRuntimeTests;
+			sourceTree = "<group>";
+		};
+		C78B682162ECE8602CF5B896 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				E8AC1E2DF8CE245C865C3D6A /* WaveForgeCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		E6C7E49A142979193B2FD427 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F3980221A9DB7289EAA39172 /* Assets.xcassets */,
+				7A08FE57AB4D586E976D277B /* Localizable.xcstrings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		EA415BA5C79BDA18BDEA19C5 /* StudioUI */ = {
+			isa = PBXGroup;
+			children = (
+				A18A2343316E4EED6A709667 /* WaveForgeApp.swift */,
+			);
+			path = StudioUI;
+			sourceTree = "<group>";
+		};
+		F4EFA7E4A71FD54DC991A923 = {
+			isa = PBXGroup;
+			children = (
+				0E62FEF64A711D25C75AD3BA /* App */,
+				C78B682162ECE8602CF5B896 /* Packages */,
+				63AEBF2A98B180C7E6B98431 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1EA4A79579FBCD96DDDD942C /* WaveForge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5D2D5721832F07D5ACF820D /* Build configuration list for PBXNativeTarget "WaveForge" */;
+			buildPhases = (
+				C34CEE7260529005B0AB5CA2 /* Sources */,
+				C3B2372274192D19308BC453 /* Resources */,
+				0D46C0D5D60B58E0B9F122D6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WaveForge;
+			packageProductDependencies = (
+				634A501714AFC747DBA375D0 /* SynthCore */,
+				309397BCCE07B24B821A2747 /* PresetKit */,
+			);
+			productName = WaveForge;
+			productReference = F212DA1E2099F295F26BAC6F /* WaveForge.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6DA0C60317BA1A07E1F7C20C /* WaveForgeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A30065E5FF42B835863B97C /* Build configuration list for PBXNativeTarget "WaveForgeTests" */;
+			buildPhases = (
+				4CB6F4F2C05405ABD4ED4FF8 /* Sources */,
+				103C3FBC146B6548B195B5EA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B944CDCC88EB84294ECF3276 /* PBXTargetDependency */,
+			);
+			name = WaveForgeTests;
+			packageProductDependencies = (
+				A07279C567B879C7AB56DC47 /* SynthCore */,
+				A876AEAE305E4FB3D6C74172 /* PresetKit */,
+			);
+			productName = WaveForgeTests;
+			productReference = 847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5D2C5D8BC398DC7C39240D83 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 09BF9863C3020D77758D1F0D /* Build configuration list for PBXProject "WaveForge" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				ru,
+			);
+			mainGroup = F4EFA7E4A71FD54DC991A923;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C41A25196DE80A0BB8F0535A /* XCLocalSwiftPackageReference "Packages/WaveForgeCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 63AEBF2A98B180C7E6B98431 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1EA4A79579FBCD96DDDD942C /* WaveForge */,
+				6DA0C60317BA1A07E1F7C20C /* WaveForgeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C3B2372274192D19308BC453 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */,
+				6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CB6F4F2C05405ABD4ED4FF8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C34CEE7260529005B0AB5CA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDC0CC26EA90FEDE41DA8CF1 /* AudioRuntimePlaceholder.swift in Sources */,
+				C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B944CDCC88EB84294ECF3276 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1EA4A79579FBCD96DDDD942C /* WaveForge */;
+			targetProxy = D0B74F1C6CEB6BA48F2240B2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		02A4712FA4A178BDFFF21EA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.waveforge.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2FD105A154555F7FC4F50392 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waveforge.tests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WaveForge.app/WaveForge";
+			};
+			name = Release;
+		};
+		3A25EAA8D5ED0D593180C212 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		9B1B0DD4E49BA6A86AA97A0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CE19F3071F73971D6C16ECEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.waveforge.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EB3B4F3643CD8B4B2151C4AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.waveforge.tests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WaveForge.app/WaveForge";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		09BF9863C3020D77758D1F0D /* Build configuration list for PBXProject "WaveForge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A25EAA8D5ED0D593180C212 /* Debug */,
+				9B1B0DD4E49BA6A86AA97A0D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4A30065E5FF42B835863B97C /* Build configuration list for PBXNativeTarget "WaveForgeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB3B4F3643CD8B4B2151C4AD /* Debug */,
+				2FD105A154555F7FC4F50392 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E5D2D5721832F07D5ACF820D /* Build configuration list for PBXNativeTarget "WaveForge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02A4712FA4A178BDFFF21EA5 /* Debug */,
+				CE19F3071F73971D6C16ECEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		C41A25196DE80A0BB8F0535A /* XCLocalSwiftPackageReference "Packages/WaveForgeCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/WaveForgeCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		309397BCCE07B24B821A2747 /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+		634A501714AFC747DBA375D0 /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		A07279C567B879C7AB56DC47 /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		A876AEAE305E4FB3D6C74172 /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 5D2C5D8BC398DC7C39240D83 /* Project object */;
+}

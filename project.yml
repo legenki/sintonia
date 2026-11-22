@@ -1,0 +1,59 @@
+name: WaveForge
+options:
+  bundleIdPrefix: com.waveforge
+  deploymentTarget:
+    iOS: "27.2"
+  createIntermediateGroups: true
+packages:
+  WaveForgeCore:
+    path: Packages/WaveForgeCore
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    IPHONEOS_DEPLOYMENT_TARGET: "27.2"
+targets:
+  WaveForge:
+    type: application
+    platform: iOS
+    deploymentTarget: "27.2"
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+    info:
+      path: App/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: App/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    dependencies:
+      - package: WaveForgeCore
+        product: SynthCore
+      - package: WaveForgeCore
+        product: PresetKit
+  WaveForgeTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "27.2"
+    sources:
+      - path: App/Tests/AudioRuntimeTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+    dependencies:
+      - target: WaveForge
+      - package: WaveForgeCore
+        product: SynthCore
+      - package: WaveForgeCore
+        product: PresetKit
