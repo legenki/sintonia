@@ -252,13 +252,17 @@ public enum BWGImporter {
             return
         }
 
-        if case let .voice(voiceNum) = state.activeSection {
+        switch state.activeSection {
+        case .global:
+            parseGlobalProperty(keyLower: keyLower, value: rawVal, into: &state)
+        case .noise:
+            if !parseNoiseProperty(property: keyLower, value: rawVal, allowUnprefixed: true, into: &state) {
+                parseGlobalProperty(keyLower: keyLower, value: rawVal, into: &state)
+            }
+        case let .voice(voiceNum):
             state.recognizedAnyStructure = true
             parseVoiceProperty(voiceNumber: voiceNum, property: keyLower, value: rawVal, into: &state)
-            return
         }
-
-        parseGlobalProperty(keyLower: keyLower, value: rawVal, into: &state)
     }
 
     private static func scanUnstructuredToken(_ token: String, into state: inout ParseState) {
@@ -275,6 +279,10 @@ public enum BWGImporter {
     }
 
     private static func parseGlobalProperty(keyLower: String, value: String, into state: inout ParseState) {
+        if parseNoiseProperty(property: keyLower, value: value, allowUnprefixed: false, into: &state) {
+            return
+        }
+
         let normalizedKey = normalizeIdentifier(keyLower)
         switch normalizedKey {
         case "version", "formatversion":
@@ -297,27 +305,6 @@ public enum BWGImporter {
         case "fadeout", "fadeoutsec":
             state.recognizedAnyStructure = true
             state.fadeOutSec = parseDouble(value)
-        case "noise", "noiseenabled":
-            state.recognizedAnyStructure = true
-            state.noiseEnabled = parseBool(value)
-        case "noisevolume", "noiselevel":
-            state.recognizedAnyStructure = true
-            state.noiseVolumeRaw = value
-        case "noisesmoothness", "noisecolor", "noisetype":
-            state.recognizedAnyStructure = true
-            state.noiseSmoothnessRaw = value
-        case "noiseinterpolation":
-            state.recognizedAnyStructure = true
-            state.noiseInterpolation = parseInterpolation(value)
-        case "noisepulse", "noisepulseenabled":
-            state.recognizedAnyStructure = true
-            state.noisePulseEnabled = parseBool(value) ?? false
-        case "noisepulsedepth":
-            state.recognizedAnyStructure = true
-            state.noisePulseDepth = parseDouble(value) ?? 0.0
-        case "noisepulsesource", "noisepulsesourcevoice":
-            state.recognizedAnyStructure = true
-            state.noisePulseSourceVoiceNumber = parseInt(value)
         case "backgroundsound", "backgroundwav", "backgroundwave", "backgroundfile", "backgroundaudio",
              "wavfile", "wavefile", "audiofile", "soundfile", "ambientwav":
             state.recognizedAnyStructure = true
@@ -335,6 +322,50 @@ public enum BWGImporter {
                 state.recordSkipped(.externalWavBackground, warning: "Skipped external WAV reference '\(value)'.")
             }
         }
+    }
+
+    private static func parseNoiseProperty(
+        property: String,
+        value: String,
+        allowUnprefixed: Bool,
+        into state: inout ParseState
+    ) -> Bool {
+        let normalized = normalizeIdentifier(property)
+        let canonical: String
+        if allowUnprefixed {
+            switch normalized {
+            case "enabled", "volume", "level", "smoothness", "color", "type",
+                 "interpolation", "pulse", "pulseenabled", "pulsedepth",
+                 "pulsesource", "pulsesourcevoice":
+                canonical = "noise" + normalized
+            default:
+                canonical = normalized
+            }
+        } else {
+            canonical = normalized
+        }
+
+        switch canonical {
+        case "noise", "noiseenabled":
+            state.noiseEnabled = parseBool(value)
+        case "noisevolume", "noiselevel":
+            state.noiseVolumeRaw = value
+        case "noisesmoothness", "noisecolor", "noisetype":
+            state.noiseSmoothnessRaw = value
+        case "noiseinterpolation":
+            state.noiseInterpolation = parseInterpolation(value)
+        case "noisepulse", "noisepulseenabled":
+            state.noisePulseEnabled = parseBool(value) ?? false
+        case "noisepulsedepth":
+            state.noisePulseDepth = parseDouble(value) ?? 0.0
+        case "noisepulsesource", "noisepulsesourcevoice":
+            state.noisePulseSourceVoiceNumber = parseVoiceIndexPrefix(value) ?? parseInt(value)
+        default:
+            return false
+        }
+
+        state.recognizedAnyStructure = true
+        return true
     }
 
     private static func parseVoiceProperty(

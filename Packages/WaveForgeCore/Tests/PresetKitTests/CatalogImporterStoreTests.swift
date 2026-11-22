@@ -303,4 +303,39 @@ struct CatalogImporterStoreTests {
             try reloadedAfterDelete.saveCustom(PresetCatalog.builtInPresets[0])
         }
     }
+
+    @Test func bwgImporterParsesNoiseSectionINIBlock() throws {
+        let text = """
+        BrainWave Generator File
+        [General]
+        Name=INI Noise Block
+        Duration=1800
+
+        [Noise]
+        Enabled=1
+        Volume=0:0.25,1800:0.15
+        Smoothness=0:0.5,1800:0.85
+        Interpolation=smooth
+        Pulse=1
+        PulseDepth=0.4
+        PulseSource=1
+
+        [Voice 1]
+        Waveform=Sine
+        Carrier=0:200,1800:200
+        Beat=0:10,1800:10
+        Volume=0:0.75,1800:0.75
+        """
+        let result = try BWGImporter.importPreset(from: Data(text.utf8), fallbackName: "Fallback")
+        let noise = result.preset.noise
+        #expect(noise.isEnabled)
+        #expect(noise.volumeCurve.interpolation == .smoothStep)
+        #expect(noise.volumeCurve.points == [CurvePoint(timeSec: 0, value: 0.25), CurvePoint(timeSec: 1800, value: 0.15)])
+        #expect(noise.smoothnessCurve.interpolation == .smoothStep)
+        #expect(noise.smoothnessCurve.points == [CurvePoint(timeSec: 0, value: 0.5), CurvePoint(timeSec: 1800, value: 0.85)])
+        #expect(noise.pulseEnabled)
+        #expect(abs(noise.pulseDepth - 0.4) < 1e-9)
+        #expect(noise.pulseSourceVoiceIndex == 0)
+        #expect(PresetValidator.validate(result.preset).isEmpty)
+    }
 }
