@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(name: "SynthCore", targets: ["SynthCore"]),
         .library(name: "PresetKit", targets: ["PresetKit"]),
+        .library(name: "WaveForgeExport", targets: ["WaveForgeExport"]),
     ],
     targets: [
         .target(
@@ -25,6 +26,13 @@ let package = Package(
                 .swiftLanguageMode(.v6),
             ]
         ),
+        .target(
+            name: "WaveForgeExport",
+            dependencies: ["SynthCore", "PresetKit"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+            ]
+        ),
         .testTarget(
             name: "SynthCoreTests",
             dependencies: ["SynthCore"],
@@ -35,6 +43,13 @@ let package = Package(
         .testTarget(
             name: "PresetKitTests",
             dependencies: ["PresetKit", "SynthCore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+            ]
+        ),
+        .testTarget(
+            name: "WaveForgeExportTests",
+            dependencies: ["WaveForgeExport", "SynthCore", "PresetKit"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
             ]

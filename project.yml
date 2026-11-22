@@ -93,6 +93,8 @@ targets:
         product: SynthCore
       - package: WaveForgeCore
         product: PresetKit
+      - package: WaveForgeCore
+        product: WaveForgeExport
   WaveForgeTests:
     type: bundle.unit-test
     platform: iOS
@@ -111,3 +113,5 @@ targets:
         product: SynthCore
       - package: WaveForgeCore
         product: PresetKit
+      - package: WaveForgeCore
+        product: WaveForgeExport

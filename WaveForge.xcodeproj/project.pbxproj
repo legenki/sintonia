@@ -8,14 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3980221A9DB7289EAA39172 /* Assets.xcassets */; };
+		2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */; };
+		39E7391AEB2B70FDBB0DEE8D /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = 66A8B71544D85A5E4A7730E8 /* WaveForgeExport */; };
 		6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A08FE57AB4D586E976D277B /* Localizable.xcstrings */; };
 		6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 634A501714AFC747DBA375D0 /* SynthCore */; };
+		7B07515A5EDE0D69140661B2 /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = E20030EEA773F500543A2EA5 /* WaveForgeExport */; };
 		A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = A07279C567B879C7AB56DC47 /* SynthCore */; };
 		B040F70E42CF32CB4530506D /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = A876AEAE305E4FB3D6C74172 /* PresetKit */; };
 		B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 309397BCCE07B24B821A2747 /* PresetKit */; };
 		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
 		C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A2343316E4EED6A709667 /* WaveForgeApp.swift */; };
-		CDC0CC26EA90FEDE41DA8CF1 /* AudioRuntimePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,12 +31,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineController.swift; sourceTree = "<group>"; };
 		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A18A2343316E4EED6A709667 /* WaveForgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeApp.swift; sourceTree = "<group>"; };
 		D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimeTests.swift; sourceTree = "<group>"; };
 		E8AC1E2DF8CE245C865C3D6A /* WaveForgeCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WaveForgeCore; path = Packages/WaveForgeCore; sourceTree = SOURCE_ROOT; };
-		EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimePlaceholder.swift; sourceTree = "<group>"; };
 		F212DA1E2099F295F26BAC6F /* WaveForge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WaveForge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3980221A9DB7289EAA39172 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -46,6 +48,7 @@
 			files = (
 				6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */,
 				B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */,
+				39E7391AEB2B70FDBB0DEE8D /* WaveForgeExport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +58,7 @@
 			files = (
 				A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */,
 				B040F70E42CF32CB4530506D /* PresetKit in Frameworks */,
+				7B07515A5EDE0D69140661B2 /* WaveForgeExport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,7 +104,7 @@
 		93F0D0E01DE527B739C7BA75 /* AudioRuntime */ = {
 			isa = PBXGroup;
 			children = (
-				EB34CF325763D046F41BA893 /* AudioRuntimePlaceholder.swift */,
+				39519EE245DCB15BFA31ED78 /* AudioEngineController.swift */,
 			);
 			path = AudioRuntime;
 			sourceTree = "<group>";
@@ -166,6 +170,7 @@
 			packageProductDependencies = (
 				634A501714AFC747DBA375D0 /* SynthCore */,
 				309397BCCE07B24B821A2747 /* PresetKit */,
+				66A8B71544D85A5E4A7730E8 /* WaveForgeExport */,
 			);
 			productName = WaveForge;
 			productReference = F212DA1E2099F295F26BAC6F /* WaveForge.app */;
@@ -187,6 +192,7 @@
 			packageProductDependencies = (
 				A07279C567B879C7AB56DC47 /* SynthCore */,
 				A876AEAE305E4FB3D6C74172 /* PresetKit */,
+				E20030EEA773F500543A2EA5 /* WaveForgeExport */,
 			);
 			productName = WaveForgeTests;
 			productReference = 847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */;
@@ -252,7 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDC0CC26EA90FEDE41DA8CF1 /* AudioRuntimePlaceholder.swift in Sources */,
+				2CC1C64ECF8CD334FC1625EE /* AudioEngineController.swift in Sources */,
 				C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -523,6 +529,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SynthCore;
 		};
+		66A8B71544D85A5E4A7730E8 /* WaveForgeExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WaveForgeExport;
+		};
 		A07279C567B879C7AB56DC47 /* SynthCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SynthCore;
@@ -530,6 +540,10 @@
 		A876AEAE305E4FB3D6C74172 /* PresetKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PresetKit;
+		};
+		E20030EEA773F500543A2EA5 /* WaveForgeExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WaveForgeExport;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
