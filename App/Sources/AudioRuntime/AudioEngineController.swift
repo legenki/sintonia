@@ -104,7 +104,48 @@ public final class AudioEngineController {
     @ObservationIgnored private var wasInterruptedWhilePlaying: Bool = false
     @ObservationIgnored private var lastNowPlayingSyncTime: Double = -.infinity
 
+    #if os(macOS)
+    public convenience init(preset: Preset = PresetCatalog.builtInPresets[0]) {
+        self.init(preset: preset, deviceUserDefaults: .standard, startHardwareMonitoring: true)
+    }
+
+    internal init(
+        preset: Preset = PresetCatalog.builtInPresets[0],
+        deviceUserDefaults: UserDefaults,
+        startHardwareMonitoring: Bool
+    ) {
+        let components = Self.makeCoreComponents(for: preset)
+        self.currentPreset = preset
+        self.duration = components.snapshot.durationSec
+        self.telemetryBuffer = components.telemetry
+        self.renderer = components.renderer
+        self.macDeviceManager = MacAudioDeviceManager(
+            userDefaults: deviceUserDefaults,
+            startHardwareMonitoring: startHardwareMonitoring
+        )
+        self.dominantBeatHz = components.initialBeat
+        self.dominantBand = BrainwaveBand.from(frequencyHz: components.initialBeat)
+        finishInitialization()
+    }
+    #else
     public init(preset: Preset = PresetCatalog.builtInPresets[0]) {
+        let components = Self.makeCoreComponents(for: preset)
+        self.currentPreset = preset
+        self.duration = components.snapshot.durationSec
+        self.telemetryBuffer = components.telemetry
+        self.renderer = components.renderer
+        self.dominantBeatHz = components.initialBeat
+        self.dominantBand = BrainwaveBand.from(frequencyHz: components.initialBeat)
+        finishInitialization()
+    }
+    #endif
+
+    private static func makeCoreComponents(for preset: Preset) -> (
+        telemetry: TelemetryRingBuffer,
+        snapshot: SynthSnapshot,
+        renderer: SynthRenderer,
+        initialBeat: Double
+    ) {
         let telemetry = TelemetryRingBuffer()
         let snapshot = SnapshotCompiler.compile(preset)
         let synthRenderer = SynthRenderer(
@@ -112,29 +153,20 @@ public final class AudioEngineController {
             snapshot: snapshot,
             telemetry: telemetry
         )
-
-        self.currentPreset = preset
-        self.duration = snapshot.durationSec
-        self.telemetryBuffer = telemetry
-        self.renderer = synthRenderer
-        #if os(macOS)
-        let deviceManager = MacAudioDeviceManager()
-        self.macDeviceManager = deviceManager
-        #endif
-
         let initialBeat = synthRenderer.dominantBeatHz(at: 0.0)
-        self.dominantBeatHz = initialBeat
-        self.dominantBand = BrainwaveBand.from(frequencyHz: initialBeat)
+        return (telemetry, snapshot, synthRenderer, initialBeat)
+    }
 
+    private func finishInitialization() {
         #if os(macOS)
-        deviceManager.onRouteStateChanged = { [weak self] previousRoute, newRoute, selectedDeviceWasRemoved in
+        macDeviceManager.onRouteStateChanged = { [weak self] previousRoute, newRoute, selectedDeviceWasRemoved in
             self?.handleMacRouteStateChanged(
                 previousRoute: previousRoute,
                 newRoute: newRoute,
                 selectedDeviceWasRemoved: selectedDeviceWasRemoved
             )
         }
-        deviceManager.onHardwareDevicesRefreshed = { [weak self] in
+        macDeviceManager.onHardwareDevicesRefreshed = { [weak self] in
             self?.handleMacHardwareDevicesRefreshed()
         }
         #endif
@@ -358,6 +390,11 @@ public final class AudioEngineController {
 
     internal func applyMacDeviceSnapshotForTesting(devices: [AudioOutputDevice], defaultUID: String?) {
         macDeviceManager.applySnapshotForTesting(devices: devices, defaultUID: defaultUID)
+    }
+
+    internal func setIsPlayingForTesting(_ playing: Bool) {
+        isPlaying = playing
+        renderer.setPlaying(playing)
     }
     #endif
 

@@ -945,6 +945,22 @@
         }
       }
     },
+    "Decrease Master Gain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decrease Master Gain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уменьшить общую громкость"
+          }
+        }
+      }
+    },
     "Deduplicated overlapping timestamp(s) in %@.": {
       "localizations": {
         "en": {
@@ -1037,6 +1053,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "Drop .bwg or .waveforge to Import": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop .bwg or .waveforge to Import"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите .bwg или .waveforge для импорта"
           }
         }
       }
@@ -1229,6 +1261,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Экспортировать снова"
+          }
+        }
+      }
+    },
+    "Export Audio…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Audio…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспортировать аудио…"
           }
         }
       }
@@ -1633,6 +1681,22 @@
         }
       }
     },
+    "Import Preset…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Preset…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировать пресет…"
+          }
+        }
+      }
+    },
     "Imported Preset": {
       "localizations": {
         "en": {
@@ -1661,6 +1725,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Импортировано из BrainWave Generator (.bwg)"
+          }
+        }
+      }
+    },
+    "Increase Master Gain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Increase Master Gain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увеличить общую громкость"
           }
         }
       }
@@ -2225,6 +2305,22 @@
         }
       }
     },
+    "Output Device": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output Device"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устройство вывода"
+          }
+        }
+      }
+    },
     "Pan": {
       "localizations": {
         "en": {
@@ -2285,6 +2381,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Воспроизвести"
+          }
+        }
+      }
+    },
+    "Playback": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Воспроизведение"
           }
         }
       }
@@ -2445,6 +2557,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Синхронизация пульса"
+          }
+        }
+      }
+    },
+    "Quit WaveForge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit WaveForge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершить WaveForge"
           }
         }
       }
@@ -2621,6 +2749,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Сохранить"
+          }
+        }
+      }
+    },
+    "Save .waveforge…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save .waveforge…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить .waveforge…"
+          }
+        }
+      }
+    },
+    "Save As…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save As…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить как…"
           }
         }
       }
@@ -3149,6 +3309,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Учёба"
+          }
+        }
+      }
+    },
+    "System Default": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Default"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системное по умолчанию"
           }
         }
       }
@@ -3821,6 +3997,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "В студии есть несохранённые изменения. Сохранить перед выходом?"
+          }
+        }
+      }
+    },
+    "You have unsaved studio edits. Save before switching presets?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have unsaved studio edits. Save before switching presets?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В студии есть несохранённые изменения. Сохранить перед сменой пресета?"
           }
         }
       }
