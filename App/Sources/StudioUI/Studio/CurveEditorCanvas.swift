@@ -128,6 +128,7 @@ public struct CurveEditorCanvas: View {
     @GestureState private var pinchScale: CGFloat = 1.0
 
     @State private var dragState: ActiveDragState?
+    @State private var hoveredPointIndex: Int?
     @State private var haptics = StudioControlHaptics()
 
     private static let minZoom: CGFloat = 1.0
@@ -281,6 +282,26 @@ public struct CurveEditorCanvas: View {
                         commitPinchZoom(magnification: value.magnification)
                     }
             )
+            #if os(macOS)
+            .onContinuousHover { phase in
+                switch phase {
+                case .active(let location):
+                    hoveredPointIndex = hitPointIndex(near: location, in: plotRect, points: points)
+                case .ended:
+                    hoveredPointIndex = nil
+                }
+            }
+            .contextMenu {
+                let targetIndex = hoveredPointIndex ?? selectedPointIndex
+                let canDelete = points.count > 1 && targetIndex.map { points.indices.contains($0) } == true
+                Button("Delete Point", role: .destructive) {
+                    if let targetIndex {
+                        deletePoint(at: targetIndex)
+                    }
+                }
+                .disabled(!canDelete)
+            }
+            #endif
         }
         .onChange(of: isDragGestureActive) { _, active in
             if !active {
@@ -506,13 +527,18 @@ public struct CurveEditorCanvas: View {
               !hasMoved else {
             return
         }
+        deletePoint(at: originIndex)
+    }
+
+    private func deletePoint(at index: Int) {
         let points = sortedPoints
-        guard points.count > 1, points.indices.contains(originIndex) else { return }
+        guard points.count > 1, points.indices.contains(index) else { return }
 
         var remaining = points
-        remaining.remove(at: originIndex)
+        remaining.remove(at: index)
         curve.points = remaining
-        selectedPointIndex = min(originIndex, remaining.count - 1)
+        selectedPointIndex = min(index, remaining.count - 1)
+        hoveredPointIndex = nil
         dragState = .suppressed
         haptics.fireReset()
     }
@@ -816,16 +842,18 @@ public struct CurveEditorCanvas: View {
             guard x >= plotRect.minX - 8 && x <= plotRect.maxX + 8 else { continue }
             let y = yPosition(forValue: pt.value, in: plotRect)
             let isSelected = selectedPointIndex == index
+            let isHovered = hoveredPointIndex == index
 
-            if isSelected {
-                let haloRadius: CGFloat = activelyDragging ? 12.5 : 9.5
+            if isSelected || isHovered {
+                let haloRadius: CGFloat = activelyDragging && isSelected ? 12.5 : 9.5
                 let halo = Path(ellipseIn: CGRect(
                     x: x - haloRadius,
                     y: y - haloRadius,
                     width: haloRadius * 2,
                     height: haloRadius * 2
                 ))
-                context.fill(halo, with: .color(accentColor.opacity(activelyDragging ? 0.34 : 0.22)))
+                let haloOpacity = activelyDragging && isSelected ? 0.34 : (isSelected ? 0.22 : 0.14)
+                context.fill(halo, with: .color(accentColor.opacity(haloOpacity)))
             }
 
             let radius: CGFloat = isSelected ? 5.5 : 4.5

@@ -1,6 +1,5 @@
 import SwiftUI
 import SynthCore
-import UIKit
 
 /// Display modes cycled by tapping `OscilloscopeView`.
 public enum OscilloscopeDisplayMode: Int, CaseIterable, Sendable {
@@ -48,7 +47,7 @@ public struct OscilloscopeView: View {
 
     @State private var displayMode: OscilloscopeDisplayMode
     @State private var scratch = TelemetryScratchBox()
-    @State private var modeCycleHaptic = UIImpactFeedbackGenerator(style: .light)
+    @State private var haptics = StudioControlHaptics()
 
     public init(
         telemetryBuffer: TelemetryRingBuffer,
@@ -125,11 +124,11 @@ public struct OscilloscopeView: View {
         .shadow(color: StudioTheme.hardwareShadow, radius: 10, x: 0, y: 6)
         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .onTapGesture {
-            modeCycleHaptic.prepare()
+            haptics.prepare()
             withAnimation(.easeInOut(duration: 0.18)) {
                 displayMode = displayMode.next()
             }
-            modeCycleHaptic.impactOccurred(intensity: 0.65)
+            haptics.fireImpact(.light, intensity: 0.65)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Oscilloscope"))

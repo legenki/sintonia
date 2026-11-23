@@ -1,7 +1,6 @@
 import PresetKit
 import SwiftUI
 import SynthCore
-import UIKit
 
 /// Interactive session beat-frequency sparkline timeline with elapsed progress fill,
 /// elapsed/remaining readouts, and drag-to-seek scrubbing.
@@ -12,7 +11,7 @@ public struct MiniTimelineScrubber: View {
     @GestureState private var isScrubbing = false
     @State private var scrubTime: Double = 0.0
     @State private var lastSeekCommittedTime: Double = -.infinity
-    @State private var scrubHaptic = UIImpactFeedbackGenerator(style: .light)
+    @State private var haptics = StudioControlHaptics()
 
     private struct SparklineSample: Equatable {
         let fraction: Double
@@ -115,8 +114,8 @@ public struct MiniTimelineScrubber: View {
         }
         .onChange(of: isScrubbing) { _, scrubbing in
             if scrubbing {
-                scrubHaptic.prepare()
-                scrubHaptic.impactOccurred(intensity: 0.45)
+                haptics.prepare()
+                haptics.fireImpact(.light, intensity: 0.45)
             }
         }
         .onChange(of: engine.currentPreset) { _, newPreset in
@@ -317,7 +316,7 @@ public struct MiniTimelineScrubber: View {
 
         lastSeekCommittedTime = targetTime
         engine.seek(to: targetTime)
-        scrubHaptic.impactOccurred(intensity: 0.55)
+        haptics.fireImpact(.light, intensity: 0.55)
     }
 
     private var accessibilityValueText: String {

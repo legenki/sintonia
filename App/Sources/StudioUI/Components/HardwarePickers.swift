@@ -1,6 +1,5 @@
 import SwiftUI
 import SynthCore
-import UIKit
 
 public extension Waveform {
     /// Localized hardware button label matching `Localizable.xcstrings`.
@@ -293,7 +292,7 @@ public struct WaveformPicker: View {
     private let accentColor: Color
     private let showsLabels: Bool
 
-    @State private var selectionHaptic = UIImpactFeedbackGenerator(style: .light)
+    @State private var haptics = StudioControlHaptics()
 
     public init(
         selection: Binding<Waveform>,
@@ -316,11 +315,11 @@ public struct WaveformPicker: View {
                     showsLabel: showsLabels
                 ) {
                     guard selection != waveform else { return }
-                    selectionHaptic.prepare()
+                    haptics.prepare()
                     withAnimation(.easeOut(duration: 0.14)) {
                         selection = waveform
                     }
-                    selectionHaptic.impactOccurred(intensity: 0.65)
+                    haptics.fireImpact(.light, intensity: 0.65)
                 } icon: { selected in
                     WaveformGlyphShape(waveform: waveform)
                         .stroke(
@@ -351,7 +350,7 @@ public struct ModePicker: View {
     @Binding private var selection: EntrainmentMode
     private let accentColor: Color
 
-    @State private var selectionHaptic = UIImpactFeedbackGenerator(style: .light)
+    @State private var haptics = StudioControlHaptics()
 
     public init(
         selection: Binding<EntrainmentMode>,
@@ -372,11 +371,11 @@ public struct ModePicker: View {
                     showsLabel: true
                 ) {
                     guard selection != mode else { return }
-                    selectionHaptic.prepare()
+                    haptics.prepare()
                     withAnimation(.easeOut(duration: 0.14)) {
                         selection = mode
                     }
-                    selectionHaptic.impactOccurred(intensity: 0.65)
+                    haptics.fireImpact(.light, intensity: 0.65)
                 } icon: { selected in
                     ModeGlyphShape(mode: mode)
                         .stroke(

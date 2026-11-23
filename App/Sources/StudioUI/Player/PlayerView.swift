@@ -1,36 +1,37 @@
 import PresetKit
 import SwiftUI
 import SynthCore
-import UIKit
 import WaveForgeExport
 
 /// Simplified primary player screen featuring an iOS 27 Liquid Glass header & transport bar,
 /// live oscilloscope + sparkline timeline scrubber, and 4 GarageBand Smart Control knobs.
-public struct PlayerView: View {
+public struct PlayerView<HeaderAccessory: View>: View {
     private let engine: AudioEngineController
     private let onOpenLibrary: () -> Void
     private let onOpenStudio: () -> Void
     private let onOpenExport: (() -> Void)?
     private let onOpenAbout: (() -> Void)?
+    private let headerAccessory: HeaderAccessory
 
     @State private var isShowingExportSheet = false
     @State private var isShowingAboutSheet = false
     @State private var dismissedSpeakerNotice = false
-    @State private var transportHaptic = UIImpactFeedbackGenerator(style: .medium)
-    @State private var stepHaptic = UIImpactFeedbackGenerator(style: .light)
+    @State private var haptics = StudioControlHaptics()
 
     public init(
         engine: AudioEngineController,
         onOpenLibrary: @escaping () -> Void = {},
         onOpenStudio: @escaping () -> Void = {},
         onOpenExport: (() -> Void)? = nil,
-        onOpenAbout: (() -> Void)? = nil
+        onOpenAbout: (() -> Void)? = nil,
+        @ViewBuilder headerAccessory: () -> HeaderAccessory
     ) {
         self.engine = engine
         self.onOpenLibrary = onOpenLibrary
         self.onOpenStudio = onOpenStudio
         self.onOpenExport = onOpenExport
         self.onOpenAbout = onOpenAbout
+        self.headerAccessory = headerAccessory()
     }
 
     private var accentColor: Color {
@@ -214,16 +215,22 @@ public struct PlayerView: View {
                 }
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: HeaderAccessory.self == EmptyView.self ? 8 : 6) {
                 BrainwaveBandBadge(
                     band: engine.dominantBand,
                     beatHz: engine.dominantBeatHz,
                     compact: false
                 )
+                .layoutPriority(1)
 
                 Spacer(minLength: 4)
 
+                if HeaderAccessory.self != EmptyView.self {
+                    headerAccessory
+                }
+
                 outputRoutePill
+                    .layoutPriority(1)
             }
         }
         .padding(.horizontal, 12)
@@ -427,9 +434,9 @@ public struct PlayerView: View {
 
                 if engine.liveOverrides != .identity {
                     Button {
-                        stepHaptic.prepare()
+                        haptics.prepare()
                         engine.updateOverrides(.identity)
-                        stepHaptic.impactOccurred(intensity: 0.65)
+                        haptics.fireImpact(.light, intensity: 0.65)
                     } label: {
                         Label("Reset", systemImage: "arrow.counterclockwise")
                             .font(.caption2.weight(.semibold))
@@ -498,9 +505,9 @@ public struct PlayerView: View {
     private var floatingTransportBar: some View {
         HStack(spacing: 22) {
             Button {
-                stepHaptic.prepare()
+                haptics.prepare()
                 engine.skip(by: -30.0)
-                stepHaptic.impactOccurred(intensity: 0.55)
+                haptics.fireImpact(.light, intensity: 0.55)
             } label: {
                 Image(systemName: "gobackward.30")
                     .font(.title3.weight(.semibold))
@@ -512,9 +519,9 @@ public struct PlayerView: View {
             .accessibilityLabel(Text("Skip Back 30s"))
 
             Button {
-                transportHaptic.prepare()
+                haptics.prepare()
                 engine.togglePlayPause()
-                transportHaptic.impactOccurred(intensity: 0.8)
+                haptics.fireTransport()
             } label: {
                 ZStack {
                     Circle()
@@ -532,9 +539,9 @@ public struct PlayerView: View {
             .accessibilityLabel(Text(engine.isPlaying ? "Pause" : "Play"))
 
             Button {
-                stepHaptic.prepare()
+                haptics.prepare()
                 engine.skip(by: 30.0)
-                stepHaptic.impactOccurred(intensity: 0.55)
+                haptics.fireImpact(.light, intensity: 0.55)
             } label: {
                 Image(systemName: "goforward.30")
                     .font(.title3.weight(.semibold))
@@ -621,5 +628,24 @@ public struct PlayerView: View {
         case .creative: return "Creative"
         case .custom: return "Custom"
         }
+    }
+}
+
+public extension PlayerView where HeaderAccessory == EmptyView {
+    init(
+        engine: AudioEngineController,
+        onOpenLibrary: @escaping () -> Void = {},
+        onOpenStudio: @escaping () -> Void = {},
+        onOpenExport: (() -> Void)? = nil,
+        onOpenAbout: (() -> Void)? = nil
+    ) {
+        self.init(
+            engine: engine,
+            onOpenLibrary: onOpenLibrary,
+            onOpenStudio: onOpenStudio,
+            onOpenExport: onOpenExport,
+            onOpenAbout: onOpenAbout,
+            headerAccessory: { EmptyView() }
+        )
     }
 }

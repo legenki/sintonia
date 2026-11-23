@@ -33,8 +33,7 @@ public struct AboutSheetView: View {
             }
             .background(StudioTheme.rackBackgroundGradient.ignoresSafeArea())
             .navigationTitle("About WaveForge")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .wfInlineNavigationBarDark()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
@@ -48,6 +47,9 @@ public struct AboutSheetView: View {
                 }
             }
         }
+        #if os(macOS)
+        .frame(minWidth: 420, minHeight: 500)
+        #endif
         .preferredColorScheme(.dark)
     }
 

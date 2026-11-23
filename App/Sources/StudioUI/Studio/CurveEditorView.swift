@@ -12,7 +12,9 @@ public struct CurveEditorView: View {
     private let currentTime: Double
     private let accentColorOverride: Color?
 
+    #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #endif
 
     @State private var selectedPointIndex: Int? = 0
     @State private var timeZoom: CGFloat = 1.0
@@ -38,7 +40,11 @@ public struct CurveEditorView: View {
     }
 
     private var isCompactLandscape: Bool {
+        #if os(iOS)
         verticalSizeClass == .compact
+        #else
+        false
+        #endif
     }
 
     private var safeVoiceIndex: Int {
@@ -153,7 +159,7 @@ public struct CurveEditorView: View {
             }
 
             canvasArea
-                .frame(minHeight: 230, maxHeight: .infinity)
+                .frame(minHeight: 160, maxHeight: .infinity)
         }
     }
 

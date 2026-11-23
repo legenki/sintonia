@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
 
 /// GarageBand-inspired rotary hardware knob with glowing LED arc, brushed metal cap,
 /// horizontal-offset fine-tuning (`> 36 pt` -> `0.2×`), double-tap reset, and detent haptics.
@@ -14,6 +17,7 @@ public struct StudioKnob: View {
     @GestureState private var isGestureActive = false
     @State private var isDragging = false
     @State private var isFineTuning = false
+    @State private var isHovered = false
     @State private var lastTranslationY: CGFloat = 0
     @State private var workingNormalized: Double = 0
     @State private var haptics = StudioControlHaptics()
@@ -107,6 +111,11 @@ public struct StudioKnob: View {
             }
             .frame(width: size + 22, height: size + 22)
             .contentShape(Rectangle())
+            #if os(macOS)
+            .onHover { hovering in
+                isHovered = hovering
+            }
+            #endif
             .onTapGesture(count: 2) {
                 resetToDefault()
             }
@@ -151,7 +160,9 @@ public struct StudioKnob: View {
                     .overlay {
                         Capsule()
                             .strokeBorder(
-                                isDragging ? accentColor.opacity(0.45) : StudioTheme.hairlineHighlight,
+                                isDragging
+                                    ? accentColor.opacity(0.45)
+                                    : (isHovered ? accentColor.opacity(0.32) : StudioTheme.hairlineHighlight),
                                 lineWidth: 0.75
                             )
                     }
@@ -175,6 +186,7 @@ public struct StudioKnob: View {
         }
         .animation(.easeOut(duration: 0.14), value: isFineTuning)
         .animation(.easeOut(duration: 0.14), value: isDragging)
+        .animation(.easeOut(duration: 0.14), value: isHovered)
     }
 
     private var scaleTickRing: some View {
@@ -220,8 +232,8 @@ public struct StudioKnob: View {
                 )
                 .rotationEffect(.degrees(Self.startAngleDegrees))
                 .shadow(
-                    color: accentColor.opacity(isDragging ? 0.85 : 0.45),
-                    radius: isDragging ? 6 : 3
+                    color: accentColor.opacity(isDragging ? 0.85 : (isHovered ? 0.65 : 0.45)),
+                    radius: isDragging ? 6 : (isHovered ? 4.5 : 3)
                 )
         }
         .frame(width: arcDiameter, height: arcDiameter)
@@ -250,8 +262,10 @@ public struct StudioKnob: View {
                 .overlay {
                     Circle()
                         .strokeBorder(
-                            isFineTuning ? accentColor.opacity(0.7) : Color.white.opacity(0.16),
-                            lineWidth: isFineTuning ? 1.25 : 0.85
+                            isFineTuning
+                                ? accentColor.opacity(0.7)
+                                : (isHovered ? accentColor.opacity(0.45) : Color.white.opacity(0.16)),
+                            lineWidth: (isFineTuning || isHovered) ? 1.25 : 0.85
                         )
                 }
 
@@ -284,6 +298,15 @@ public struct StudioKnob: View {
         return fraction <= normalized + 0.015
     }
 
+    private static var isModifierFineTuneActive: Bool {
+        #if os(macOS)
+        let flags = NSEvent.modifierFlags
+        return flags.contains(.option) || flags.contains(.shift)
+        #else
+        return false
+        #endif
+    }
+
     private func handleDragChanged(_ gesture: DragGesture.Value) {
         guard span > 0 else { return }
 
@@ -298,6 +321,7 @@ public struct StudioKnob: View {
         lastTranslationY = gesture.translation.height
 
         let fineEngaged = abs(gesture.translation.width) > Self.fineTuningThresholdPt
+            || Self.isModifierFineTuneActive
         if fineEngaged != isFineTuning {
             isFineTuning = fineEngaged
             haptics.fireModeShift()

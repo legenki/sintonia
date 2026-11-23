@@ -1,6 +1,11 @@
+import Foundation
 import SwiftUI
 import SynthCore
+#if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 public extension Color {
     /// Initializes a SwiftUI `Color` from a 24-bit RGB hex integer (`0xRRGGBB`).
@@ -355,15 +360,27 @@ public struct BrainwaveBandBadge: View {
     }
 }
 
-/// Shared GarageBand tactile haptic coordinator for `StudioKnob` and `StudioFader`.
+/// Shared GarageBand tactile haptic coordinator across `StudioUI` controls.
 @MainActor
 internal final class StudioControlHaptics {
+    enum ImpactStyle {
+        case light
+        case medium
+        case rigid
+    }
+
+    #if os(iOS)
     private let detentGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let transportGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let limitGenerator = UIImpactFeedbackGenerator(style: .rigid)
+    #endif
 
     func prepare() {
+        #if os(iOS)
         detentGenerator.prepare()
+        transportGenerator.prepare()
         limitGenerator.prepare()
+        #endif
     }
 
     func handleNormalizedTransition(
@@ -374,7 +391,7 @@ internal final class StudioControlHaptics {
         let hitLowerLimit = newNormalized <= 0.0 && oldNormalized > 0.0
         let hitUpperLimit = newNormalized >= 1.0 && oldNormalized < 1.0
         if hitLowerLimit || hitUpperLimit {
-            limitGenerator.impactOccurred(intensity: 0.85)
+            fireImpact(.rigid, intensity: 0.85)
             return
         }
 
@@ -382,7 +399,7 @@ internal final class StudioControlHaptics {
             let crossedCenter = (oldNormalized < 0.5 && newNormalized >= 0.5)
                 || (oldNormalized > 0.5 && newNormalized <= 0.5)
             if crossedCenter {
-                detentGenerator.impactOccurred(intensity: 0.72)
+                fireImpact(.light, intensity: 0.72)
                 return
             }
         }
@@ -392,21 +409,44 @@ internal final class StudioControlHaptics {
             let crossed = (oldNormalized < threshold && newNormalized >= threshold)
                 || (oldNormalized > threshold && newNormalized <= threshold)
             if crossed {
-                detentGenerator.impactOccurred(intensity: 0.45)
+                fireImpact(.light, intensity: 0.45)
                 return
             }
         }
     }
 
     func fireModeShift() {
-        detentGenerator.impactOccurred(intensity: 0.35)
+        fireImpact(.light, intensity: 0.35)
     }
 
     func fireStep() {
-        detentGenerator.impactOccurred(intensity: 0.45)
+        fireImpact(.light, intensity: 0.45)
     }
 
     func fireReset() {
-        limitGenerator.impactOccurred(intensity: 0.65)
+        fireImpact(.rigid, intensity: 0.65)
+    }
+
+    func fireTransport() {
+        fireImpact(.medium, intensity: 0.8)
+    }
+
+    func fireImpact(_ style: ImpactStyle = .light, intensity: CGFloat = 0.65) {
+        #if os(iOS)
+        switch style {
+        case .light:
+            detentGenerator.impactOccurred(intensity: intensity)
+        case .medium:
+            transportGenerator.impactOccurred(intensity: intensity)
+        case .rigid:
+            limitGenerator.impactOccurred(intensity: intensity)
+        }
+        #elseif os(macOS)
+        let pattern: NSHapticFeedbackManager.FeedbackPattern = switch style {
+        case .light: .alignment
+        case .medium, .rigid: .levelChange
+        }
+        NSHapticFeedbackManager.defaultPerformer.perform(pattern, performanceTime: .now)
+        #endif
     }
 }

@@ -1,7 +1,6 @@
 import PresetKit
 import SwiftUI
 import SynthCore
-import UIKit
 
 @MainActor
 private final class StudioTelemetryBox {
@@ -46,15 +45,24 @@ private enum StudioDetailTab: String, CaseIterable, Identifiable {
 public struct StudioRackView: View {
     private let engine: AudioEngineController
     private let presetStore: PresetStore
+    private let showsDualPaneWhenWide: Bool
+    private let externalSyncTrigger: UUID
+    private let onDirtyStateChanged: (Bool) -> Void
+    private let onRegisterSaveHandler: ((() -> Bool)?) -> Void
     private let onSavedPreset: (Preset) -> Void
     private let onDismiss: (() -> Void)?
 
     @Environment(\.dismiss) private var environmentDismiss
+    #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #endif
+
+    @FocusState private var isPresetNameFocused: Bool
 
     @State private var draft: Preset
     @State private var baselinePreset: Preset
     @State private var hasSavedInStore: Bool
+    @State private var lastAppliedSyncTrigger: UUID
     @State private var isDirty: Bool = false
     @State private var selectedVoiceIndex: Int = 0
     @State private var activeTab: StudioDetailTab = .voice
@@ -72,11 +80,19 @@ public struct StudioRackView: View {
     public init(
         engine: AudioEngineController,
         presetStore: PresetStore,
+        showsDualPaneWhenWide: Bool = false,
+        externalSyncTrigger: UUID = UUID(),
+        onDirtyStateChanged: @escaping (Bool) -> Void = { _ in },
+        onRegisterSaveHandler: @escaping ((() -> Bool)?) -> Void = { _ in },
         onSavedPreset: @escaping (Preset) -> Void = { _ in },
         onDismiss: (() -> Void)? = nil
     ) {
         self.engine = engine
         self.presetStore = presetStore
+        self.showsDualPaneWhenWide = showsDualPaneWhenWide
+        self.externalSyncTrigger = externalSyncTrigger
+        self.onDirtyStateChanged = onDirtyStateChanged
+        self.onRegisterSaveHandler = onRegisterSaveHandler
         self.onSavedPreset = onSavedPreset
         self.onDismiss = onDismiss
         let initial = engine.currentPreset
@@ -85,10 +101,19 @@ public struct StudioRackView: View {
         self._hasSavedInStore = State(
             initialValue: initial.isBuiltIn || presetStore.allPresets().contains { $0.id == initial.id }
         )
+        self._lastAppliedSyncTrigger = State(initialValue: externalSyncTrigger)
     }
 
     private var isCompactLandscape: Bool {
+        #if os(iOS)
         verticalSizeClass == .compact
+        #else
+        false
+        #endif
+    }
+
+    private var dualPaneInspectorTab: StudioDetailTab {
+        activeTab == .noise ? .noise : .voice
     }
 
     private var accentColor: Color {
@@ -105,39 +130,35 @@ public struct StudioRackView: View {
             StudioTheme.rackBackgroundGradient
                 .ignoresSafeArea()
 
-            VStack(spacing: isCompactLandscape ? 8 : 10) {
-                topStudioBar
-
-                if let validationErrorMessage {
-                    errorBanner(message: validationErrorMessage)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+            if showsDualPaneWhenWide {
+                GeometryReader { proxy in
+                    let useDualPane = proxy.size.width >= 880
+                    studioBodyContent(useDualPane: useDualPane)
+                        .frame(width: proxy.size.width, height: proxy.size.height)
                 }
-
-                if isCompactLandscape && !showRackInLandscape {
-                    CurveEditorView(
-                        preset: $draft,
-                        selectedVoiceIndex: $selectedVoiceIndex,
-                        selectedParameter: $selectedCurveParameter,
-                        currentTime: engine.currentTime,
-                        accentColor: nil
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    presetMetadataSection
-                    voiceRackSection
-                    detailSectionTabs
-                    detailTabContent
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
+            } else {
+                studioBodyContent(useDualPane: false)
             }
-            .padding(.horizontal, isCompactLandscape ? 12 : 14)
-            .padding(.top, isCompactLandscape ? 6 : 8)
-            .padding(.bottom, isCompactLandscape ? 8 : 12)
         }
         .preferredColorScheme(.dark)
         .interactiveDismissDisabled(isDirty)
+        .onAppear {
+            if lastAppliedSyncTrigger != externalSyncTrigger {
+                lastAppliedSyncTrigger = externalSyncTrigger
+                syncFromEngine()
+            }
+            onRegisterSaveHandler { saveDraft() }
+            onDirtyStateChanged(isDirty)
+        }
         .onChange(of: draft) { _, updatedDraft in
             handleDraftChanged(updatedDraft)
+        }
+        .onChange(of: isDirty) { _, dirty in
+            onDirtyStateChanged(dirty)
+        }
+        .onChange(of: externalSyncTrigger) { _, newTrigger in
+            lastAppliedSyncTrigger = newTrigger
+            syncFromEngine()
         }
         .onChange(of: isCompactLandscape) { _, compact in
             if !compact {
@@ -147,6 +168,8 @@ public struct StudioRackView: View {
         .onDisappear {
             savedBadgeTask?.cancel()
             savedBadgeTask = nil
+            onRegisterSaveHandler(nil)
+            onDirtyStateChanged(false)
         }
         .confirmationDialog(
             "Unsaved Changes",
@@ -317,6 +340,8 @@ public struct StudioRackView: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(StudioTheme.primaryText)
                     .autocorrectionDisabled()
+                    .focused($isPresetNameFocused)
+                    .focusedValue(\.isTextInputFocused, isPresetNameFocused)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
                     .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(StudioTheme.recessedWell))
@@ -601,12 +626,66 @@ public struct StudioRackView: View {
         )
     }
 
-    // MARK: - Inspector / Curve Editor Bay
+    // MARK: - Responsive Body & Inspector / Curve Editor Bay
 
-    private var detailSectionTabs: some View {
+    private func studioBodyContent(useDualPane: Bool) -> some View {
+        VStack(spacing: isCompactLandscape ? 8 : 10) {
+            topStudioBar
+
+            if let validationErrorMessage {
+                errorBanner(message: validationErrorMessage)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
+            if isCompactLandscape && !showRackInLandscape {
+                CurveEditorView(
+                    preset: $draft,
+                    selectedVoiceIndex: $selectedVoiceIndex,
+                    selectedParameter: $selectedCurveParameter,
+                    currentTime: engine.currentTime,
+                    accentColor: nil
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if useDualPane {
+                presetMetadataSection
+                voiceRackSection
+
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(spacing: 10) {
+                        detailTabsBar(tabs: [.voice, .noise], selectedTab: dualPaneInspectorTab)
+                        inspectorTabContent(for: dualPaneInspectorTab, switchToCurvesOnEdit: false)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .frame(width: 350)
+                    .frame(maxHeight: .infinity)
+
+                    CurveEditorView(
+                        preset: $draft,
+                        selectedVoiceIndex: $selectedVoiceIndex,
+                        selectedParameter: $selectedCurveParameter,
+                        currentTime: engine.currentTime,
+                        accentColor: nil
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                presetMetadataSection
+                voiceRackSection
+                detailTabsBar(tabs: StudioDetailTab.allCases, selectedTab: activeTab)
+                detailTabContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .padding(.horizontal, isCompactLandscape ? 12 : 14)
+        .padding(.top, isCompactLandscape ? 6 : 8)
+        .padding(.bottom, isCompactLandscape ? 8 : 12)
+    }
+
+    private func detailTabsBar(tabs: [StudioDetailTab], selectedTab: StudioDetailTab) -> some View {
         HStack(spacing: 6) {
-            ForEach(StudioDetailTab.allCases) { tab in
-                let isSelected = activeTab == tab
+            ForEach(tabs) { tab in
+                let isSelected = selectedTab == tab
                 Button {
                     haptics.prepare()
                     withAnimation(.easeOut(duration: 0.16)) {
@@ -644,6 +723,35 @@ public struct StudioRackView: View {
     @ViewBuilder
     private var detailTabContent: some View {
         switch activeTab {
+        case .voice, .noise:
+            inspectorTabContent(for: activeTab, switchToCurvesOnEdit: true)
+
+        case .curves:
+            CurveEditorView(
+                preset: $draft,
+                selectedVoiceIndex: $selectedVoiceIndex,
+                selectedParameter: $selectedCurveParameter,
+                currentTime: engine.currentTime,
+                accentColor: nil
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func inspectorTabContent(
+        for tab: StudioDetailTab,
+        switchToCurvesOnEdit: Bool
+    ) -> some View {
+        let onEditCurve: (CurveEditorParameter) -> Void = { parameter in
+            selectedCurveParameter = parameter
+            if switchToCurvesOnEdit {
+                withAnimation(.easeOut(duration: 0.16)) {
+                    activeTab = .curves
+                }
+            }
+        }
+
+        switch tab {
         case .voice:
             ScrollView(.vertical, showsIndicators: false) {
                 if draft.voices.indices.contains(safeVoiceIndex) {
@@ -652,13 +760,9 @@ public struct StudioRackView: View {
                         voiceIndex: safeVoiceIndex,
                         allVoices: draft.voices,
                         currentTime: engine.currentTime,
-                        accentColor: accentColor
-                    ) { parameter in
-                        selectedCurveParameter = parameter
-                        withAnimation(.easeOut(duration: 0.16)) {
-                            activeTab = .curves
-                        }
-                    }
+                        accentColor: accentColor,
+                        onEditCurve: onEditCurve
+                    )
                     .padding(.bottom, 8)
                 }
             }
@@ -669,24 +773,14 @@ public struct StudioRackView: View {
                     noise: $draft.noise,
                     voices: draft.voices,
                     currentTime: engine.currentTime,
-                    accentColor: StudioTheme.thetaColor
-                ) { parameter in
-                    selectedCurveParameter = parameter
-                    withAnimation(.easeOut(duration: 0.16)) {
-                        activeTab = .curves
-                    }
-                }
+                    accentColor: StudioTheme.thetaColor,
+                    onEditCurve: onEditCurve
+                )
                 .padding(.bottom, 8)
             }
 
         case .curves:
-            CurveEditorView(
-                preset: $draft,
-                selectedVoiceIndex: $selectedVoiceIndex,
-                selectedParameter: $selectedCurveParameter,
-                currentTime: engine.currentTime,
-                accentColor: nil
-            )
+            EmptyView()
         }
     }
 
@@ -715,6 +809,20 @@ public struct StudioRackView: View {
         if runtimeDraft != engine.currentPreset {
             engine.applyEditedPreset(runtimeDraft)
         }
+    }
+
+    private func syncFromEngine() {
+        let current = engine.currentPreset
+        baselinePreset = current
+        draft = current
+        hasSavedInStore = current.isBuiltIn || presetStore.allPresets().contains { $0.id == current.id }
+        isDirty = false
+        validationErrorMessage = nil
+        showSavedBadge = false
+        savedBadgeTask?.cancel()
+        savedBadgeTask = nil
+        selectedVoiceIndex = 0
+        onDirtyStateChanged(false)
     }
 
     private func addVoice() {

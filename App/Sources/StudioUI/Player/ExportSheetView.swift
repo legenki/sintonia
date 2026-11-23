@@ -2,6 +2,9 @@ import PresetKit
 import SwiftUI
 import SynthCore
 import WaveForgeExport
+#if os(macOS)
+import UniformTypeIdentifiers
+#endif
 
 /// Modal offline audio export sheet rendering the active preset to 24-bit WAV or 256 kbps M4A
 /// inside a cancellable task with live progress, localized error handling, and system `ShareLink`.
@@ -16,6 +19,13 @@ public struct ExportSheetView: View {
     @State private var exportState: ExportState = .idle
     @State private var exportTask: Task<Void, Never>?
     @State private var activeRunID: UUID?
+    #if os(macOS)
+    @State private var isShowingFileExporter = false
+    @State private var exportDocument: ExportedAudioFileDocument?
+    @State private var exportDocumentContentType: UTType = .mpeg4Audio
+    @State private var exportDefaultFilename: String = ""
+    @State private var saveErrorMessage: String?
+    #endif
 
     private enum ExportState: Equatable {
         case idle
@@ -68,8 +78,7 @@ public struct ExportSheetView: View {
             }
             .background(StudioTheme.rackBackgroundGradient.ignoresSafeArea())
             .navigationTitle("Export Session")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .wfInlineNavigationBarDark()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(completedURL == nil ? "Close" : "Done") {
@@ -79,6 +88,35 @@ public struct ExportSheetView: View {
                 }
             }
         }
+        #if os(macOS)
+        .frame(minWidth: 420, minHeight: 460)
+        .fileExporter(
+            isPresented: $isShowingFileExporter,
+            document: exportDocument,
+            contentType: exportDocumentContentType,
+            defaultFilename: exportDefaultFilename
+        ) { result in
+            exportDocument = nil
+            if case .failure(let error) = result {
+                if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {
+                    return
+                }
+                saveErrorMessage = error.localizedDescription
+            }
+        }
+        .alert(
+            "Export Failed",
+            isPresented: Binding(
+                get: { saveErrorMessage != nil },
+                set: { if !$0 { saveErrorMessage = nil } }
+            ),
+            presenting: saveErrorMessage
+        ) { _ in
+            Button("OK", role: .cancel) {}
+        } message: { message in
+            Text(verbatim: message)
+        }
+        #endif
         .preferredColorScheme(.dark)
         .onDisappear {
             cancelActiveTask()
@@ -172,6 +210,10 @@ public struct ExportSheetView: View {
         let isSelected = selectedFormat == format
         return Button {
             selectedFormat = format
+            #if os(macOS)
+            exportDocument = nil
+            saveErrorMessage = nil
+            #endif
             if case .completed(let oldURL) = exportState {
                 try? FileManager.default.removeItem(at: oldURL)
                 exportState = .idle
@@ -280,6 +322,34 @@ public struct ExportSheetView: View {
                 .padding(14)
                 .studioRackCard(borderColor: StudioTheme.ledGreen.opacity(0.45))
 
+                #if os(macOS)
+                Button {
+                    exportDocumentContentType = selectedFormat == .wav ? .wav : .mpeg4Audio
+                    exportDefaultFilename = WaveForgePresetDocument.sanitizedFileName(for: preset.name)
+                    exportDocument = ExportedAudioFileDocument(fileURL: url)
+                    isShowingFileExporter = true
+                } label: {
+                    Label("Save As…", systemImage: "square.and.arrow.down")
+                        .font(.headline)
+                        .foregroundStyle(StudioTheme.chassisGraphite)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background {
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(accentColor)
+                        }
+                }
+                .buttonStyle(.plain)
+
+                ShareLink(item: url) {
+                    Label("Share Audio", systemImage: "square.and.arrow.up")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                }
+                .buttonStyle(.bordered)
+                .tint(accentColor)
+                #else
                 ShareLink(item: url) {
                     Label("Share Audio", systemImage: "square.and.arrow.up")
                         .font(.headline)
@@ -292,8 +362,13 @@ public struct ExportSheetView: View {
                         }
                 }
                 .buttonStyle(.plain)
+                #endif
 
                 Button {
+                    #if os(macOS)
+                    exportDocument = nil
+                    saveErrorMessage = nil
+                    #endif
                     try? FileManager.default.removeItem(at: url)
                     exportState = .idle
                 } label: {
@@ -450,3 +525,23 @@ public struct ExportSheetView: View {
         return error.localizedDescription
     }
 }
+
+#if os(macOS)
+private struct ExportedAudioFileDocument: FileDocument, Sendable {
+    static var readableContentTypes: [UTType] { [.wav, .mpeg4Audio] }
+
+    let fileURL: URL
+
+    init(fileURL: URL) {
+        self.fileURL = fileURL
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        throw ExportError.writeFailed(String(localized: "Export Failed"))
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        try FileWrapper(url: fileURL, options: .immediate)
+    }
+}
+#endif

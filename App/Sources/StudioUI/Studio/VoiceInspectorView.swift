@@ -66,6 +66,7 @@ public struct VoiceInspectorView: View {
     private let accentColor: Color
     private let onEditCurve: ((CurveEditorParameter) -> Void)?
 
+    @FocusState private var isVoiceNameFocused: Bool
     @State private var haptics = StudioControlHaptics()
 
     public init(
@@ -147,8 +148,12 @@ public struct VoiceInspectorView: View {
             TextField("Voice Name", text: $voice.name)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(StudioTheme.primaryText)
+                #if os(iOS)
                 .textInputAutocapitalization(.words)
+                #endif
                 .autocorrectionDisabled()
+                .focused($isVoiceNameFocused)
+                .focusedValue(\.isTextInputFocused, isVoiceNameFocused)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 7)
                 .background {

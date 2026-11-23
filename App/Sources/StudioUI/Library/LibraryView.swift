@@ -11,18 +11,29 @@ public struct LibraryView: View {
     private let engine: AudioEngineController
     private let presetStore: PresetStore
     private let presetsRevision: Int
+    private let adaptiveDesktopGrid: Bool
+    private let hidesDoneButton: Bool
+    private let loadsDirectlyOnSelect: Bool
     private let onPresetsChanged: () -> Void
     private let onSelectPreset: (Preset) -> Void
+    private let onDoubleClickPreset: ((Preset) -> Void)?
+    private let onCreateNewTemplate: ((Preset) -> Void)?
     private let onOpenStudioForNewPreset: () -> Void
     private let onDismiss: (() -> Void)?
 
     @Environment(\.dismiss) private var environmentDismiss
+    @FocusState private var isSearchFocused: Bool
 
     @State private var presets: [Preset] = []
     @State private var sparklineCache: [UUID: PresetSparklineSummary] = [:]
     @State private var selectedCategory: PresetCategory? = nil
     @State private var searchText: String = ""
     @State private var isShowingFileImporter: Bool = false
+    #if os(macOS)
+    @State private var presetDocumentToExport: WaveForgePresetFileDocument? = nil
+    @State private var presetExportFilename: String = ""
+    @State private var isShowingPresetExporter: Bool = false
+    #endif
     @State private var importAlert: ImportAlertContent? = nil
     @State private var confirmationToastPresetName: String? = nil
     @State private var toastTask: Task<Void, Never>? = nil
@@ -32,16 +43,26 @@ public struct LibraryView: View {
         engine: AudioEngineController,
         presetStore: PresetStore,
         presetsRevision: Int = 0,
+        adaptiveDesktopGrid: Bool = false,
+        hidesDoneButton: Bool = false,
+        loadsDirectlyOnSelect: Bool = true,
         onPresetsChanged: @escaping () -> Void = {},
         onSelectPreset: @escaping (Preset) -> Void = { _ in },
+        onDoubleClickPreset: ((Preset) -> Void)? = nil,
+        onCreateNewTemplate: ((Preset) -> Void)? = nil,
         onOpenStudioForNewPreset: @escaping () -> Void = {},
         onDismiss: (() -> Void)? = nil
     ) {
         self.engine = engine
         self.presetStore = presetStore
         self.presetsRevision = presetsRevision
+        self.adaptiveDesktopGrid = adaptiveDesktopGrid
+        self.hidesDoneButton = hidesDoneButton
+        self.loadsDirectlyOnSelect = loadsDirectlyOnSelect
         self.onPresetsChanged = onPresetsChanged
         self.onSelectPreset = onSelectPreset
+        self.onDoubleClickPreset = onDoubleClickPreset
+        self.onCreateNewTemplate = onCreateNewTemplate
         self.onOpenStudioForNewPreset = onOpenStudioForNewPreset
         self.onDismiss = onDismiss
     }
@@ -103,19 +124,18 @@ public struct LibraryView: View {
                 }
             }
             .navigationTitle("Library")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Text("Search Presets")
-            )
+            .wfInlineNavigationBarDark()
+            .wfSearchable(text: $searchText, prompt: Text("Search Presets"))
+            .searchFocused($isSearchFocused)
+            .focusedValue(\.isTextInputFocused, isSearchFocused)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
-                        dismissLibrary()
+                if !hidesDoneButton {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Done") {
+                            dismissLibrary()
+                        }
+                        .foregroundStyle(accentColor)
                     }
-                    .foregroundStyle(accentColor)
                 }
             }
         }
@@ -137,6 +157,22 @@ public struct LibraryView: View {
         ) { result in
             handleFileImporterResult(result)
         }
+        #if os(macOS)
+        .fileExporter(
+            isPresented: $isShowingPresetExporter,
+            document: presetDocumentToExport,
+            contentType: .waveForgePreset,
+            defaultFilename: presetExportFilename
+        ) { result in
+            presetDocumentToExport = nil
+            if case .failure(let error) = result {
+                if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {
+                    return
+                }
+                importAlert = ImportAlertContent(kind: .failure(message: error.localizedDescription))
+            }
+        }
+        #endif
         .importResultAlert($importAlert)
         .animation(.easeInOut(duration: 0.22), value: confirmationToastPresetName != nil)
     }
@@ -256,78 +292,116 @@ public struct LibraryView: View {
         let items = filteredPresets
         if items.isEmpty {
             emptyStateView
+        } else if adaptiveDesktopGrid {
+            GeometryReader { proxy in
+                let columnCount = proxy.size.width >= 640 ? 2 : 1
+                let columns = Array(
+                    repeating: GridItem(.flexible(), spacing: 12, alignment: .top),
+                    count: columnCount
+                )
+                ScrollView(.vertical) {
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(items) { preset in
+                            presetCard(for: preset, stretchHeight: columnCount > 1)
+                                .contextMenu {
+                                    presetMenuItems(for: preset)
+                                }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                }
+            }
         } else {
             List {
                 ForEach(items) { preset in
-                    let isActive = engine.currentPreset.id == preset.id
-                    let sparkline = sparklineCache[preset.id] ?? PresetSparklineSummary.analyze(preset)
-
-                    PresetLibraryCard(
-                        preset: preset,
-                        localizedSummary: Self.localizedSummary(for: preset),
-                        sparkline: sparkline,
-                        isActive: isActive,
-                        isPlaying: isActive && engine.isPlaying,
-                        onSelect: {
-                            selectPreset(preset)
-                        },
-                        onDuplicate: {
-                            duplicatePreset(preset)
-                        },
-                        onDelete: preset.isBuiltIn ? nil : {
-                            deleteCustomPreset(preset)
-                        }
-                    )
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                        Button {
-                            duplicatePreset(preset)
-                        } label: {
-                            Label("Duplicate", systemImage: "plus.square.on.square")
-                        }
-                        .tint(StudioTheme.alphaColor)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        if !preset.isBuiltIn {
-                            Button(role: .destructive) {
-                                deleteCustomPreset(preset)
+                    presetCard(for: preset, stretchHeight: false)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                duplicatePreset(preset)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("Duplicate", systemImage: "plus.square.on.square")
+                            }
+                            .tint(StudioTheme.alphaColor)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            if !preset.isBuiltIn {
+                                Button(role: .destructive) {
+                                    deleteCustomPreset(preset)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
-                    }
-                    .contextMenu {
-                        Button {
-                            duplicatePreset(preset)
-                        } label: {
-                            Label("Duplicate", systemImage: "plus.square.on.square")
+                        .contextMenu {
+                            presetMenuItems(for: preset)
                         }
-
-                        ShareLink(
-                            item: WaveForgePresetDocument(preset: preset),
-                            preview: SharePreview(
-                                preset.name,
-                                image: Image(systemName: "waveform.path.ecg")
-                            )
-                        ) {
-                            Label("Export .waveforge", systemImage: "square.and.arrow.up")
-                        }
-
-                        if !preset.isBuiltIn {
-                            Divider()
-                            Button(role: .destructive) {
-                                deleteCustomPreset(preset)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
                 }
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
+        }
+    }
+
+    private func presetCard(for preset: Preset, stretchHeight: Bool) -> some View {
+        let isActive = engine.currentPreset.id == preset.id
+        let sparkline = sparklineCache[preset.id] ?? PresetSparklineSummary.analyze(preset)
+
+        return PresetLibraryCard(
+            preset: preset,
+            localizedSummary: Self.localizedSummary(for: preset),
+            sparkline: sparkline,
+            isActive: isActive,
+            isPlaying: isActive && engine.isPlaying,
+            stretchHeight: stretchHeight,
+            onSelect: {
+                selectPreset(preset)
+            },
+            onDoubleClick: onDoubleClickPreset != nil ? {
+                doubleClickPreset(preset)
+            } : nil,
+            menuItems: {
+                presetMenuItems(for: preset)
+            }
+        )
+    }
+
+    @ViewBuilder
+    private func presetMenuItems(for preset: Preset) -> some View {
+        Button {
+            duplicatePreset(preset)
+        } label: {
+            Label("Duplicate", systemImage: "plus.square.on.square")
+        }
+
+        #if os(macOS)
+        Button {
+            exportPresetAsWaveForge(preset)
+        } label: {
+            Label("Save .waveforge…", systemImage: "arrow.down.doc")
+        }
+        #endif
+
+        ShareLink(
+            item: WaveForgePresetDocument(preset: preset),
+            preview: SharePreview(
+                preset.name,
+                image: Image(systemName: "waveform.path.ecg")
+            )
+        ) {
+            Label("Export .waveforge", systemImage: "square.and.arrow.up")
+        }
+
+        if !preset.isBuiltIn {
+            Divider()
+            Button(role: .destructive) {
+                deleteCustomPreset(preset)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
         }
     }
 
@@ -402,19 +476,54 @@ public struct LibraryView: View {
 
     private func selectPreset(_ preset: Preset) {
         haptics.prepare()
-        engine.load(preset)
+        if loadsDirectlyOnSelect {
+            engine.load(preset)
+        }
         onSelectPreset(preset)
         haptics.fireStep()
-        dismissLibrary()
+        if !hidesDoneButton {
+            dismissLibrary()
+        }
+    }
+
+    private func doubleClickPreset(_ preset: Preset) {
+        haptics.prepare()
+        if loadsDirectlyOnSelect {
+            engine.load(preset)
+            engine.play()
+        }
+        if let onDoubleClickPreset {
+            onDoubleClickPreset(preset)
+        } else {
+            onSelectPreset(preset)
+        }
+        haptics.fireStep()
     }
 
     private func createNewTemplatePreset() {
         haptics.prepare()
         let template = Self.makeTemplatePreset()
-        engine.load(template)
+        if loadsDirectlyOnSelect {
+            engine.load(template)
+        }
         haptics.fireStep()
-        onOpenStudioForNewPreset()
+        if let onCreateNewTemplate {
+            onCreateNewTemplate(template)
+        } else {
+            if !loadsDirectlyOnSelect {
+                engine.load(template)
+            }
+            onOpenStudioForNewPreset()
+        }
     }
+
+    #if os(macOS)
+    private func exportPresetAsWaveForge(_ preset: Preset) {
+        presetExportFilename = WaveForgePresetDocument.sanitizedFileName(for: preset.name)
+        presetDocumentToExport = WaveForgePresetFileDocument(preset: preset)
+        isShowingPresetExporter = true
+    }
+    #endif
 
     private func duplicatePreset(_ preset: Preset) {
         haptics.prepare()
@@ -466,7 +575,11 @@ public struct LibraryView: View {
                 let outcome = try PresetImportCoordinator.importFile(at: url, into: presetStore)
                 reloadPresets()
                 onPresetsChanged()
-                engine.load(outcome.preset)
+                if loadsDirectlyOnSelect {
+                    engine.load(outcome.preset)
+                } else {
+                    onSelectPreset(outcome.preset)
+                }
                 haptics.fireStep()
 
                 if let alert = ImportAlertContent.fromOutcome(outcome) {
@@ -612,22 +725,23 @@ public struct LibraryView: View {
 
 // MARK: - Preset Library Card
 
-private struct PresetLibraryCard: View {
+private struct PresetLibraryCard<MenuItems: View>: View {
     let preset: Preset
     let localizedSummary: String
     let sparkline: PresetSparklineSummary
     let isActive: Bool
     let isPlaying: Bool
+    let stretchHeight: Bool
     let onSelect: () -> Void
-    let onDuplicate: () -> Void
-    let onDelete: (() -> Void)?
+    let onDoubleClick: (() -> Void)?
+    @ViewBuilder let menuItems: () -> MenuItems
 
     private var bandColor: Color {
         sparkline.dominantBand.accentColor
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let cardContent = VStack(alignment: .leading, spacing: 10) {
             headerRow
 
             if !localizedSummary.isEmpty {
@@ -638,19 +752,36 @@ private struct PresetLibraryCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            if stretchHeight {
+                Spacer(minLength: 0)
+            }
+
             PresetSparklineView(summary: sparkline)
                 .frame(height: 44)
 
             metadataFooterRow
         }
         .padding(13)
+        .frame(maxWidth: .infinity, maxHeight: stretchHeight ? .infinity : nil, alignment: .topLeading)
         .studioRackCard(
             cornerRadius: 16,
             borderColor: isActive ? bandColor.opacity(0.75) : StudioTheme.hairlineHighlight
         )
         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .onTapGesture {
-            onSelect()
+
+        if let onDoubleClick {
+            cardContent
+                .onTapGesture(count: 2) {
+                    onDoubleClick()
+                }
+                .onTapGesture {
+                    onSelect()
+                }
+        } else {
+            cardContent
+                .onTapGesture {
+                    onSelect()
+                }
         }
     }
 
@@ -705,26 +836,7 @@ private struct PresetLibraryCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Menu {
-                Button(action: onDuplicate) {
-                    Label("Duplicate", systemImage: "plus.square.on.square")
-                }
-
-                ShareLink(
-                    item: WaveForgePresetDocument(preset: preset),
-                    preview: SharePreview(
-                        preset.name,
-                        image: Image(systemName: "waveform.path.ecg")
-                    )
-                ) {
-                    Label("Export .waveforge", systemImage: "square.and.arrow.up")
-                }
-
-                if let onDelete {
-                    Divider()
-                    Button(role: .destructive, action: onDelete) {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
+                menuItems()
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.subheadline.weight(.semibold))
@@ -785,3 +897,27 @@ private struct PresetLibraryCard: View {
         }
     }
 }
+
+#if os(macOS)
+private struct WaveForgePresetFileDocument: FileDocument, Sendable {
+    static var readableContentTypes: [UTType] { [.waveForgePreset] }
+
+    let preset: Preset
+
+    init(preset: Preset) {
+        self.preset = preset
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents else {
+            throw PresetImportError.unreadableFile
+        }
+        self.preset = try PresetCodec.decode(data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = try PresetCodec.encode(preset)
+        return FileWrapper(regularFileWithContents: data)
+    }
+}
+#endif

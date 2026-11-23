@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
 
 /// Axis orientation for `StudioFader`.
 public enum StudioFaderOrientation: Sendable, Equatable {
@@ -21,6 +24,7 @@ public struct StudioFader: View {
     @GestureState private var isGestureActive = false
     @State private var isDragging = false
     @State private var isFineTuning = false
+    @State private var isHovered = false
     @State private var lastDragOffset: CGFloat = 0
     @State private var workingNormalized: Double = 0
     @State private var haptics = StudioControlHaptics()
@@ -147,6 +151,7 @@ public struct StudioFader: View {
         }
         .animation(.easeOut(duration: 0.14), value: isDragging)
         .animation(.easeOut(duration: 0.14), value: isFineTuning)
+        .animation(.easeOut(duration: 0.14), value: isHovered)
     }
 
     private var valueBadge: some View {
@@ -163,7 +168,9 @@ public struct StudioFader: View {
             .overlay {
                 Capsule()
                     .strokeBorder(
-                        isDragging ? accentColor.opacity(0.45) : StudioTheme.hairlineHighlight,
+                        isDragging
+                            ? accentColor.opacity(0.45)
+                            : (isHovered ? accentColor.opacity(0.32) : StudioTheme.hairlineHighlight),
                         lineWidth: 0.75
                     )
             }
@@ -179,6 +186,11 @@ public struct StudioFader: View {
                 horizontalTrackContent(in: size)
             }
         }
+        #if os(macOS)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        #endif
     }
 
     private func verticalTrackContent(in size: CGSize) -> some View {
@@ -215,7 +227,10 @@ public struct StudioFader: View {
                         )
                     )
                     .frame(width: grooveWidth - 2, height: activeHeight)
-                    .shadow(color: accentColor.opacity(isDragging ? 0.65 : 0.3), radius: 4)
+                    .shadow(
+                        color: accentColor.opacity(isDragging ? 0.65 : (isHovered ? 0.48 : 0.3)),
+                        radius: isHovered ? 5 : 4
+                    )
             }
             .frame(height: travel)
 
@@ -278,7 +293,10 @@ public struct StudioFader: View {
                         )
                     )
                     .frame(width: activeWidth, height: grooveHeight - 2)
-                    .shadow(color: accentColor.opacity(isDragging ? 0.65 : 0.3), radius: 4)
+                    .shadow(
+                        color: accentColor.opacity(isDragging ? 0.65 : (isHovered ? 0.48 : 0.3)),
+                        radius: isHovered ? 5 : 4
+                    )
                 Spacer(minLength: 0)
             }
             .frame(width: travel)
@@ -320,6 +338,8 @@ public struct StudioFader: View {
                 .overlay {
                     if isFineTuning {
                         shape.strokeBorder(accentColor.opacity(0.85), lineWidth: 1.25)
+                    } else if isHovered {
+                        shape.strokeBorder(accentColor.opacity(0.55), lineWidth: 1.1)
                     } else {
                         shape.strokeBorder(StudioTheme.metallicRimGradient, lineWidth: 0.9)
                     }
@@ -429,6 +449,15 @@ public struct StudioFader: View {
         }
     }
 
+    private static var isModifierFineTuneActive: Bool {
+        #if os(macOS)
+        let flags = NSEvent.modifierFlags
+        return flags.contains(.option) || flags.contains(.shift)
+        #else
+        return false
+        #endif
+    }
+
     private func handleDragChanged(
         primaryTranslation: CGFloat,
         perpendicularTranslation: CGFloat,
@@ -447,6 +476,7 @@ public struct StudioFader: View {
         lastDragOffset = primaryTranslation
 
         let fineEngaged = abs(perpendicularTranslation) > Self.fineTuningThresholdPt
+            || Self.isModifierFineTuneActive
         if fineEngaged != isFineTuning {
             isFineTuning = fineEngaged
             haptics.fireModeShift()
