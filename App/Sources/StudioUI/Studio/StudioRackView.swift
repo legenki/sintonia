@@ -345,6 +345,7 @@ public struct StudioRackView: View {
                     .autocorrectionDisabled()
                     .focused($isPresetNameFocused)
                     .focusedValue(\.isTextInputFocused, isPresetNameFocused)
+                    .focusedSceneValue(\.isTextInputFocused, isPresetNameFocused ? true : nil)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
                     .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(StudioTheme.recessedWell))

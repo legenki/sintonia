@@ -1,5 +1,7 @@
+import AppKit
 import Foundation
 import PresetKit
+import SwiftUI
 import SynthCore
 import Testing
 import WaveForgeExport
@@ -159,6 +161,109 @@ struct MacRuntimeTests {
     }
 
     @MainActor
+    @Test func finding1_deletingActiveCustomPresetViaLibraryCoordinatedPathRespectsCleanAndDirtyStudioStates() throws {
+        let (tempDir, cleanupDir) = try makeTempDirectory()
+        defer { cleanupDir() }
+        let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
+        defer { cleanupDefaults() }
+
+        let store = PresetStore(storageDirectory: tempDir.appendingPathComponent("Presets", isDirectory: true))
+        let engine = AudioEngineController(
+            deviceUserDefaults: defaults,
+            startHardwareMonitoring: false
+        )
+        let coordinator = MacAppCoordinator(presetStore: store, engine: engine)
+        let deepFocus = PresetCatalog.builtInPresets[0]
+
+        var customActive = LibraryView.makeTemplatePreset()
+        customActive.id = UUID()
+        customActive.name = "Custom Active Clean"
+        try store.saveCustom(customActive)
+
+        var customInactive = LibraryView.makeTemplatePreset()
+        customInactive.id = UUID()
+        customInactive.name = "Custom Inactive"
+        try store.saveCustom(customInactive)
+
+        coordinator.requestLoadPreset(customActive, autoPlay: false)
+        let tokenBeforeDelete = try #require(coordinator.studioSyncToken)
+        #expect(coordinator.engine.currentPreset.id == customActive.id)
+
+        // Deleting a non-active custom preset leaves the active preset and sync token untouched.
+        try LibraryView.performCustomPresetDeletion(
+            customInactive,
+            presetStore: store,
+            engine: engine,
+            loadsDirectlyOnSelect: false
+        ) { preset in
+            coordinator.requestLoadPreset(preset, autoPlay: false)
+        }
+        #expect(!store.allPresets().contains { $0.id == customInactive.id })
+        #expect(coordinator.engine.currentPreset.id == customActive.id)
+        #expect(coordinator.studioSyncToken == tokenBeforeDelete)
+        #expect(coordinator.pendingConflict == nil)
+
+        // Deleting the active custom preset when Studio is clean falls back to Deep Focus via coordinator and bumps studioSyncToken.
+        try LibraryView.performCustomPresetDeletion(
+            customActive,
+            presetStore: store,
+            engine: engine,
+            loadsDirectlyOnSelect: false
+        ) { preset in
+            coordinator.requestLoadPreset(preset, autoPlay: false)
+        }
+        #expect(!store.allPresets().contains { $0.id == customActive.id })
+        #expect(coordinator.engine.currentPreset.id == deepFocus.id)
+        #expect(coordinator.studioSyncToken != tokenBeforeDelete)
+        #expect(coordinator.pendingConflict == nil)
+
+        // Deleting the active custom preset when Studio has unsaved edits raises pendingConflict instead of silently overwriting.
+        var customDirty = LibraryView.makeTemplatePreset()
+        customDirty.id = UUID()
+        customDirty.name = "Custom Active Dirty"
+        try store.saveCustom(customDirty)
+
+        coordinator.requestLoadPreset(customDirty, autoPlay: false)
+        let tokenDuringDirty = try #require(coordinator.studioSyncToken)
+        coordinator.studioHasUnsavedChanges = true
+
+        try LibraryView.performCustomPresetDeletion(
+            customDirty,
+            presetStore: store,
+            engine: engine,
+            loadsDirectlyOnSelect: false
+        ) { preset in
+            coordinator.requestLoadPreset(preset, autoPlay: false)
+        }
+        #expect(!store.allPresets().contains { $0.id == customDirty.id })
+        #expect(coordinator.engine.currentPreset.id == customDirty.id)
+        #expect(coordinator.pendingConflict == .loadPreset(deepFocus, autoPlay: false))
+
+        coordinator.resolveConflictDiscardAndProceed()
+        #expect(coordinator.pendingConflict == nil)
+        #expect(!coordinator.studioHasUnsavedChanges)
+        #expect(coordinator.engine.currentPreset.id == deepFocus.id)
+        #expect(coordinator.studioSyncToken != tokenDuringDirty)
+
+        // Direct mode (iOS path) loads Deep Focus directly without invoking onSelectPreset.
+        var customDirect = LibraryView.makeTemplatePreset()
+        customDirect.id = UUID()
+        customDirect.name = "Custom Direct"
+        try store.saveCustom(customDirect)
+        engine.load(customDirect)
+
+        try LibraryView.performCustomPresetDeletion(
+            customDirect,
+            presetStore: store,
+            engine: engine,
+            loadsDirectlyOnSelect: true
+        ) { _ in
+            Issue.record("onSelectPreset must not be called when loadsDirectlyOnSelect is true")
+        }
+        #expect(engine.currentPreset.id == deepFocus.id)
+    }
+
+    @MainActor
     @Test func reviewFocus3_spaceShortcutBlockedWhileTextInputFocused() throws {
         let (tempDir, cleanupDir) = try makeTempDirectory()
         defer { cleanupDir() }
@@ -192,6 +297,164 @@ struct MacRuntimeTests {
             isTextInputFocused: nil,
             isFirstResponderTextEditor: false
         ))
+    }
+
+    @MainActor
+    @Test func liveMacToolbarSearchFieldAllowsSpaceInsertionAndDoesNotSwallowViaMainMenu() throws {
+        let (tempDir, cleanupDir) = try makeTempDirectory()
+        defer { cleanupDir() }
+        let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
+        defer { cleanupDefaults() }
+
+        let store = PresetStore(storageDirectory: tempDir.appendingPathComponent("Presets", isDirectory: true))
+        let engine = AudioEngineController(
+            deviceUserDefaults: defaults,
+            startHardwareMonitoring: false
+        )
+        let coordinator = MacAppCoordinator(presetStore: store, engine: engine)
+
+        let searchField = NSSearchField(frame: NSRect(x: 0, y: 0, width: 220, height: 24))
+        let toolbarDelegate = TestSearchToolbarDelegate(searchField: searchField)
+        let toolbar = NSToolbar(identifier: "TestLibraryToolbar-\(UUID().uuidString)")
+        toolbar.delegate = toolbarDelegate
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 100, y: 100, width: 640, height: 420),
+            styleMask: [.titled, .closable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        window.toolbar = toolbar
+        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 640, height: 420))
+        window.contentView = contentView
+        defer {
+            window.makeFirstResponder(nil)
+            window.close()
+            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        activateKeyWindow(window)
+        coordinator.refreshFirstResponderTextInputState(for: window)
+        #expect(!coordinator.isTextInputFirstResponder)
+
+        let becameFirstResponder = window.makeFirstResponder(searchField)
+        #expect(becameFirstResponder)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+        if !window.isKeyWindow {
+            coordinator.refreshFirstResponderTextInputState(for: window)
+        }
+
+        let fieldEditor = try #require(window.firstResponder as? NSText)
+        #expect(MacAppCoordinator.isTextInputFirstResponder(in: window))
+        if window.isKeyWindow {
+            #expect(MacAppCoordinator.isFirstResponderTextEditor)
+        }
+        #expect(coordinator.isTextInputFirstResponder)
+        #expect(!coordinator.shouldHandlePlayPauseSpaceShortcut(
+            isTextInputFocused: nil,
+            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
+        ))
+
+        let spaceDown = try makeSpaceKeyDownEvent(in: window)
+        let swallowedByMainMenu = NSApp.mainMenu?.performKeyEquivalent(with: spaceDown) ?? false
+        #expect(!swallowedByMainMenu, "NSApp.mainMenu.performKeyEquivalent swallowed Space while toolbar NSSearchField had focus!")
+        #expect(!coordinator.engine.isPlaying)
+
+        window.sendEvent(spaceDown)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        #expect(fieldEditor.string == " " || searchField.stringValue == " ")
+
+        // Resigning search focus restores Space Play/Pause availability and main menu shortcut state.
+        #expect(window.makeFirstResponder(contentView))
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        if !window.isKeyWindow {
+            coordinator.refreshFirstResponderTextInputState(for: window)
+        }
+        #expect(!coordinator.isTextInputFirstResponder)
+        #expect(coordinator.shouldHandlePlayPauseSpaceShortcut(
+            isTextInputFocused: false,
+            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
+        ))
+        if let mainMenu = NSApp.mainMenu {
+            let playTitles: Set<String> = ["Play", "Pause", String(localized: "Play"), String(localized: "Pause")]
+            let playPauseItem = mainMenu.items
+                .compactMap(\.submenu)
+                .flatMap(\.items)
+                .first { playTitles.contains($0.title) }
+            if let playPauseItem {
+                #expect(playPauseItem.keyEquivalent == " ")
+            }
+        }
+    }
+
+    @MainActor
+    @Test func hostedLibraryViewToolbarSearchFieldAllowsSpaceInsertion() throws {
+        let (tempDir, cleanupDir) = try makeTempDirectory()
+        defer { cleanupDir() }
+        let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
+        defer { cleanupDefaults() }
+
+        let store = PresetStore(storageDirectory: tempDir.appendingPathComponent("Presets", isDirectory: true))
+        let engine = AudioEngineController(
+            deviceUserDefaults: defaults,
+            startHardwareMonitoring: false
+        )
+        let coordinator = MacAppCoordinator(presetStore: store, engine: engine)
+
+        let libraryView = LibraryView(
+            engine: engine,
+            presetStore: store,
+            presetsRevision: coordinator.presetsRevision,
+            adaptiveDesktopGrid: true,
+            hidesDoneButton: true,
+            loadsDirectlyOnSelect: false,
+            onPresetsChanged: { coordinator.presetsRevision += 1 },
+            onSelectPreset: { preset in coordinator.requestLoadPreset(preset, autoPlay: false) }
+        )
+
+        let hostingController = NSHostingController(rootView: libraryView)
+        let window = NSWindow(
+            contentRect: NSRect(x: 120, y: 120, width: 780, height: 640),
+            styleMask: [.titled, .closable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        window.contentViewController = hostingController
+        defer {
+            window.makeFirstResponder(nil)
+            window.close()
+            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        activateKeyWindow(window)
+        window.layoutIfNeeded()
+        var foundSearchField = findSearchField(in: window)
+        for _ in 0..<12 where foundSearchField == nil {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.04))
+            window.layoutIfNeeded()
+            foundSearchField = findSearchField(in: window)
+        }
+
+        let searchField = try #require(foundSearchField)
+        #expect(window.makeFirstResponder(searchField))
+        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+        if !window.isKeyWindow {
+            coordinator.refreshFirstResponderTextInputState(for: window)
+        }
+
+        let fieldEditor = try #require(window.firstResponder as? NSText)
+        #expect(coordinator.isTextInputFirstResponder)
+
+        let spaceDown = try makeSpaceKeyDownEvent(in: window)
+        let swallowedByMainMenu = NSApp.mainMenu?.performKeyEquivalent(with: spaceDown) ?? false
+        #expect(!swallowedByMainMenu)
+
+        window.sendEvent(spaceDown)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        #expect(fieldEditor.string == " " || searchField.stringValue == " ")
     }
 
     @MainActor
@@ -367,5 +630,92 @@ struct MacRuntimeTests {
         return (defaults, {
             defaults.removePersistentDomain(forName: suiteName)
         })
+    }
+
+    @MainActor
+    private func activateKeyWindow(_ window: NSWindow) {
+        NSApp.activate()
+        window.makeKeyAndOrderFront(nil)
+        for _ in 0..<8 {
+            if window.isKeyWindow { break }
+            RunLoop.main.run(until: Date().addingTimeInterval(0.025))
+            window.makeKey()
+        }
+    }
+
+    @MainActor
+    private func makeSpaceKeyDownEvent(in window: NSWindow) throws -> NSEvent {
+        try #require(NSEvent.keyEvent(
+            with: .keyDown,
+            location: .zero,
+            modifierFlags: [],
+            timestamp: ProcessInfo.processInfo.systemUptime,
+            windowNumber: window.windowNumber,
+            context: nil,
+            characters: " ",
+            charactersIgnoringModifiers: " ",
+            isARepeat: false,
+            keyCode: 49
+        ))
+    }
+
+    @MainActor
+    private func findSearchField(in window: NSWindow) -> NSSearchField? {
+        if let items = window.toolbar?.items {
+            for item in items {
+                if let searchItem = item as? NSSearchToolbarItem {
+                    return searchItem.searchField
+                }
+                if let view = item.view, let found = findSearchField(in: view) {
+                    return found
+                }
+            }
+        }
+        if let contentView = window.contentView {
+            return findSearchField(in: contentView)
+        }
+        return nil
+    }
+
+    @MainActor
+    private func findSearchField(in view: NSView) -> NSSearchField? {
+        if let searchField = view as? NSSearchField {
+            return searchField
+        }
+        for subview in view.subviews {
+            if let found = findSearchField(in: subview) {
+                return found
+            }
+        }
+        return nil
+    }
+}
+
+@MainActor
+private final class TestSearchToolbarDelegate: NSObject, NSToolbarDelegate {
+    static let searchItemID = NSToolbarItem.Identifier("TestSearchItem")
+    private let searchField: NSSearchField
+
+    init(searchField: NSSearchField) {
+        self.searchField = searchField
+    }
+
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [Self.searchItemID]
+    }
+
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [Self.searchItemID]
+    }
+
+    func toolbar(
+        _ toolbar: NSToolbar,
+        itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+        willBeInsertedIntoToolbar flag: Bool
+    ) -> NSToolbarItem? {
+        guard itemIdentifier == Self.searchItemID else { return nil }
+        let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+        item.view = searchField
+        return item
     }
 }

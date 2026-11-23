@@ -154,6 +154,7 @@ public struct VoiceInspectorView: View {
                 .autocorrectionDisabled()
                 .focused($isVoiceNameFocused)
                 .focusedValue(\.isTextInputFocused, isVoiceNameFocused)
+                .focusedSceneValue(\.isTextInputFocused, isVoiceNameFocused ? true : nil)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 7)
                 .background {

@@ -127,7 +127,6 @@ public struct LibraryView: View {
             .wfInlineNavigationBarDark()
             .wfSearchable(text: $searchText, prompt: Text("Search Presets"))
             .searchFocused($isSearchFocused)
-            .focusedValue(\.isTextInputFocused, isSearchFocused)
             .toolbar {
                 if !hidesDoneButton {
                     ToolbarItem(placement: .cancellationAction) {
@@ -139,6 +138,8 @@ public struct LibraryView: View {
                 }
             }
         }
+        .focusedValue(\.isTextInputFocused, isSearchFocused)
+        .focusedSceneValue(\.isTextInputFocused, isSearchFocused)
         .preferredColorScheme(.dark)
         .onAppear {
             reloadPresets()
@@ -555,15 +556,37 @@ public struct LibraryView: View {
         guard !preset.isBuiltIn else { return }
         haptics.prepare()
         do {
-            try presetStore.deleteCustom(id: preset.id)
-            if engine.currentPreset.id == preset.id {
-                engine.load(PresetCatalog.builtInPresets[0])
-            }
+            try Self.performCustomPresetDeletion(
+                preset,
+                presetStore: presetStore,
+                engine: engine,
+                loadsDirectlyOnSelect: loadsDirectlyOnSelect,
+                onSelectPreset: onSelectPreset
+            )
             reloadPresets()
             onPresetsChanged()
             haptics.fireReset()
         } catch {
             importAlert = ImportAlertContent.fromError(error)
+        }
+    }
+
+    internal static func performCustomPresetDeletion(
+        _ preset: Preset,
+        presetStore: PresetStore,
+        engine: AudioEngineController,
+        loadsDirectlyOnSelect: Bool,
+        onSelectPreset: (Preset) -> Void
+    ) throws {
+        guard !preset.isBuiltIn else { return }
+        try presetStore.deleteCustom(id: preset.id)
+        if engine.currentPreset.id == preset.id {
+            let fallbackPreset = PresetCatalog.builtInPresets[0]
+            if loadsDirectlyOnSelect {
+                engine.load(fallbackPreset)
+            } else {
+                onSelectPreset(fallbackPreset)
+            }
         }
     }
 

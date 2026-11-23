@@ -89,10 +89,14 @@ public final class MacAppCoordinator {
     public var studioHasUnsavedChanges: Bool = false
     public private(set) var studioSyncToken: UUID? = nil
     public private(set) var pendingConflict: PendingStudioConflict? = nil
+    public private(set) var isTextInputFirstResponder: Bool = false
 
     @ObservationIgnored private var studioSaveHandler: (() -> Bool)? = nil
     @ObservationIgnored private var windowOpener: ((String) -> Void)? = nil
     @ObservationIgnored private var toastDismissTask: Task<Void, Never>? = nil
+    @ObservationIgnored private weak var cachedPlayPauseMenuItem: NSMenuItem? = nil
+    @ObservationIgnored private var didSuppressMenuSpaceShortcut: Bool = false
+    @ObservationIgnored private nonisolated(unsafe) let responderObservers = FirstResponderObserverState()
 
     public init(
         presetStore: PresetStore = PresetStore(storageDirectory: MacAppCoordinator.defaultPresetStorageURL()),
@@ -100,6 +104,7 @@ public final class MacAppCoordinator {
     ) {
         self.presetStore = presetStore
         self.engine = engine
+        startMonitoringFirstResponder()
     }
 
     public convenience init(
@@ -111,6 +116,7 @@ public final class MacAppCoordinator {
 
     deinit {
         toastDismissTask?.cancel()
+        responderObservers.invalidateAll()
     }
 
     public static func defaultPresetStorageURL() -> URL {
@@ -141,9 +147,34 @@ public final class MacAppCoordinator {
         isTextInputFocused != true && !isFirstResponderTextEditor
     }
 
-    /// Returns `true` when AppKit's active key-window first responder is an `NSText` / `NSTextView` field editor.
+    /// Returns `true` when AppKit's active key-window first responder is an `NSText` / `NSTextView` field editor
+    /// or an editable `NSTextField`.
     public static var isFirstResponderTextEditor: Bool {
-        (NSApp as NSApplication?)?.keyWindow?.firstResponder is NSText
+        isTextInputFirstResponder(in: (NSApp as NSApplication?)?.keyWindow)
+    }
+
+    internal static func isTextInputFirstResponder(in window: NSWindow?) -> Bool {
+        guard let responder = window?.firstResponder else { return false }
+        if responder is NSText {
+            return true
+        }
+        if let textField = responder as? NSTextField, textField.isEditable {
+            return true
+        }
+        return false
+    }
+
+    /// Recomputes `isTextInputFirstResponder` for `window` and immediately syncs the live `Playback -> Play/Pause`
+    /// `NSMenuItem` key equivalent so AppKit `NSMenu.performKeyEquivalent` cannot swallow `Space` during text entry.
+    internal func refreshFirstResponderTextInputState(for window: NSWindow?) {
+        let isTextInput = Self.isTextInputFirstResponder(in: window)
+        if isTextInputFirstResponder != isTextInput {
+            isTextInputFirstResponder = isTextInput
+        }
+        let activeKeyWindow = (NSApp as NSApplication?)?.keyWindow
+        if window == nil || window === activeKeyWindow || window?.isKeyWindow == true {
+            syncPlayPauseMenuKeyEquivalent(suppressSpace: isTextInput)
+        }
     }
 
     // MARK: - Coordinated Actions & Conflict Guards
@@ -415,6 +446,229 @@ public final class MacAppCoordinator {
             )
         )
         return ImportAlertContent.fromOutcome(mergedOutcome)
+    }
+
+    // MARK: - AppKit First-Responder & Menu Space-Shortcut Monitoring
+
+    private func startMonitoringFirstResponder() {
+        ensureKeyWindowObserverAttached()
+
+        let bridge = ResponderNotificationBridge(coordinator: self)
+        responderObservers.notificationBridge = bridge
+
+        let center = NotificationCenter.default
+        center.addObserver(
+            bridge,
+            selector: #selector(ResponderNotificationBridge.handleApplicationDidFinishLaunching(_:)),
+            name: NSApplication.didFinishLaunchingNotification,
+            object: nil
+        )
+        center.addObserver(
+            bridge,
+            selector: #selector(ResponderNotificationBridge.handleWindowDidBecomeKey(_:)),
+            name: NSWindow.didBecomeKeyNotification,
+            object: nil
+        )
+        center.addObserver(
+            bridge,
+            selector: #selector(ResponderNotificationBridge.handleWindowDidResignKey(_:)),
+            name: NSWindow.didResignKeyNotification,
+            object: nil
+        )
+        center.addObserver(
+            bridge,
+            selector: #selector(ResponderNotificationBridge.handleTextDidBeginEditing(_:)),
+            name: NSText.didBeginEditingNotification,
+            object: nil
+        )
+        center.addObserver(
+            bridge,
+            selector: #selector(ResponderNotificationBridge.handleTextDidEndEditing(_:)),
+            name: NSText.didEndEditingNotification,
+            object: nil
+        )
+
+        refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+    }
+
+    private func ensureKeyWindowObserverAttached() {
+        guard responderObservers.keyWindowObservation == nil,
+              let app = NSApp as NSApplication? else {
+            return
+        }
+
+        responderObservers.keyWindowObservation = app.observe(\.keyWindow, options: [.initial, .new]) { [weak self] _, _ in
+            Self.runOnMainActor(self) { coordinator in
+                coordinator.handleKeyWindowChanged((NSApp as NSApplication?)?.keyWindow)
+            }
+        }
+    }
+
+    private func handleKeyWindowChanged(_ window: NSWindow?) {
+        if responderObservers.observedKeyWindow !== window {
+            responderObservers.firstResponderObservation?.invalidate()
+            responderObservers.firstResponderObservation = nil
+            responderObservers.observedKeyWindow = window
+
+            if let window {
+                responderObservers.firstResponderObservation = window.observe(\.firstResponder, options: [.initial, .new]) { [weak self] observedWindow, _ in
+                    if Thread.isMainThread {
+                        MainActor.assumeIsolated {
+                            guard let self else { return }
+                            let activeKeyWindow = (NSApp as NSApplication?)?.keyWindow
+                            if activeKeyWindow == nil || activeKeyWindow === observedWindow || observedWindow.isKeyWindow {
+                                self.refreshFirstResponderTextInputState(for: observedWindow)
+                            }
+                        }
+                    } else {
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+                        }
+                    }
+                }
+            }
+        }
+        refreshFirstResponderTextInputState(for: window)
+    }
+
+    private func syncPlayPauseMenuKeyEquivalent(suppressSpace: Bool) {
+        guard let menuItem = findPlayPauseMenuItem(in: (NSApp as NSApplication?)?.mainMenu) else {
+            return
+        }
+        if suppressSpace {
+            if menuItem.keyEquivalent == " " && menuItem.keyEquivalentModifierMask.isEmpty {
+                menuItem.keyEquivalent = ""
+                menuItem.keyEquivalentModifierMask = []
+                didSuppressMenuSpaceShortcut = true
+            }
+        } else if didSuppressMenuSpaceShortcut {
+            if menuItem.keyEquivalent.isEmpty {
+                menuItem.keyEquivalent = " "
+                menuItem.keyEquivalentModifierMask = []
+            }
+            didSuppressMenuSpaceShortcut = false
+        }
+    }
+
+    private func findPlayPauseMenuItem(in mainMenu: NSMenu?) -> NSMenuItem? {
+        if let cached = cachedPlayPauseMenuItem, cached.menu != nil {
+            return cached
+        }
+        guard let mainMenu else { return nil }
+
+        for topItem in mainMenu.items {
+            guard let submenu = topItem.submenu else { continue }
+            if let spaceItem = submenu.items.first(where: {
+                $0.keyEquivalent == " " && $0.keyEquivalentModifierMask.isEmpty
+            }) {
+                cachedPlayPauseMenuItem = spaceItem
+                return spaceItem
+            }
+        }
+
+        let playbackTitles: Set<String> = ["Playback", String(localized: "Playback")]
+        let playPauseTitles: Set<String> = [
+            "Play",
+            "Pause",
+            String(localized: "Play"),
+            String(localized: "Pause")
+        ]
+        for topItem in mainMenu.items {
+            guard let submenu = topItem.submenu else { continue }
+            if playbackTitles.contains(topItem.title) || playbackTitles.contains(submenu.title) {
+                if let item = submenu.items.first(where: { playPauseTitles.contains($0.title) }) {
+                    cachedPlayPauseMenuItem = item
+                    return item
+                }
+            }
+        }
+
+        return nil
+    }
+
+    private nonisolated static func runOnMainActor(
+        _ target: MacAppCoordinator?,
+        _ operation: @MainActor @escaping (MacAppCoordinator) -> Void
+    ) {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                guard let target else { return }
+                operation(target)
+            }
+        } else {
+            Task { @MainActor [weak target] in
+                guard let target else { return }
+                operation(target)
+            }
+        }
+    }
+
+    @MainActor
+    private final class ResponderNotificationBridge: NSObject {
+        private weak var coordinator: MacAppCoordinator?
+
+        init(coordinator: MacAppCoordinator) {
+            self.coordinator = coordinator
+        }
+
+        @objc func handleApplicationDidFinishLaunching(_ notification: Notification) {
+            guard let coordinator else { return }
+            coordinator.ensureKeyWindowObserverAttached()
+            coordinator.handleKeyWindowChanged((NSApp as NSApplication?)?.keyWindow)
+        }
+
+        @objc func handleWindowDidBecomeKey(_ notification: Notification) {
+            guard let coordinator else { return }
+            coordinator.ensureKeyWindowObserverAttached()
+            let window = (notification.object as? NSWindow) ?? (NSApp as NSApplication?)?.keyWindow
+            coordinator.handleKeyWindowChanged(window)
+        }
+
+        @objc func handleWindowDidResignKey(_ notification: Notification) {
+            guard let coordinator else { return }
+            let currentKey = (NSApp as NSApplication?)?.keyWindow
+            if let resigning = notification.object as? NSWindow, currentKey === resigning {
+                coordinator.handleKeyWindowChanged(nil)
+            } else {
+                coordinator.handleKeyWindowChanged(currentKey)
+            }
+        }
+
+        @objc func handleTextDidBeginEditing(_ notification: Notification) {
+            guard let coordinator else { return }
+            let textWindow = (notification.object as? NSText)?.window
+            let keyWindow = (NSApp as NSApplication?)?.keyWindow
+            if let textWindow, textWindow === keyWindow || textWindow.isKeyWindow {
+                coordinator.handleKeyWindowChanged(textWindow)
+            } else {
+                coordinator.refreshFirstResponderTextInputState(for: keyWindow)
+            }
+        }
+
+        @objc func handleTextDidEndEditing(_ notification: Notification) {
+            guard let coordinator else { return }
+            coordinator.refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+        }
+    }
+
+    private final class FirstResponderObserverState {
+        var keyWindowObservation: NSKeyValueObservation?
+        var firstResponderObservation: NSKeyValueObservation?
+        var notificationBridge: ResponderNotificationBridge?
+        weak var observedKeyWindow: NSWindow?
+
+        func invalidateAll() {
+            keyWindowObservation?.invalidate()
+            keyWindowObservation = nil
+            firstResponderObservation?.invalidate()
+            firstResponderObservation = nil
+            observedKeyWindow = nil
+            if let notificationBridge {
+                NotificationCenter.default.removeObserver(notificationBridge)
+                self.notificationBridge = nil
+            }
+        }
     }
 }
 

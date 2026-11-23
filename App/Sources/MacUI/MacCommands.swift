@@ -42,16 +42,12 @@ public struct MacCommands: Commands {
         }
 
         CommandMenu("Playback") {
-            let spaceShortcut: KeyboardShortcut? = coordinator.shouldHandlePlayPauseSpaceShortcut(
-                isTextInputFocused: isTextInputFocused,
-                isFirstResponderTextEditor: false
-            ) ? KeyboardShortcut(.space, modifiers: []) : nil
+            let spaceShortcut: KeyboardShortcut? = allowsPlayPauseSpaceShortcut()
+                ? KeyboardShortcut(.space, modifiers: [])
+                : nil
 
             Button(coordinator.engine.isPlaying ? "Pause" : "Play") {
-                guard coordinator.shouldHandlePlayPauseSpaceShortcut(
-                    isTextInputFocused: isTextInputFocused,
-                    isFirstResponderTextEditor: MacAppCoordinator.isFirstResponderTextEditor
-                ) else {
+                guard allowsPlayPauseSpaceShortcut() else {
                     return
                 }
                 coordinator.engine.togglePlayPause()
@@ -107,6 +103,15 @@ public struct MacCommands: Commands {
             }
             .keyboardShortcut("2", modifiers: .command)
         }
+    }
+
+    private func allowsPlayPauseSpaceShortcut() -> Bool {
+        let isFirstResponderTextEditor = coordinator.isTextInputFirstResponder
+            || MacAppCoordinator.isFirstResponderTextEditor
+        return coordinator.shouldHandlePlayPauseSpaceShortcut(
+            isTextInputFocused: isTextInputFocused,
+            isFirstResponderTextEditor: isFirstResponderTextEditor
+        )
     }
 
     private func registerOpener() {
