@@ -58,6 +58,7 @@ public struct WaveForgePresetDocument: Transferable, Sendable {
 /// Typed errors surfaced cleanly in `ImportResultAlert` when importing `.bwg` or `.waveforge` files.
 public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
     case unreadableFile
+    case fileTooLarge
     case unsupportedFileType
     case bwg(BWGImportError)
     case unsupportedSchemaVersion(Int)
@@ -69,12 +70,16 @@ public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
         switch self {
         case .unreadableFile:
             return String(localized: "Failed to read preset file.")
+        case .fileTooLarge:
+            return String(localized: "Preset file is too large.")
         case .unsupportedFileType:
             return String(localized: "Unsupported file format. Please choose a .bwg or .waveforge file.")
         case .bwg(let bwgError):
             switch bwgError {
             case .emptyFile:
                 return String(localized: "File is empty.")
+            case .fileTooLarge:
+                return String(localized: "Preset file is too large.")
             case .invalidHeader:
                 return String(localized: "Unsupported or invalid BWG header.")
             case .corruptedStructure:
@@ -124,6 +129,14 @@ public enum PresetImportCoordinator: Sendable {
             }
         }
 
+        let resourceValues = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+        if let isRegularFile = resourceValues?.isRegularFile, !isRegularFile {
+            throw PresetImportError.unreadableFile
+        }
+        if let fileSize = resourceValues?.fileSize, fileSize > PresetLimits.maxImportFileBytes {
+            throw PresetImportError.fileTooLarge
+        }
+
         let data: Data
         do {
             data = try Data(contentsOf: url)
@@ -133,6 +146,9 @@ public enum PresetImportCoordinator: Sendable {
 
         guard !data.isEmpty else {
             throw PresetImportError.bwg(.emptyFile)
+        }
+        guard data.count <= PresetLimits.maxImportFileBytes else {
+            throw PresetImportError.fileTooLarge
         }
 
         let fallbackName = url.deletingPathExtension()
@@ -216,10 +232,12 @@ public enum PresetImportCoordinator: Sendable {
 
         let trimmedName = preset.name.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedName.isEmpty {
-            preset.name = fallbackName.isEmpty ? String(localized: "Imported Preset") : fallbackName
+            let resolvedFallback = fallbackName.isEmpty ? String(localized: "Imported Preset") : fallbackName
+            preset.name = String(resolvedFallback.prefix(PresetLimits.maxNameLength))
         } else {
-            preset.name = trimmedName
+            preset.name = String(trimmedName.prefix(PresetLimits.maxNameLength))
         }
+        preset.summary = String(preset.summary.prefix(PresetLimits.maxSummaryLength))
         preset.recommendedOutput = AudioRoutePolicy.hasActiveBinauralVoices(in: preset) ? .headphones : .any
 
         guard PresetValidator.validate(preset).isEmpty else {

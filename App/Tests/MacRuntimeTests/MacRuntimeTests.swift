@@ -26,6 +26,7 @@ struct MacRuntimeTests {
             entry["NSPrivacyAccessedAPITypeReasons"] as? [String] ?? []
         }
         #expect(reasons.contains("E174.1"))
+        #expect(reasons.contains("CA92.1"))
     }
 
     @MainActor
@@ -194,6 +195,57 @@ struct MacRuntimeTests {
         #expect(coordinator.pendingConflict == nil)
         #expect(!coordinator.studioHasUnsavedChanges)
         #expect(coordinator.engine.currentPreset.id == thirdPreset.id)
+    }
+
+    @MainActor
+    @Test func studioWindowCloseConflictGuardsUnsavedEditsAndRejectsOversizedImport() throws {
+        let (tempDir, cleanupDir) = try makeTempDirectory()
+        defer { cleanupDir() }
+        let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
+        defer { cleanupDefaults() }
+
+        let store = PresetStore(storageDirectory: tempDir.appendingPathComponent("Presets", isDirectory: true))
+        let engine = AudioEngineController(
+            deviceUserDefaults: defaults,
+            startHardwareMonitoring: false
+        )
+        let coordinator = MacAppCoordinator(presetStore: store, engine: engine)
+
+        var closeCount = 0
+        var discardCount = 0
+        var saveCount = 0
+        coordinator.registerStudioCloseHandler { closeCount += 1 }
+        coordinator.registerStudioDiscardHandler { discardCount += 1 }
+        coordinator.registerStudioSaveHandler {
+            saveCount += 1
+            return true
+        }
+
+        coordinator.studioHasUnsavedChanges = true
+        coordinator.requestCloseStudioWindow()
+        #expect(coordinator.pendingConflict == .closeStudio)
+        #expect(closeCount == 0)
+
+        coordinator.resolveConflictDiscardAndProceed()
+        #expect(discardCount == 1)
+        #expect(closeCount == 1)
+        #expect(coordinator.pendingConflict == nil)
+        #expect(!coordinator.studioHasUnsavedChanges)
+
+        coordinator.studioHasUnsavedChanges = true
+        coordinator.requestCloseStudioWindow()
+        #expect(coordinator.pendingConflict == .closeStudio)
+        coordinator.resolveConflictSaveThenProceed()
+        #expect(saveCount == 1)
+        #expect(closeCount == 2)
+        #expect(coordinator.pendingConflict == nil)
+
+        // Verify oversized preset file is rejected before loading into memory.
+        let oversizedURL = tempDir.appendingPathComponent("huge.bwg")
+        try Data(repeating: 0x41, count: PresetLimits.maxImportFileBytes + 1).write(to: oversizedURL)
+        #expect(throws: PresetImportError.fileTooLarge) {
+            _ = try PresetImportCoordinator.importFile(at: oversizedURL, into: store)
+        }
     }
 
     @MainActor

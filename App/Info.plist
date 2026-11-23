@@ -96,7 +96,6 @@
 				<key>public.mime-type</key>
 				<array>
 					<string>application/vnd.waveforge.preset+json</string>
-					<string>application/json</string>
 				</array>
 			</dict>
 		</dict>
@@ -121,8 +120,7 @@
 				</array>
 				<key>public.mime-type</key>
 				<array>
-					<string>text/plain</string>
-					<string>application/octet-stream</string>
+					<string>application/x-bwg</string>
 				</array>
 			</dict>
 		</dict>

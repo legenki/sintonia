@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ Voices": {},
+    "%@m": {},
+    "%@s": {},
     "%lld Voices": {
       "localizations": {
         "en": {
@@ -50,6 +53,7 @@
       }
     },
     "20-minute dip from 12 -> 4.5 Hz Theta followed by an invigorating rise to 14 Hz.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,6 +70,7 @@
       }
     },
     "45-minute deep Delta 2.5 -> 1.2 Hz drift with deep brown noise and 5-minute gradual fade-out.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,6 +119,7 @@
       }
     },
     "7 Hz Theta resonance with slow breathing volume swells and synchronized pulsing noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -306,6 +312,7 @@
       }
     },
     "Alpha 10.5 Hz at 200 Hz paired with a tracked pure-fifth harmonic voice (300 Hz) and steady pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,6 +345,7 @@
       }
     },
     "Audio Interrupted": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -514,6 +522,7 @@
       }
     },
     "Beta 16 Hz binaural drive with a mid-session 38 Hz isochronic Gamma accent (10-25 min) and pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -562,6 +571,7 @@
       }
     },
     "Binaural Beta 14 -> 18 -> 15 Hz with harmonic isochronic support and steady pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -737,6 +747,7 @@
         }
       }
     },
+    "Ch %@": {},
     "Ch %lld": {
       "localizations": {
         "en": {
@@ -866,6 +877,7 @@
       }
     },
     "Curve Editor": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1122,6 +1134,7 @@
       }
     },
     "Edit": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1138,6 +1151,7 @@
       }
     },
     "Elapsed": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1506,6 +1520,7 @@
       }
     },
     "Fundamental 7.83 Hz resonance with tracked 15.66 Hz isochronic overtone and earth drone.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1538,6 +1553,7 @@
       }
     },
     "Gentle Beta 15 -> Alpha 8.5 Hz unwind paired with pink-to-brown noise transition.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1634,6 +1650,7 @@
       }
     },
     "Import Complete": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1746,6 +1763,7 @@
       }
     },
     "Insufficient Storage": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1810,6 +1828,7 @@
       }
     },
     "Isochronic 40 Hz Gamma pulse paired with a gentle 10 Hz Alpha foundation and light pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2497,6 +2516,22 @@
         }
       }
     },
+    "Preset file is too large.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preset file is too large."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл пресета слишком большой."
+          }
+        }
+      }
+    },
     "Preset file structure is corrupted.": {
       "localizations": {
         "en": {
@@ -2658,6 +2693,7 @@
       }
     },
     "Remaining": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2882,6 +2918,7 @@
       }
     },
     "Share": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3042,6 +3079,7 @@
       }
     },
     "Smooth 10 -> 20 Hz upward ramp with triangle binaural carrier and tapering white-to-pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3058,6 +3096,7 @@
       }
     },
     "Smooth 8 -> 4.5 Hz Sine² meditation at 136.1 Hz with minimal pink-brown noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3186,6 +3225,7 @@
       }
     },
     "Speaker-friendly 12 Hz soft isochronic pulse (0.8 softness) with pink-to-brown background noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3218,6 +3258,7 @@
       }
     },
     "Staged Alpha 10 -> Theta 5 -> Delta 1.5 Hz descent with softly fading brown noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3234,6 +3275,7 @@
       }
     },
     "Steady 13.5 Hz SMR focus anchored by a fifth-tracking harmonic voice and warm brown noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3362,6 +3404,7 @@
       }
     },
     "Theta 5.5 Hz plateau with periodic 6.5 Hz isochronic cues and pulsing brown noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3378,6 +3421,7 @@
       }
     },
     "Three-voice 14 -> 7.83 Hz Schumann transition blending binaural, monaural, and Sine² layers.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3394,6 +3438,7 @@
       }
     },
     "Three-voice Alpha/Theta harmonic chord at 136.1 Hz and octave with soothing brown noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3457,6 +3502,7 @@
         }
       }
     },
+    "Tracked from Ch %@": {},
     "Tracked from Ch %lld": {
       "localizations": {
         "en": {
@@ -3521,6 +3567,22 @@
         }
       }
     },
+    "Unable to Save File": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to Save File"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сохранить файл"
+          }
+        }
+      }
+    },
     "Unable to allocate offline audio render buffer.": {
       "localizations": {
         "en": {
@@ -3554,6 +3616,7 @@
       }
     },
     "Undulating Alpha 8.5 Hz / Theta 6.5 Hz oscillation across triangle and sine voices with light pink noise.": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3981,6 +4044,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Белый"
+          }
+        }
+      }
+    },
+    "You have unsaved changes to this preset. Save before closing?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have unsaved changes to this preset. Save before closing?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В этом пресете есть несохранённые изменения. Сохранить перед закрытием?"
           }
         }
       }

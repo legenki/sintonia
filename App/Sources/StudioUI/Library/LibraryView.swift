@@ -33,6 +33,7 @@ public struct LibraryView: View {
     @State private var presetDocumentToExport: WaveForgePresetFileDocument? = nil
     @State private var presetExportFilename: String = ""
     @State private var isShowingPresetExporter: Bool = false
+    @State private var saveErrorMessage: String? = nil
     #endif
     @State private var importAlert: ImportAlertContent? = nil
     @State private var confirmationToastPresetName: String? = nil
@@ -170,8 +171,20 @@ public struct LibraryView: View {
                 if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {
                     return
                 }
-                importAlert = ImportAlertContent(kind: .failure(message: error.localizedDescription))
+                saveErrorMessage = error.localizedDescription
             }
+        }
+        .alert(
+            "Unable to Save File",
+            isPresented: Binding(
+                get: { saveErrorMessage != nil },
+                set: { if !$0 { saveErrorMessage = nil } }
+            ),
+            presenting: saveErrorMessage
+        ) { _ in
+            Button("OK", role: .cancel) {}
+        } message: { message in
+            Text(verbatim: message)
         }
         #endif
         .importResultAlert($importAlert)

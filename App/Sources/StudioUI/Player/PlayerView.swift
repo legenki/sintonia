@@ -193,6 +193,8 @@ public struct PlayerView<HeaderAccessory: View>: View {
                             .foregroundStyle(StudioTheme.primaryText)
                             .frame(width: 34, height: 34)
                             .background(Circle().fill(Color.white.opacity(0.08)))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(Text("Export"))
@@ -209,6 +211,8 @@ public struct PlayerView<HeaderAccessory: View>: View {
                             .foregroundStyle(StudioTheme.secondaryText)
                             .frame(width: 34, height: 34)
                             .background(Circle().fill(Color.white.opacity(0.08)))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(Text("About"))
@@ -227,10 +231,11 @@ public struct PlayerView<HeaderAccessory: View>: View {
 
                 if HeaderAccessory.self != EmptyView.self {
                     headerAccessory
+                        .layoutPriority(0.8)
                 }
 
                 outputRoutePill
-                    .layoutPriority(1)
+                    .layoutPriority(HeaderAccessory.self == EmptyView.self ? 1 : 0.6)
             }
         }
         .padding(.horizontal, 12)
@@ -266,28 +271,49 @@ public struct PlayerView<HeaderAccessory: View>: View {
             StudioTheme.secondaryText
         }
 
-        return HStack(spacing: 5) {
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: 5) {
+                Image(systemName: iconName)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(pillColor)
+                Text(labelKey)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(isWarning ? StudioTheme.primaryText : StudioTheme.secondaryText)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background {
+                Capsule()
+                    .fill(isWarning ? StudioTheme.betaColor.opacity(0.18) : Color.white.opacity(0.06))
+            }
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        isWarning ? StudioTheme.betaColor.opacity(0.55) : StudioTheme.hairlineHighlight,
+                        lineWidth: 0.75
+                    )
+            }
+
             Image(systemName: iconName)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(pillColor)
-            Text(labelKey)
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(isWarning ? StudioTheme.primaryText : StudioTheme.secondaryText)
-                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background {
+                    Capsule()
+                        .fill(isWarning ? StudioTheme.betaColor.opacity(0.18) : Color.white.opacity(0.06))
+                }
+                .overlay {
+                    Capsule()
+                        .strokeBorder(
+                            isWarning ? StudioTheme.betaColor.opacity(0.55) : StudioTheme.hairlineHighlight,
+                            lineWidth: 0.75
+                        )
+                }
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .background {
-            Capsule()
-                .fill(isWarning ? StudioTheme.betaColor.opacity(0.18) : Color.white.opacity(0.06))
-        }
-        .overlay {
-            Capsule()
-                .strokeBorder(
-                    isWarning ? StudioTheme.betaColor.opacity(0.55) : StudioTheme.hairlineHighlight,
-                    lineWidth: 0.75
-                )
-        }
+        .help(Text(labelKey))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Audio Output"))
         .accessibilityValue(Text(labelKey))

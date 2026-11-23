@@ -42,8 +42,21 @@ public struct MacCommands: Commands {
         }
 
         CommandMenu("Playback") {
-            let spaceShortcut: KeyboardShortcut? = allowsPlayPauseSpaceShortcut()
+            let allowsShortcuts = allowsPlayPauseSpaceShortcut()
+            let spaceShortcut: KeyboardShortcut? = allowsShortcuts
                 ? KeyboardShortcut(.space, modifiers: [])
+                : nil
+            let skipBackShortcut: KeyboardShortcut? = allowsShortcuts
+                ? KeyboardShortcut(.leftArrow, modifiers: .command)
+                : nil
+            let skipForwardShortcut: KeyboardShortcut? = allowsShortcuts
+                ? KeyboardShortcut(.rightArrow, modifiers: .command)
+                : nil
+            let increaseGainShortcut: KeyboardShortcut? = allowsShortcuts
+                ? KeyboardShortcut(.upArrow, modifiers: .command)
+                : nil
+            let decreaseGainShortcut: KeyboardShortcut? = allowsShortcuts
+                ? KeyboardShortcut(.downArrow, modifiers: .command)
                 : nil
 
             Button(coordinator.engine.isPlaying ? "Pause" : "Play") {
@@ -57,12 +70,12 @@ public struct MacCommands: Commands {
             Button("Skip Back 30s") {
                 coordinator.engine.skip(by: -30.0)
             }
-            .keyboardShortcut(.leftArrow, modifiers: .command)
+            .keyboardShortcut(skipBackShortcut)
 
             Button("Skip Forward 30s") {
                 coordinator.engine.skip(by: 30.0)
             }
-            .keyboardShortcut(.rightArrow, modifiers: .command)
+            .keyboardShortcut(skipForwardShortcut)
 
             Divider()
 
@@ -71,14 +84,14 @@ public struct MacCommands: Commands {
                 updated.masterGain = min(1.0, updated.masterGain + 0.05)
                 coordinator.engine.updateOverrides(updated)
             }
-            .keyboardShortcut(.upArrow, modifiers: .command)
+            .keyboardShortcut(increaseGainShortcut)
 
             Button("Decrease Master Gain") {
                 var updated = coordinator.engine.liveOverrides
                 updated.masterGain = max(0.0, updated.masterGain - 0.05)
                 coordinator.engine.updateOverrides(updated)
             }
-            .keyboardShortcut(.downArrow, modifiers: .command)
+            .keyboardShortcut(decreaseGainShortcut)
 
             Divider()
 

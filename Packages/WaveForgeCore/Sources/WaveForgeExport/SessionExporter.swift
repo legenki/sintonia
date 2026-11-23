@@ -145,7 +145,7 @@ public enum SessionExporter {
                 interleaved: false
             )
         } catch {
-            throw ExportError.writeFailed(error.localizedDescription)
+            throw ExportError.writeFailed("")
         }
 
         let renderer = SynthRenderer(sampleRate: sampleRate, snapshot: snapshot)
@@ -167,7 +167,7 @@ public enum SessionExporter {
             do {
                 try audioFile?.write(from: buffer)
             } catch {
-                throw ExportError.writeFailed(error.localizedDescription)
+                throw ExportError.writeFailed("")
             }
 
             renderedFrames += Int64(framesThisChunk)
@@ -256,5 +256,26 @@ public enum SessionExporter {
         let slug = collapsed.isEmpty ? "Session" : String(collapsed.prefix(40))
         let unique = String(UUID().uuidString.prefix(8))
         return directory.appendingPathComponent("WaveForge-\(slug)-\(unique).\(format.fileExtension)")
+    }
+
+    /// Removes temporary WaveForge audio export files left in `directory` from previous sessions.
+    public static func cleanupStaleTemporaryExports(
+        in directory: URL = FileManager.default.temporaryDirectory
+    ) {
+        guard let urls = try? FileManager.default.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else {
+            return
+        }
+
+        for url in urls {
+            let name = url.lastPathComponent
+            let ext = url.pathExtension.lowercased()
+            if name.hasPrefix("WaveForge-"), (ext == "wav" || ext == "m4a") {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
     }
 }

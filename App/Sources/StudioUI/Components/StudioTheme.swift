@@ -45,8 +45,8 @@ public enum StudioTheme: Sendable {
     /// Secondary hardware legend text.
     public static let secondaryText = Color(studioHex: 0x9BA3B4)
 
-    /// Muted scale tick & inactive legend text.
-    public static let mutedText = Color(studioHex: 0x626A7B)
+    /// Muted scale tick & inactive legend text (WCAG AA ~4.6:1 on obsidianSurface).
+    public static let mutedText = Color(studioHex: 0x7E879B)
 
     // MARK: - Brushed Metal Accents & Gradients
 

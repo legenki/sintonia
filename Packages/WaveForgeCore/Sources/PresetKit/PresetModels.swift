@@ -206,4 +206,8 @@ public enum PresetLimits {
     public static let isochronicDutyCycleRange: ClosedRange<Double> = 0.2...0.8
     public static let carrierHzRange: ClosedRange<Double> = 40.0...1000.0
     public static let beatHzRange: ClosedRange<Double> = 0.5...60.0
+    public static let maxImportFileBytes: Int = 4 * 1024 * 1024
+    public static let maxCurvePoints: Int = 4_096
+    public static let maxNameLength: Int = 256
+    public static let maxSummaryLength: Int = 2_000
 }

@@ -16,6 +16,7 @@ public enum PresetValidationError: Error, Equatable, Sendable {
     case invalidIsochronicSoftness(voiceIndex: Int)
     case invalidIsochronicDutyCycle(voiceIndex: Int)
     case emptyCurve(voiceIndex: Int?)
+    case tooManyCurvePoints(voiceIndex: Int?)
     case nonFiniteValue(voiceIndex: Int?)
     case negativeCurveTime(voiceIndex: Int?)
     case carrierOutOfRange(voiceIndex: Int)
@@ -146,6 +147,10 @@ public enum PresetValidator {
     ) {
         guard !curve.points.isEmpty else {
             errors.append(.emptyCurve(voiceIndex: voiceIndex))
+            return
+        }
+        guard curve.points.count <= PresetLimits.maxCurvePoints else {
+            errors.append(.tooManyCurvePoints(voiceIndex: voiceIndex))
             return
         }
 

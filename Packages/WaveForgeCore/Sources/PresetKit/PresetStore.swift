@@ -113,7 +113,7 @@ public final class PresetStore: @unchecked Sendable {
     private static func loadCustomPresets(from directory: URL) -> (presets: [UUID: Preset], fileURLs: [UUID: URL]) {
         guard let urls = try? FileManager.default.contentsOfDirectory(
             at: directory,
-            includingPropertiesForKeys: nil,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         ) else {
             return ([:], [:])
@@ -122,7 +122,10 @@ public final class PresetStore: @unchecked Sendable {
         var loadedPresets: [UUID: Preset] = [:]
         var loadedURLs: [UUID: URL] = [:]
         for url in urls.sorted(by: { $0.path < $1.path }) where url.pathExtension.lowercased() == "waveforge" {
-            guard let data = try? Data(contentsOf: url),
+            let resourceValues = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+            guard resourceValues?.isRegularFile == true,
+                  (resourceValues?.fileSize ?? 0) <= PresetLimits.maxImportFileBytes,
+                  let data = try? Data(contentsOf: url),
                   let preset = try? PresetCodec.decode(data),
                   !preset.isBuiltIn,
                   !builtInIDs.contains(preset.id),

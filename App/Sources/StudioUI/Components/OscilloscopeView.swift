@@ -1,5 +1,8 @@
 import SwiftUI
 import SynthCore
+#if os(macOS)
+import AppKit
+#endif
 
 /// Display modes cycled by tapping `OscilloscopeView`.
 public enum OscilloscopeDisplayMode: Int, CaseIterable, Sendable {
@@ -78,9 +81,13 @@ public struct OscilloscopeView: View {
     private let activeVoiceCount: Int
     private let isPlaying: Bool
 
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var displayMode: OscilloscopeDisplayMode
     @State private var scratch = TelemetryScratchBox()
     @State private var haptics = StudioControlHaptics()
+    @State private var isWindowVisible: Bool = true
 
     public init(
         telemetryBuffer: TelemetryRingBuffer,
@@ -102,12 +109,16 @@ public struct OscilloscopeView: View {
         min(SynthSnapshot.maxVoices, max(0, activeVoiceCount))
     }
 
+    private var isAnimationPaused: Bool {
+        !isPlaying || !isWindowVisible || scenePhase != .active
+    }
+
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(StudioTheme.recessedWell)
 
-            TimelineView(.animation(paused: !isPlaying)) { timeline in
+            TimelineView(.animation(minimumInterval: reduceMotion ? (1.0 / 20.0) : nil, paused: isAnimationPaused)) { timeline in
                 Canvas { context, size in
                     let box = scratch
                     let dt = computeFrameDelta(
@@ -131,6 +142,12 @@ public struct OscilloscopeView: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            #if os(macOS)
+            .background(
+                OscilloscopeWindowVisibilityBridge(isVisible: $isWindowVisible)
+                    .allowsHitTesting(false)
+            )
+            #endif
 
             if displayMode == .bandMonitor {
                 bandMonitorOverlay
@@ -494,9 +511,10 @@ public struct OscilloscopeView: View {
         var glowContext = context
         glowContext.blendMode = .plusLighter
 
-        // Draw decaying CRT phosphor persistence ribbons for both channels from oldest to newest.
+        // Draw decaying CRT phosphor persistence ribbons for both channels from oldest to newest
+        // (suppressed when Reduce Motion is enabled for calm accessibility rendering).
         let total = box.waveformTrailCount
-        if total > 1 {
+        if !reduceMotion && total > 1 {
             for ageIndex in 0..<(total - 1) {
                 let slot = (writeSlot - (total - 1 - ageIndex) + capacity) % capacity
                 let progress = Double(ageIndex + 1) / Double(total)
@@ -659,7 +677,7 @@ public struct OscilloscopeView: View {
         glowContext.blendMode = .plusLighter
 
         let total = box.lissajousTrailCount
-        if total > 1 {
+        if !reduceMotion && total > 1 {
             for ageIndex in 0..<(total - 1) {
                 let slot = (writeSlot - (total - 1 - ageIndex) + capacity) % capacity
                 let progress = Double(ageIndex + 1) / Double(total)
@@ -754,3 +772,85 @@ public struct OscilloscopeView: View {
         "\(displayMode.localizedTitle), \(dominantBand.localizedTitle), \(StudioTheme.formatFrequency(dominantBeatHz)), \(clampedVoiceCount)/\(SynthSnapshot.maxVoices)"
     }
 }
+
+#if os(macOS)
+/// Tracks macOS `NSWindow.occlusionState` so `OscilloscopeView` pauses GPU rendering while minimized or occluded.
+private struct OscilloscopeWindowVisibilityBridge: NSViewRepresentable {
+    @Binding var isVisible: Bool
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isVisible: $isVisible)
+    }
+
+    func makeNSView(context: Context) -> WindowObserverNSView {
+        let view = WindowObserverNSView()
+        view.onWindowChanged = { [weak coordinator = context.coordinator] window in
+            coordinator?.attach(to: window)
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: WindowObserverNSView, context: Context) {
+        context.coordinator.attach(to: nsView.window)
+    }
+
+    static func dismantleNSView(_ nsView: WindowObserverNSView, coordinator: Coordinator) {
+        nsView.onWindowChanged = nil
+        coordinator.detach()
+    }
+
+    @MainActor
+    final class WindowObserverNSView: NSView {
+        var onWindowChanged: ((NSWindow?) -> Void)?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            onWindowChanged?(window)
+        }
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        private var isVisible: Binding<Bool>
+        private weak var observedWindow: NSWindow?
+
+        init(isVisible: Binding<Bool>) {
+            self.isVisible = isVisible
+        }
+
+        func attach(to window: NSWindow?) {
+            guard observedWindow !== window else {
+                refreshVisibility()
+                return
+            }
+            detach()
+            observedWindow = window
+            if let window {
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(handleOcclusionStateChanged(_:)),
+                    name: NSWindow.didChangeOcclusionStateNotification,
+                    object: window
+                )
+            }
+            refreshVisibility()
+        }
+
+        func detach() {
+            NotificationCenter.default.removeObserver(self)
+            observedWindow = nil
+        }
+
+        @objc private func handleOcclusionStateChanged(_ notification: Notification) {
+            refreshVisibility()
+        }
+
+        private func refreshVisibility() {
+            let visible = observedWindow?.occlusionState.contains(.visible) ?? true
+            if isVisible.wrappedValue != visible {
+                isVisible.wrappedValue = visible
+            }
+        }
+    }
+}
+#endif

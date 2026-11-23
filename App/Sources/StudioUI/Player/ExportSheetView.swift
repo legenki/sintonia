@@ -120,6 +120,10 @@ public struct ExportSheetView: View {
         .preferredColorScheme(.dark)
         .onDisappear {
             cancelActiveTask()
+            if case .completed(let fileURL) = exportState {
+                try? FileManager.default.removeItem(at: fileURL)
+                exportState = .idle
+            }
         }
     }
 

@@ -50,11 +50,12 @@ public final class MacAppCoordinator {
         }
     }
 
-    /// Deferred preset switch waiting on the user to Save, Discard, or Keep Editing unsaved Studio changes.
+    /// Deferred preset switch or Studio close waiting on the user to Save, Discard, or Keep Editing unsaved Studio changes.
     public enum PendingStudioConflict: Identifiable, Equatable, Sendable {
         case loadPreset(Preset, autoPlay: Bool)
         case createNewTemplate(Preset)
         case importPreset(Preset, toastPresetName: String?, target: ImportPresentationTarget)
+        case closeStudio
 
         public var id: String {
             switch self {
@@ -64,6 +65,8 @@ public final class MacAppCoordinator {
                 return "new-\(preset.id.uuidString)"
             case .importPreset(let preset, _, _):
                 return "import-\(preset.id.uuidString)"
+            case .closeStudio:
+                return "close-studio"
             }
         }
 
@@ -73,6 +76,8 @@ public final class MacAppCoordinator {
                  .createNewTemplate(let preset),
                  .importPreset(let preset, _, _):
                 return preset.name
+            case .closeStudio:
+                return ""
             }
         }
     }
@@ -92,6 +97,8 @@ public final class MacAppCoordinator {
     public private(set) var isTextInputFirstResponder: Bool = false
 
     @ObservationIgnored private var studioSaveHandler: (() -> Bool)? = nil
+    @ObservationIgnored private var studioDiscardHandler: (() -> Void)? = nil
+    @ObservationIgnored private var studioCloseHandler: (() -> Void)? = nil
     @ObservationIgnored private var windowOpener: ((String) -> Void)? = nil
     @ObservationIgnored private var toastDismissTask: Task<Void, Never>? = nil
     @ObservationIgnored internal var targetMainMenuForTesting: NSMenu? = nil
@@ -238,6 +245,26 @@ public final class MacAppCoordinator {
         studioSaveHandler = handler
     }
 
+    /// Registers Studio's live discard handler for reverting unsaved edits before closing the Studio window.
+    public func registerStudioDiscardHandler(_ handler: (() -> Void)?) {
+        studioDiscardHandler = handler
+    }
+
+    /// Registers the macOS Studio window close handler used after resolving a `.closeStudio` conflict.
+    public func registerStudioCloseHandler(_ handler: (() -> Void)?) {
+        studioCloseHandler = handler
+    }
+
+    /// Intercepts macOS Studio window close when unsaved edits exist, presenting the Save/Discard dialog.
+    public func requestCloseStudioWindow() {
+        if studioHasUnsavedChanges {
+            pendingConflict = .closeStudio
+            activateAndOpenWindow(WaveForgeWindowID.studio)
+            return
+        }
+        studioCloseHandler?()
+    }
+
     /// Validates, imports, and saves `.bwg` / `.waveforge` URLs from Finder (`onOpenURL`), `⌘O`, or drag-and-drop.
     public func handleIncomingURLs(_ urls: [URL]) {
         handleIncomingURLs(urls, source: .external)
@@ -337,10 +364,13 @@ public final class MacAppCoordinator {
         applyPendingConflict(conflict)
     }
 
-    /// Discards unsaved Studio edits, loads the deferred preset, and triggers Studio sync.
+    /// Discards unsaved Studio edits, loads the deferred preset (or closes Studio), and triggers Studio sync.
     public func resolveConflictDiscardAndProceed() {
         guard let conflict = pendingConflict else { return }
         pendingConflict = nil
+        if case .closeStudio = conflict {
+            studioDiscardHandler?()
+        }
         studioHasUnsavedChanges = false
         applyPendingConflict(conflict)
     }
@@ -381,6 +411,9 @@ public final class MacAppCoordinator {
                 importAlert = nil
                 showImportToast(for: toastPresetName)
             }
+
+        case .closeStudio:
+            studioCloseHandler?()
         }
 
         if importAlert != nil && importPresentationTarget == .player {

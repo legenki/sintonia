@@ -49,6 +49,7 @@ public struct StudioRackView: View {
     private let externalSyncTrigger: UUID?
     private let onDirtyStateChanged: (Bool) -> Void
     private let onRegisterSaveHandler: ((() -> Bool)?) -> Void
+    private let onRegisterDiscardHandler: ((() -> Void)?) -> Void
     private let onSavedPreset: (Preset) -> Void
     private let onDismiss: (() -> Void)?
 
@@ -84,6 +85,7 @@ public struct StudioRackView: View {
         externalSyncTrigger: UUID? = nil,
         onDirtyStateChanged: @escaping (Bool) -> Void = { _ in },
         onRegisterSaveHandler: @escaping ((() -> Bool)?) -> Void = { _ in },
+        onRegisterDiscardHandler: @escaping ((() -> Void)?) -> Void = { _ in },
         onSavedPreset: @escaping (Preset) -> Void = { _ in },
         onDismiss: (() -> Void)? = nil
     ) {
@@ -93,6 +95,7 @@ public struct StudioRackView: View {
         self.externalSyncTrigger = externalSyncTrigger
         self.onDirtyStateChanged = onDirtyStateChanged
         self.onRegisterSaveHandler = onRegisterSaveHandler
+        self.onRegisterDiscardHandler = onRegisterDiscardHandler
         self.onSavedPreset = onSavedPreset
         self.onDismiss = onDismiss
         let initial = engine.currentPreset
@@ -150,6 +153,7 @@ public struct StudioRackView: View {
                 syncFromEngine()
             }
             onRegisterSaveHandler { saveDraft() }
+            onRegisterDiscardHandler { revertDraftToBaseline() }
             onDirtyStateChanged(isDirty)
         }
         .onChange(of: draft) { _, updatedDraft in
@@ -172,6 +176,7 @@ public struct StudioRackView: View {
             savedBadgeTask?.cancel()
             savedBadgeTask = nil
             onRegisterSaveHandler(nil)
+            onRegisterDiscardHandler(nil)
             onDirtyStateChanged(false)
         }
         .confirmationDialog(
@@ -951,10 +956,14 @@ public struct StudioRackView: View {
         }
     }
 
-    private func discardChangesAndDismiss() {
+    private func revertDraftToBaseline() {
         draft = baselinePreset
         isDirty = false
         engine.applyEditedPreset(baselinePreset)
+    }
+
+    private func discardChangesAndDismiss() {
+        revertDraftToBaseline()
         dismissStudio()
     }
 

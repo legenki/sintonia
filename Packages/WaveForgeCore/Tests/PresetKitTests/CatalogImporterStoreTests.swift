@@ -410,4 +410,30 @@ struct CatalogImporterStoreTests {
         let reloaded = PresetStore(storageDirectory: dir)
         #expect(reloaded.allPresets().count == 18)
     }
+
+    @Test func bwgImporterAndValidatorEnforceFileSizeAndCurvePointLimits() throws {
+        let oversizedData = Data(repeating: 0x41, count: PresetLimits.maxImportFileBytes + 1)
+        #expect(throws: BWGImportError.fileTooLarge) {
+            _ = try BWGImporter.importPreset(from: oversizedData, fallbackName: "Huge")
+        }
+
+        var excessivePreset = PresetCatalog.builtInPresets[0]
+        excessivePreset.id = UUID()
+        excessivePreset.isBuiltIn = false
+        let tooManyPoints = (0..<(PresetLimits.maxCurvePoints + 1)).map { idx in
+            CurvePoint(timeSec: Double(idx), value: 200.0)
+        }
+        excessivePreset.voices[0].carrierCurve = EnvelopeCurve(points: tooManyPoints, interpolation: .linear)
+        let validationErrors = PresetValidator.validate(excessivePreset)
+        #expect(validationErrors.contains(.tooManyCurvePoints(voiceIndex: 0)))
+
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStoreOversized-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let oversizedURL = dir.appendingPathComponent("oversized.waveforge")
+        try oversizedData.write(to: oversizedURL)
+
+        let store = PresetStore(storageDirectory: dir)
+        #expect(store.allPresets().count == 18)
+    }
 }

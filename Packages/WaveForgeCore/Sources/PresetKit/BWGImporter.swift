@@ -4,6 +4,7 @@ import SynthCore
 /// Errors thrown by `BWGImporter.importPreset(from:fallbackName:)`.
 public enum BWGImportError: Error, Equatable, Sendable {
     case emptyFile
+    case fileTooLarge
     case invalidHeader
     case corruptedStructure
     case noValidVoices
@@ -137,6 +138,9 @@ public enum BWGImporter {
         guard !data.isEmpty else {
             throw BWGImportError.emptyFile
         }
+        guard data.count <= PresetLimits.maxImportFileBytes else {
+            throw BWGImportError.fileTooLarge
+        }
 
         let bodyStartOffset = try validateHeaderOffset(in: data)
         let payload = data.subdata(in: bodyStartOffset..<data.count)
@@ -160,8 +164,8 @@ public enum BWGImporter {
 
         let durationSec = resolveDuration(from: state, voices: builtVoices, state: &state)
         let noiseLayer = buildNoiseLayer(from: state, numberToIndex: numberToIndex, state: &state)
-        let resolvedName = resolveName(parsed: state.name, fallbackName: fallbackName)
-        let resolvedSummary = state.summary ?? "Imported from BrainWave Generator (.bwg)"
+        let resolvedName = String(resolveName(parsed: state.name, fallbackName: fallbackName).prefix(PresetLimits.maxNameLength))
+        let resolvedSummary = String((state.summary ?? "Imported from BrainWave Generator (.bwg)").prefix(PresetLimits.maxSummaryLength))
         let masterGain = clampScalar(state.masterGain ?? defaultMasterGain, to: PresetLimits.unitRange, target: .masterGain, state: &state)
         let defaultFade = min(10.0, durationSec * 0.1)
         let fadeInSec = clampScalar(state.fadeInSec ?? defaultFade, to: PresetLimits.fadeRange, target: .fadeIn, state: &state)
@@ -695,7 +699,7 @@ public enum BWGImporter {
         var clampedNegativeTime = false
         var clampedValue = false
 
-        for (index, token) in tokens.enumerated() {
+        for (index, token) in tokens.prefix(PresetLimits.maxCurvePoints).enumerated() {
             let cleaned = token.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !cleaned.isEmpty else { continue }
 

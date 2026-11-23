@@ -2,6 +2,7 @@ import Foundation
 import PresetKit
 import SwiftUI
 import SynthCore
+import WaveForgeExport
 
 @main
 struct WaveForgeApp: App {
@@ -9,6 +10,7 @@ struct WaveForgeApp: App {
     @State private var engine: AudioEngineController
 
     init() {
+        SessionExporter.cleanupStaleTemporaryExports()
         let storageURL = Self.defaultPresetStorageURL()
         self.presetStore = PresetStore(storageDirectory: storageURL)
         self._engine = State(initialValue: AudioEngineController(preset: PresetCatalog.builtInPresets[0]))

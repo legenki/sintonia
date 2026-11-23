@@ -66,7 +66,6 @@ targets:
                 - waveforge
               public.mime-type:
                 - application/vnd.waveforge.preset+json
-                - application/json
         UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.noromaa.bwg
             UTTypeDescription: BrainWave Generator Preset
@@ -77,8 +76,7 @@ targets:
               public.filename-extension:
                 - bwg
               public.mime-type:
-                - text/plain
-                - application/octet-stream
+                - application/x-bwg
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app
@@ -167,7 +165,6 @@ targets:
                 - waveforge
               public.mime-type:
                 - application/vnd.waveforge.preset+json
-                - application/json
         UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.noromaa.bwg
             UTTypeDescription: BrainWave Generator Preset
@@ -178,8 +175,7 @@ targets:
               public.filename-extension:
                 - bwg
               public.mime-type:
-                - text/plain
-                - application/octet-stream
+                - application/x-bwg
     entitlements:
       path: App/Mac/WaveForgeMac.entitlements
       properties:

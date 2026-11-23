@@ -1,10 +1,15 @@
 import SwiftUI
+import WaveForgeExport
 
 /// Hybrid macOS desktop app entry exposing singleton Player, Library, and Studio Rack windows,
 /// live MenuBarExtra status/controls, native keyboard commands, and `.bwg`/`.waveforge` file opening.
 @main
 struct WaveForgeMacApp: App {
     @State private var coordinator = MacAppCoordinator()
+
+    init() {
+        SessionExporter.cleanupStaleTemporaryExports()
+    }
 
     var body: some Scene {
         Window(Text("WaveForge"), id: WaveForgeWindowID.player) {
