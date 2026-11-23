@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(macOS)
-import AppKit
-#endif
 
 /// Axis orientation for `StudioFader`.
 public enum StudioFaderOrientation: Sendable, Equatable {
@@ -449,15 +446,6 @@ public struct StudioFader: View {
         }
     }
 
-    private static var isModifierFineTuneActive: Bool {
-        #if os(macOS)
-        let flags = NSEvent.modifierFlags
-        return flags.contains(.option) || flags.contains(.shift)
-        #else
-        return false
-        #endif
-    }
-
     private func handleDragChanged(
         primaryTranslation: CGFloat,
         perpendicularTranslation: CGFloat,
@@ -476,7 +464,7 @@ public struct StudioFader: View {
         lastDragOffset = primaryTranslation
 
         let fineEngaged = abs(perpendicularTranslation) > Self.fineTuningThresholdPt
-            || Self.isModifierFineTuneActive
+            || StudioControlHaptics.isFineTuningModifierPressed
         if fineEngaged != isFineTuning {
             isFineTuning = fineEngaged
             haptics.fireModeShift()

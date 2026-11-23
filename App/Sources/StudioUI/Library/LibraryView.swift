@@ -771,12 +771,11 @@ private struct PresetLibraryCard<MenuItems: View>: View {
 
         if let onDoubleClick {
             cardContent
-                .onTapGesture(count: 2) {
-                    onDoubleClick()
-                }
-                .onTapGesture {
-                    onSelect()
-                }
+                .gesture(
+                    TapGesture(count: 2)
+                        .onEnded { onDoubleClick() }
+                        .exclusively(before: TapGesture(count: 1).onEnded { onSelect() })
+                )
         } else {
             cardContent
                 .onTapGesture {

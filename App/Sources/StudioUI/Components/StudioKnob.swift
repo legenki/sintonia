@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(macOS)
-import AppKit
-#endif
 
 /// GarageBand-inspired rotary hardware knob with glowing LED arc, brushed metal cap,
 /// horizontal-offset fine-tuning (`> 36 pt` -> `0.2×`), double-tap reset, and detent haptics.
@@ -298,15 +295,6 @@ public struct StudioKnob: View {
         return fraction <= normalized + 0.015
     }
 
-    private static var isModifierFineTuneActive: Bool {
-        #if os(macOS)
-        let flags = NSEvent.modifierFlags
-        return flags.contains(.option) || flags.contains(.shift)
-        #else
-        return false
-        #endif
-    }
-
     private func handleDragChanged(_ gesture: DragGesture.Value) {
         guard span > 0 else { return }
 
@@ -321,7 +309,7 @@ public struct StudioKnob: View {
         lastTranslationY = gesture.translation.height
 
         let fineEngaged = abs(gesture.translation.width) > Self.fineTuningThresholdPt
-            || Self.isModifierFineTuneActive
+            || StudioControlHaptics.isFineTuningModifierPressed
         if fineEngaged != isFineTuning {
             isFineTuning = fineEngaged
             haptics.fireModeShift()

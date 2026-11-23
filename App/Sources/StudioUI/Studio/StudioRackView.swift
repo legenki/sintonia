@@ -46,7 +46,7 @@ public struct StudioRackView: View {
     private let engine: AudioEngineController
     private let presetStore: PresetStore
     private let showsDualPaneWhenWide: Bool
-    private let externalSyncTrigger: UUID
+    private let externalSyncTrigger: UUID?
     private let onDirtyStateChanged: (Bool) -> Void
     private let onRegisterSaveHandler: ((() -> Bool)?) -> Void
     private let onSavedPreset: (Preset) -> Void
@@ -62,7 +62,7 @@ public struct StudioRackView: View {
     @State private var draft: Preset
     @State private var baselinePreset: Preset
     @State private var hasSavedInStore: Bool
-    @State private var lastAppliedSyncTrigger: UUID
+    @State private var lastAppliedSyncTrigger: UUID?
     @State private var isDirty: Bool = false
     @State private var selectedVoiceIndex: Int = 0
     @State private var activeTab: StudioDetailTab = .voice
@@ -81,7 +81,7 @@ public struct StudioRackView: View {
         engine: AudioEngineController,
         presetStore: PresetStore,
         showsDualPaneWhenWide: Bool = false,
-        externalSyncTrigger: UUID = UUID(),
+        externalSyncTrigger: UUID? = nil,
         onDirtyStateChanged: @escaping (Bool) -> Void = { _ in },
         onRegisterSaveHandler: @escaping ((() -> Bool)?) -> Void = { _ in },
         onSavedPreset: @escaping (Preset) -> Void = { _ in },
@@ -143,8 +143,10 @@ public struct StudioRackView: View {
         .preferredColorScheme(.dark)
         .interactiveDismissDisabled(isDirty)
         .onAppear {
-            if lastAppliedSyncTrigger != externalSyncTrigger {
+            if let externalSyncTrigger, lastAppliedSyncTrigger != externalSyncTrigger {
                 lastAppliedSyncTrigger = externalSyncTrigger
+                syncFromEngine()
+            } else if !isDirty && draft != engine.currentPreset {
                 syncFromEngine()
             }
             onRegisterSaveHandler { saveDraft() }
@@ -157,6 +159,7 @@ public struct StudioRackView: View {
             onDirtyStateChanged(dirty)
         }
         .onChange(of: externalSyncTrigger) { _, newTrigger in
+            guard let newTrigger else { return }
             lastAppliedSyncTrigger = newTrigger
             syncFromEngine()
         }

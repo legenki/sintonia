@@ -360,13 +360,21 @@ public struct BrainwaveBandBadge: View {
     }
 }
 
-/// Shared GarageBand tactile haptic coordinator across `StudioUI` controls.
+/// Shared GarageBand tactile haptic and modifier-input coordinator across `StudioUI` controls.
 @MainActor
 internal final class StudioControlHaptics {
     enum ImpactStyle {
         case light
         case medium
         case rigid
+    }
+
+    static var isFineTuningModifierPressed: Bool {
+        #if os(macOS)
+        !NSEvent.modifierFlags.intersection([.option, .shift]).isEmpty
+        #else
+        false
+        #endif
     }
 
     #if os(iOS)
