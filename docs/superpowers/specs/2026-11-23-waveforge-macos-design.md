@@ -1,7 +1,7 @@
 # Спецификация дизайна WaveForge (macOS 27)
 
 **Дата:** 2026-11-23  
-**Статус:** На ревью у пользователя  
+**Статус:** Согласовано (обновлён код E174.1)  
 **Базовая версия:** [Спецификация WaveForge iOS 27](file:///Users/andy/.gemini/antigravity/scratch/WaveForge/docs/superpowers/specs/2026-11-22-waveforge-ios-design.md)  
 **Рабочее название проекта:** WaveForge  
 
@@ -86,7 +86,7 @@ WaveForge/
     │       └── MacCommands.swift                # Системное меню macOS и шорткаты
     ├── Resources/
     │   ├── Localizable.xcstrings                # Единая локализация EN + RU (общая для iOS и macOS)
-    │   ├── PrivacyInfo.xcprivacy                # Общий privacy manifest (NSPrivacyAccessedAPICategoryDiskSpace 85F4.1)
+    │   ├── PrivacyInfo.xcprivacy                # Общий privacy manifest (NSPrivacyAccessedAPICategoryDiskSpace E174.1)
     │   └── Assets.xcassets                      # Общие ассеты и иконка приложения (macOS + iOS слоты)
     └── Tests/
         ├── AudioRuntimeTests/                   # Тесты iOS-таргета
@@ -112,7 +112,7 @@ WaveForge/
 
 ### Контейнер хранения и приватность
 - Пользовательские пресеты хранятся в песочнице по стандартному пути `FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first/WaveForge/Presets` через существующий `PresetStore`.
-- Общий `App/Resources/PrivacyInfo.xcprivacy` (`NSPrivacyTracking = false`, `NSPrivacyAccessedAPICategoryDiskSpace` с причиной `85F4.1`) автоматически копируется в `WaveForgeMac.app/Contents/Resources/PrivacyInfo.xcprivacy`.
+- Общий `App/Resources/PrivacyInfo.xcprivacy` (`NSPrivacyTracking = false`, `NSPrivacyAccessedAPICategoryDiskSpace` с причиной `E174.1` — проверка наличия достаточного свободного места перед записью экспортируемых аудиофайлов; в ходе реализации обновляется с прежнего `85F4.1` на `E174.1`) автоматически копируется в `WaveForgeMac.app/Contents/Resources/PrivacyInfo.xcprivacy`.
 - Экран **«О WaveForge»** (`AboutSheetView`) с дисклеймером App Store Guideline 1.4.1 (non-medical wellness tool) доступен через стандартный пункт главного меню **`WaveForge → О WaveForge`** и кнопку информации в окне Плеера.
 
 ---
