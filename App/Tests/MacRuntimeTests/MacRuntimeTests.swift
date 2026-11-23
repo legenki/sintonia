@@ -7,7 +7,7 @@ import Testing
 @Suite("WaveForgeMac Runtime Smoke Tests", .serialized)
 struct MacRuntimeTests {
     @Test func appBundleContainsPrivacyManifestWithRequiredDiskSpaceReason() throws {
-        let hostBundle = Bundle(identifier: "com.waveforge.mac") ?? .main
+        let hostBundle = try #require(Bundle(identifier: "com.waveforge.mac"))
         let privacyURL = try #require(
             hostBundle.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
         )

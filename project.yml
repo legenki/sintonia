@@ -182,6 +182,9 @@ targets:
                 - application/octet-stream
     entitlements:
       path: App/Mac/WaveForgeMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-write: true
     settings:
       base:
         PRODUCT_NAME: WaveForge
