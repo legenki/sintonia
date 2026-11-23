@@ -1,6 +1,70 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld Voices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Voices"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голосов: %lld"
+          }
+        }
+      }
+    },
+    "20-minute dip from 12 -> 4.5 Hz Theta followed by an invigorating rise to 14 Hz.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20-minute dip from 12 -> 4.5 Hz Theta followed by an invigorating rise to 14 Hz."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20-минутное погружение 12 → 4.5 Гц (Тета) с мягким бодрящим подъёмом обратно к 14 Гц."
+          }
+        }
+      }
+    },
+    "45-minute deep Delta 2.5 -> 1.2 Hz drift with deep brown noise and 5-minute gradual fade-out.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "45-minute deep Delta 2.5 -> 1.2 Hz drift with deep brown noise and 5-minute gradual fade-out."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "45-минутный глубокий дрейф Дельта 2.5 → 1.2 Гц с глубоким коричневым шумом и 5-минутным затуханием."
+          }
+        }
+      }
+    },
+    "7 Hz Theta resonance with slow breathing volume swells and synchronized pulsing noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 Hz Theta resonance with slow breathing volume swells and synchronized pulsing noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тета-резонанс 7 Гц с плавными дыхательными волнами громкости и синхронной пульсацией шума."
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "en": {
@@ -29,6 +93,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "О WaveForge"
+          }
+        }
+      }
+    },
+    "Active": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Активен"
           }
         }
       }
@@ -97,6 +177,22 @@
         }
       }
     },
+    "Additional import notes:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Additional import notes:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дополнительные примечания импорта:"
+          }
+        }
+      }
+    },
     "All": {
       "localizations": {
         "en": {
@@ -141,6 +237,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Альфа"
+          }
+        }
+      }
+    },
+    "Alpha 10.5 Hz at 200 Hz paired with a tracked pure-fifth harmonic voice (300 Hz) and steady pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alpha 10.5 Hz at 200 Hz paired with a tracked pure-fifth harmonic voice (300 Hz) and steady pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Альфа 10.5 Гц на 200 Гц в паре со следящей чистой квинтой (300 Гц) и ровным розовым шумом."
           }
         }
       }
@@ -337,6 +449,22 @@
         }
       }
     },
+    "Beta 16 Hz binaural drive with a mid-session 38 Hz isochronic Gamma accent (10-25 min) and pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beta 16 Hz binaural drive with a mid-session 38 Hz isochronic Gamma accent (10-25 min) and pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бинауральный бета-драйв 16 Гц с изохронным гамма-акцентом 38 Гц в середине сессии (10–25 мин) и розовым шумом."
+          }
+        }
+      }
+    },
     "Binaural": {
       "localizations": {
         "en": {
@@ -365,6 +493,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Студия бинаурального и изохронного звука"
+          }
+        }
+      }
+    },
+    "Binaural Beta 14 -> 18 -> 15 Hz with harmonic isochronic support and steady pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Binaural Beta 14 -> 18 -> 15 Hz with harmonic isochronic support and steady pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бинауральный бета-ритм 14 → 18 → 15 Гц с гармоническим изохронным слоем и ровным розовым шумом."
           }
         }
       }
@@ -561,6 +705,38 @@
         }
       }
     },
+    "Copy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Копия"
+          }
+        }
+      }
+    },
+    "Create a new preset in Studio or import a .bwg / .waveforge file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a new preset in Studio or import a .bwg / .waveforge file."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создайте новый пресет в Студии или импортируйте файл .bwg / .waveforge."
+          }
+        }
+      }
+    },
     "Creative": {
       "localizations": {
         "en": {
@@ -621,6 +797,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пользовательские"
+          }
+        }
+      }
+    },
+    "Custom studio session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom studio session"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательская студийная сессия"
           }
         }
       }
@@ -1105,6 +1297,22 @@
         }
       }
     },
+    "Fundamental 7.83 Hz resonance with tracked 15.66 Hz isochronic overtone and earth drone.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fundamental 7.83 Hz resonance with tracked 15.66 Hz isochronic overtone and earth drone."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фундаментальный резонанс 7.83 Гц со следящим изохронным обертоном 15.66 Гц и земным дроном."
+          }
+        }
+      }
+    },
     "Gamma": {
       "localizations": {
         "en": {
@@ -1117,6 +1325,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Гамма"
+          }
+        }
+      }
+    },
+    "Gentle Beta 15 -> Alpha 8.5 Hz unwind paired with pink-to-brown noise transition.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentle Beta 15 -> Alpha 8.5 Hz unwind paired with pink-to-brown noise transition."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мягкий спуск Бета 15 → Альфа 8.5 Гц с переходом шума от розового к коричневому."
           }
         }
       }
@@ -1233,6 +1457,38 @@
         }
       }
     },
+    "Imported Preset": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported Preset"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортированный пресет"
+          }
+        }
+      }
+    },
+    "Imported from BrainWave Generator (.bwg)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported from BrainWave Generator (.bwg)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировано из BrainWave Generator (.bwg)"
+          }
+        }
+      }
+    },
     "Insufficient Storage": {
       "localizations": {
         "en": {
@@ -1293,6 +1549,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Изохронный"
+          }
+        }
+      }
+    },
+    "Isochronic 40 Hz Gamma pulse paired with a gentle 10 Hz Alpha foundation and light pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isochronic 40 Hz Gamma pulse paired with a gentle 10 Hz Alpha foundation and light pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изохронный гамма-импульс 40 Гц с мягкой альфа-подложкой 10 Гц и лёгким розовым шумом."
           }
         }
       }
@@ -1517,6 +1789,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Новый пресет"
+          }
+        }
+      }
+    },
+    "No Custom Presets Yet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Custom Presets Yet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательских пресетов пока нет"
+          }
+        }
+      }
+    },
+    "No Matching Presets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Matching Presets"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пресеты не найдены"
           }
         }
       }
@@ -1777,6 +2081,22 @@
         }
       }
     },
+    "Playing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playing"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Играет"
+          }
+        }
+      }
+    },
     "Preset": {
       "localizations": {
         "en": {
@@ -1789,6 +2109,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пресет"
+          }
+        }
+      }
+    },
+    "Preset Actions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preset Actions"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Действия с пресетом"
           }
         }
       }
@@ -2241,6 +2577,38 @@
         }
       }
     },
+    "Smooth 10 -> 20 Hz upward ramp with triangle binaural carrier and tapering white-to-pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smooth 10 -> 20 Hz upward ramp with triangle binaural carrier and tapering white-to-pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плавный разгон 10 → 20 Гц с треугольной бинауральной несущей и затухающим бело-розовым шумом."
+          }
+        }
+      }
+    },
+    "Smooth 8 -> 4.5 Hz Sine² meditation at 136.1 Hz with minimal pink-brown noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smooth 8 -> 4.5 Hz Sine² meditation at 136.1 Hz with minimal pink-brown noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плавная медитация Синус² 8 → 4.5 Гц на 136.1 Гц с деликатным розово-коричневым шумом."
+          }
+        }
+      }
+    },
     "Smooth S-Curve": {
       "localizations": {
         "en": {
@@ -2353,6 +2721,22 @@
         }
       }
     },
+    "Speaker-friendly 12 Hz soft isochronic pulse (0.8 softness) with pink-to-brown background noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker-friendly 12 Hz soft isochronic pulse (0.8 softness) with pink-to-brown background noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мягкий изохронный импульс 12 Гц для динамиков и наушников с розово-коричневым фоновым шумом."
+          }
+        }
+      }
+    },
     "Square": {
       "localizations": {
         "en": {
@@ -2365,6 +2749,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Меандр"
+          }
+        }
+      }
+    },
+    "Staged Alpha 10 -> Theta 5 -> Delta 1.5 Hz descent with softly fading brown noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Staged Alpha 10 -> Theta 5 -> Delta 1.5 Hz descent with softly fading brown noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ступенчатый спуск Альфа 10 → Тета 5 → Дельта 1.5 Гц с плавно затухающим коричневым шумом."
+          }
+        }
+      }
+    },
+    "Steady 13.5 Hz SMR focus anchored by a fifth-tracking harmonic voice and warm brown noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady 13.5 Hz SMR focus anchored by a fifth-tracking harmonic voice and warm brown noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стабильный SMR-фокус 13.5 Гц с гармонической квинтой и тёплым коричневым шумом."
           }
         }
       }
@@ -2465,6 +2881,54 @@
         }
       }
     },
+    "Theta 5.5 Hz plateau with periodic 6.5 Hz isochronic cues and pulsing brown noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theta 5.5 Hz plateau with periodic 6.5 Hz isochronic cues and pulsing brown noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плато Тета 5.5 Гц с периодическими изохронными импульсами 6.5 Гц и пульсирующим коричневым шумом."
+          }
+        }
+      }
+    },
+    "Three-voice 14 -> 7.83 Hz Schumann transition blending binaural, monaural, and Sine² layers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three-voice 14 -> 7.83 Hz Schumann transition blending binaural, monaural, and Sine² layers."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трёхголосый переход 14 → 7.83 Гц (Шуман), объединяющий бинауральный, монауральный и Синус² слои."
+          }
+        }
+      }
+    },
+    "Three-voice Alpha/Theta harmonic chord at 136.1 Hz and octave with soothing brown noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three-voice Alpha/Theta harmonic chord at 136.1 Hz and octave with soothing brown noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трёхголосый гармонический альфа/тета-аккорд на 136.1 Гц и октаве с мягким коричневым шумом."
+          }
+        }
+      }
+    },
     "Timeline": {
       "localizations": {
         "en": {
@@ -2561,6 +3025,38 @@
         }
       }
     },
+    "Try a different search term or category filter.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try a different search term or category filter."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Попробуйте другой поисковый запрос или категорию."
+          }
+        }
+      }
+    },
+    "Undulating Alpha 8.5 Hz / Theta 6.5 Hz oscillation across triangle and sine voices with light pink noise.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undulating Alpha 8.5 Hz / Theta 6.5 Hz oscillation across triangle and sine voices with light pink noise."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Волнообразные качели Альфа 8.5 Гц / Тета 6.5 Гц в треугольном и синусоидальном голосах с розовым шумом."
+          }
+        }
+      }
+    },
     "Unsaved Changes": {
       "localizations": {
         "en": {
@@ -2573,6 +3069,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Несохранённые изменения"
+          }
+        }
+      }
+    },
+    "Unsupported .waveforge schema version (%lld).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported .waveforge schema version (%lld)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неподдерживаемая версия формата .waveforge (%lld)."
+          }
+        }
+      }
+    },
+    "Unsupported file format. Please choose a .bwg or .waveforge file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported file format. Please choose a .bwg or .waveforge file."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неподдерживаемый формат файла. Выберите файл .bwg или .waveforge."
           }
         }
       }

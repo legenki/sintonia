@@ -17,6 +17,7 @@
 		4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */; };
 		4F8AE3B006F19E05C4A76CAF /* VoiceInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247C8DA78635A0F4B37F4C53 /* VoiceInspectorView.swift */; };
 		52C1107D2E5770616DF0CDCD /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D91994D81AAD8FF9CFC914 /* ExportSheetView.swift */; };
+		5D1A624427BBF81827FC6EB2 /* ImportResultAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D583560AB0AFFDF174A3EF /* ImportResultAlert.swift */; };
 		6A968EE51738E3DF0C077D71 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A08FE57AB4D586E976D277B /* Localizable.xcstrings */; };
 		6D71CA25072905868F7EAA61 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 634A501714AFC747DBA375D0 /* SynthCore */; };
 		6DC151EA1F764D6466C55214 /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA399037651AE61D8072CFE6 /* StudioTheme.swift */; };
@@ -30,6 +31,8 @@
 		BAC335182D0F0695867001EA /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31488F69B99BBEB09D8B3EC4 /* PlayerView.swift */; };
 		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
 		C2B27A42643FF78DD9A69588 /* WaveForgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A2343316E4EED6A709667 /* WaveForgeApp.swift */; };
+		C4275C93AF75C7EBCF42DDC4 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83BA3FF5AD93E6F8A3CE39E9 /* LibraryView.swift */; };
+		C819B516639548B552E7B718 /* PresetSparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00B9103DE723BDB67C004B8 /* PresetSparklineView.swift */; };
 		CC4132A03F5C790B57A0185F /* AboutSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA284825B239B13DFF399F16 /* AboutSheetView.swift */; };
 		E264DA4237A82241D9D2D08A /* CurveEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */; };
 		F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */; };
@@ -55,12 +58,15 @@
 		4A025A26AFE64FD077870558 /* LEDMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEDMeterView.swift; sourceTree = "<group>"; };
 		5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwarePickers.swift; sourceTree = "<group>"; };
 		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		82D583560AB0AFFDF174A3EF /* ImportResultAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportResultAlert.swift; sourceTree = "<group>"; };
+		83BA3FF5AD93E6F8A3CE39E9 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorView.swift; sourceTree = "<group>"; };
 		9B4398134C066F90F891B89B /* NoiseInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseInspectorView.swift; sourceTree = "<group>"; };
 		A18A2343316E4EED6A709667 /* WaveForgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeApp.swift; sourceTree = "<group>"; };
 		AA399037651AE61D8072CFE6 /* StudioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioTheme.swift; sourceTree = "<group>"; };
 		B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioFader.swift; sourceTree = "<group>"; };
+		C00B9103DE723BDB67C004B8 /* PresetSparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetSparklineView.swift; sourceTree = "<group>"; };
 		C840F707E55200BF6FF9D43E /* MiniTimelineScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniTimelineScrubber.swift; sourceTree = "<group>"; };
 		D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimeTests.swift; sourceTree = "<group>"; };
 		E8AC1E2DF8CE245C865C3D6A /* WaveForgeCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WaveForgeCore; path = Packages/WaveForgeCore; sourceTree = SOURCE_ROOT; };
@@ -191,6 +197,16 @@
 			path = Packages;
 			sourceTree = "<group>";
 		};
+		DE1C4738A090A64821DB8A73 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				82D583560AB0AFFDF174A3EF /* ImportResultAlert.swift */,
+				83BA3FF5AD93E6F8A3CE39E9 /* LibraryView.swift */,
+				C00B9103DE723BDB67C004B8 /* PresetSparklineView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
 		E6C7E49A142979193B2FD427 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -205,6 +221,7 @@
 			children = (
 				A18A2343316E4EED6A709667 /* WaveForgeApp.swift */,
 				11D9F21C32316B545D346D3C /* Components */,
+				DE1C4738A090A64821DB8A73 /* Library */,
 				ACB30AC10D963433A2B90CAB /* Player */,
 				858AC618844F98EAF20BAD68 /* Studio */,
 			);
@@ -333,11 +350,14 @@
 				E264DA4237A82241D9D2D08A /* CurveEditorView.swift in Sources */,
 				52C1107D2E5770616DF0CDCD /* ExportSheetView.swift in Sources */,
 				B292A462668A948122F4514B /* HardwarePickers.swift in Sources */,
+				5D1A624427BBF81827FC6EB2 /* ImportResultAlert.swift in Sources */,
 				3D44472F3A222C2DD290E5D9 /* LEDMeterView.swift in Sources */,
+				C4275C93AF75C7EBCF42DDC4 /* LibraryView.swift in Sources */,
 				9A2C6F53D369F5536580E762 /* MiniTimelineScrubber.swift in Sources */,
 				3C8917FC3759A9DE0E2CBCE6 /* NoiseInspectorView.swift in Sources */,
 				4E576AF235A1079044949B0C /* OscilloscopeView.swift in Sources */,
 				BAC335182D0F0695867001EA /* PlayerView.swift in Sources */,
+				C819B516639548B552E7B718 /* PresetSparklineView.swift in Sources */,
 				F86A1825045BE59050E7AAA4 /* StudioFader.swift in Sources */,
 				0E52CA0AD5FC745ECF02D986 /* StudioKnob.swift in Sources */,
 				3A904F6BC99B568A4780914D /* StudioRackView.swift in Sources */,
