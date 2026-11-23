@@ -18,6 +18,7 @@ public struct StudioFader: View {
     private let showsScaleMarks: Bool
     private let valueFormatter: ((Double) -> String)?
 
+    @GestureState private var isGestureActive = false
     @State private var isDragging = false
     @State private var isFineTuning = false
     @State private var lastDragOffset: CGFloat = 0
@@ -138,6 +139,12 @@ public struct StudioFader: View {
         .accessibilityAction(named: Text("Reset")) {
             resetToDefault()
         }
+        .onChange(of: isGestureActive) { _, active in
+            if !active {
+                isDragging = false
+                isFineTuning = false
+            }
+        }
         .animation(.easeOut(duration: 0.14), value: isDragging)
         .animation(.easeOut(duration: 0.14), value: isFineTuning)
     }
@@ -223,6 +230,9 @@ public struct StudioFader: View {
         }
         .gesture(
             DragGesture(minimumDistance: 3)
+                .updating($isGestureActive) { _, state, _ in
+                    state = true
+                }
                 .onChanged { gesture in
                     handleDragChanged(
                         primaryTranslation: -gesture.translation.height,
@@ -283,6 +293,9 @@ public struct StudioFader: View {
         }
         .gesture(
             DragGesture(minimumDistance: 3)
+                .updating($isGestureActive) { _, state, _ in
+                    state = true
+                }
                 .onChanged { gesture in
                     handleDragChanged(
                         primaryTranslation: gesture.translation.width,

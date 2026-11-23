@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 /// Orientation axis for `LEDMeterView`.
@@ -124,7 +125,7 @@ public struct LEDMeterView: View {
             }
         }
         .task(id: inputSignature) {
-            let now = ProcessInfo.processInfo.systemUptime
+            let now = Date.timeIntervalSinceReferenceDate
             let activeInput = normPeakInputLeft > 0.002 || normPeakInputRight > 0.002
             if activeInput || peakTracker.hasResidualHold(left: normLeft, right: normRight, now: now) {
                 isDecayAnimating = true
@@ -132,7 +133,7 @@ public struct LEDMeterView: View {
             while isDecayAnimating && !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(120))
                 if Task.isCancelled { break }
-                let checkNow = ProcessInfo.processInfo.systemUptime
+                let checkNow = Date.timeIntervalSinceReferenceDate
                 let stillHolding = peakTracker.hasResidualHold(left: normLeft, right: normRight, now: checkNow)
                 let stillReceivingSignal = normPeakInputLeft > 0.002 || normPeakInputRight > 0.002
                 if !stillHolding && !stillReceivingSignal {
@@ -179,7 +180,7 @@ public struct LEDMeterView: View {
     private var meterWell: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isDecayAnimating)) { _ in
             Canvas { context, size in
-                let now = ProcessInfo.processInfo.systemUptime
+                let now = Date.timeIntervalSinceReferenceDate
                 let held = peakTracker.currentHeld(
                     left: normPeakInputLeft,
                     right: normPeakInputRight,

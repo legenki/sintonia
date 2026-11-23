@@ -54,6 +54,7 @@ public struct StudioRackView: View {
 
     @State private var draft: Preset
     @State private var baselinePreset: Preset
+    @State private var hasSavedInStore: Bool
     @State private var isDirty: Bool = false
     @State private var selectedVoiceIndex: Int = 0
     @State private var activeTab: StudioDetailTab = .voice
@@ -81,6 +82,9 @@ public struct StudioRackView: View {
         let initial = engine.currentPreset
         self._draft = State(initialValue: initial)
         self._baselinePreset = State(initialValue: initial)
+        self._hasSavedInStore = State(
+            initialValue: initial.isBuiltIn || presetStore.allPresets().contains { $0.id == initial.id }
+        )
     }
 
     private var isCompactLandscape: Bool {
@@ -251,7 +255,7 @@ public struct StudioRackView: View {
         } else {
             "Save"
         }
-        let isHighlighted = isDirty || draft.isBuiltIn
+        let isHighlighted = isDirty || draft.isBuiltIn || !hasSavedInStore
 
         return Button {
             _ = saveDraft()
@@ -289,6 +293,8 @@ public struct StudioRackView: View {
                 Image(systemName: "xmark")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(StudioTheme.secondaryText)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Close"))
@@ -390,9 +396,11 @@ public struct StudioRackView: View {
                                     draft.durationSec = seconds
                                     haptics.fireStep()
                                 } label: {
-                                    Text(verbatim: "\(minutes)m")
+                                    Text("\(minutes)m")
                                         .font(.caption2.weight(isActive ? .bold : .medium).monospacedDigit())
                                         .foregroundStyle(isActive ? StudioTheme.chassisGraphite : StudioTheme.secondaryText)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 4)
                                         .background(Capsule().fill(isActive ? accentColor : StudioTheme.recessedWell))
@@ -430,7 +438,7 @@ public struct StudioRackView: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(StudioTheme.secondaryText)
                 Spacer()
-                Text(verbatim: "\(Int(value.wrappedValue.rounded()))s")
+                Text("\(Int(value.wrappedValue.rounded()))s")
                     .font(.caption2.weight(.bold).monospacedDigit())
                     .foregroundStyle(StudioTheme.primaryText)
             }
@@ -803,6 +811,7 @@ public struct StudioRackView: View {
             validationErrorMessage = nil
             baselinePreset = saved
             draft = saved
+            hasSavedInStore = true
             isDirty = false
             engine.applyEditedPreset(saved)
             onSavedPreset(saved)
@@ -851,7 +860,7 @@ public struct StudioRackView: View {
         }
         switch first {
         case .invalidDuration:
-            return "\(String(localized: "Duration")): 60–7200s"
+            return "\(String(localized: "Duration")): \(String(localized: "60–7200s"))"
         case .invalidVoiceCount:
             return String(localized: "Max 10 Voices")
         case .cyclicTracking:
@@ -968,8 +977,12 @@ private struct VoiceChannelStrip: View {
                     Image(systemName: "ellipsis")
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(StudioTheme.secondaryText)
-                        .frame(width: 20, height: 18)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
+                .padding(.vertical, -11)
+                .padding(.horizontal, -10)
+                .accessibilityLabel(Text("Voice"))
             }
 
             // Voice Name + Mode/Waveform Glyphs

@@ -56,7 +56,7 @@ private final class AudioEngineHolder: @unchecked Sendable {
 public final class AudioEngineController {
     public static let sampleRate: Double = 48_000.0
     private static let pollingInterval: Duration = .milliseconds(33)
-    private static let pauseFadeGracePeriod: Duration = .milliseconds(30)
+    private static let pauseFadeGracePeriod: Duration = .milliseconds(40)
     private static let remoteSkipIntervalSeconds: Double = 30.0
     private static let nowPlayingRefreshIntervalSeconds: Double = 1.0
 
@@ -84,6 +84,8 @@ public final class AudioEngineController {
     @ObservationIgnored private var remoteCommandTokens: [RemoteCommandToken] = []
     @ObservationIgnored private let pollingTaskBox = Mutex<Task<Void, Never>?>(nil)
     @ObservationIgnored private let pauseEngineTaskBox = Mutex<Task<Void, Never>?>(nil)
+    @ObservationIgnored private var pauseTaskToken: UInt64 = 0
+    @ObservationIgnored private var pendingLoadSnapshot: SynthSnapshot? = nil
     @ObservationIgnored private var wasInterruptedWhilePlaying: Bool = false
     @ObservationIgnored private var lastNowPlayingSyncTime: Double = -.infinity
 
@@ -127,15 +129,15 @@ public final class AudioEngineController {
     // MARK: - Transport & Preset Control
 
     /// Loads `preset`, resetting transport position to `0.0` in a paused state.
+    /// If audio is actively playing or fading out, ramps smoothly to silence before pausing the engine
+    /// and atomically resetting `SynthRenderer` to the new preset.
     public func load(_ preset: Preset) {
         cancelPauseEngineTask()
         stopPolling()
         wasInterruptedWhilePlaying = false
 
-        renderer.setPlaying(false)
         let snapshot = SnapshotCompiler.compile(preset)
-        renderer.applySnapshot(snapshot)
-        renderer.seek(to: 0.0)
+        let wasAudioActive = isPlaying || engineHolder.engine.isRunning
 
         currentPreset = preset
         duration = snapshot.durationSec
@@ -144,17 +146,24 @@ public final class AudioEngineController {
         showHeadphoneBanner = false
         lastErrorMessage = nil
 
-        if engineHolder.engine.isRunning {
-            engineHolder.engine.pause()
+        if wasAudioActive {
+            renderer.setPlaying(false)
+            pendingLoadSnapshot = snapshot
+            scheduleEnginePauseAfterFade()
+        } else {
+            pendingLoadSnapshot = nil
+            renderer.setPlaying(false)
+            renderer.loadSnapshot(snapshot)
         }
 
-        refreshDominantState()
+        refreshDominantState(using: snapshot)
         updateNowPlayingInfo(force: true)
     }
 
     /// Starts or resumes audio playback from the current transport timestamp.
     public func play() {
         cancelPauseEngineTask()
+        flushPendingLoadSnapshotIfNeeded()
         wasInterruptedWhilePlaying = false
 
         if duration > 0.0, currentTime >= duration - 0.001 {
@@ -210,6 +219,13 @@ public final class AudioEngineController {
 
     /// Seeks cleanly to `timeSec`, clamped within `[0, duration]`.
     public func seek(to timeSec: Double) {
+        if pendingLoadSnapshot != nil {
+            cancelPauseEngineTask()
+            if engineHolder.engine.isRunning {
+                engineHolder.engine.pause()
+            }
+            flushPendingLoadSnapshotIfNeeded()
+        }
         let clamped = timeSec.isFinite ? min(duration, max(0.0, timeSec)) : 0.0
         renderer.seek(to: clamped)
         currentTime = clamped
@@ -226,7 +242,17 @@ public final class AudioEngineController {
     /// Hot-swaps an edited preset lock-free into the running synthesizer without interrupting playback.
     public func applyEditedPreset(_ preset: Preset) {
         let snapshot = SnapshotCompiler.compile(preset)
-        renderer.applySnapshot(snapshot)
+        if pendingLoadSnapshot != nil {
+            cancelPauseEngineTask()
+            if engineHolder.engine.isRunning {
+                engineHolder.engine.pause()
+            }
+            pendingLoadSnapshot = nil
+            renderer.setPlaying(false)
+            renderer.loadSnapshot(snapshot)
+        } else {
+            renderer.applySnapshot(snapshot)
+        }
 
         currentPreset = preset
         duration = snapshot.durationSec
@@ -285,7 +311,7 @@ public final class AudioEngineController {
             channels: 2,
             interleaved: false
         ) else {
-            lastErrorMessage = ExportError.audioFormatUnavailable.localizedDescription
+            lastErrorMessage = String(localized: "Unable to configure 48 kHz stereo PCM audio format.")
             return
         }
 
@@ -441,22 +467,41 @@ public final class AudioEngineController {
 
         renderer.setPlaying(false)
         isPlaying = false
-        currentTime = renderer.currentTimeSeconds()
-        refreshDominantState()
+        if pendingLoadSnapshot == nil {
+            currentTime = renderer.currentTimeSeconds()
+        }
+        refreshDominantState(using: pendingLoadSnapshot)
         updateNowPlayingInfo(force: true)
 
         if fadeBeforeStoppingEngine {
-            let task = Task { @MainActor [weak self] in
-                try? await Task.sleep(for: Self.pauseFadeGracePeriod)
-                guard let self, !Task.isCancelled, !self.isPlaying else { return }
-                if self.engineHolder.engine.isRunning {
-                    self.engineHolder.engine.pause()
-                }
+            scheduleEnginePauseAfterFade()
+        } else {
+            if engineHolder.engine.isRunning {
+                engineHolder.engine.pause()
             }
-            pauseEngineTaskBox.withLock { $0 = task }
-        } else if engineHolder.engine.isRunning {
-            engineHolder.engine.pause()
+            flushPendingLoadSnapshotIfNeeded()
         }
+    }
+
+    private func scheduleEnginePauseAfterFade() {
+        pauseTaskToken &+= 1
+        let token = pauseTaskToken
+        let task = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.pauseFadeGracePeriod)
+            guard let self, !Task.isCancelled, self.pauseTaskToken == token, !self.isPlaying else { return }
+            if self.engineHolder.engine.isRunning {
+                self.engineHolder.engine.pause()
+            }
+            self.flushPendingLoadSnapshotIfNeeded()
+        }
+        pauseEngineTaskBox.withLock { $0 = task }
+    }
+
+    private func flushPendingLoadSnapshotIfNeeded() {
+        guard let pending = pendingLoadSnapshot else { return }
+        pendingLoadSnapshot = nil
+        renderer.setPlaying(false)
+        renderer.loadSnapshot(pending)
     }
 
     private func startPolling() {
@@ -479,6 +524,7 @@ public final class AudioEngineController {
     }
 
     private func cancelPauseEngineTask() {
+        pauseTaskToken &+= 1
         pauseEngineTaskBox.withLock {
             $0?.cancel()
             $0 = nil
@@ -501,10 +547,15 @@ public final class AudioEngineController {
         }
     }
 
-    private func refreshDominantState() {
-        let beat = renderer.dominantBeatHz(at: currentTime)
-        dominantBeatHz = beat
-        dominantBand = BrainwaveBand.from(frequencyHz: beat)
+    private func refreshDominantState(using snapshot: SynthSnapshot? = nil) {
+        let nextBeat = snapshot?.dominantBeatHz(at: currentTime) ?? renderer.dominantBeatHz(at: currentTime)
+        let nextBand = BrainwaveBand.from(frequencyHz: nextBeat)
+        if nextBeat.isFinite, abs(dominantBeatHz - nextBeat) > 1e-4 {
+            dominantBeatHz = nextBeat
+        }
+        if dominantBand != nextBand {
+            dominantBand = nextBand
+        }
     }
 
     // MARK: - Lock Screen NowPlaying & Remote Commands

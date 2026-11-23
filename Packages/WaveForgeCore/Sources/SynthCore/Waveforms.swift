@@ -2,7 +2,7 @@ import Darwin
 
 /// Band-limited and classic BrainWave Generator waveform oscillator.
 public enum WaveformOscillator {
-    private static let tanh35 = tanh(3.5)
+    private static let tanh35 = 0.9981778976111987
 
     public static func sample(waveform: Waveform, phase: Double, phaseIncrement: Double) -> Double {
         guard phase.isFinite else { return 0.0 }

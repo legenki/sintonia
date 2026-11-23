@@ -338,4 +338,76 @@ struct CatalogImporterStoreTests {
         #expect(noise.pulseSourceVoiceIndex == 0)
         #expect(PresetValidator.validate(result.preset).isEmpty)
     }
+
+    @Test func bwgImporterResolvesSparseNoisePulseSourceAndValidatesDurationStrictly() throws {
+        let text = """
+        BrainWave Generator File
+        [General]
+        Name=Sparse Pulse And Strict Duration
+        Duration=30:abc:10
+
+        [Noise]
+        Enabled=1
+        Volume=0.25
+        Pulse=1
+        PulseDepth=0.5
+        PulseSource=Voice2
+
+        [Voice 2]
+        Waveform=Sine
+        Carrier=0:200,900:200
+        Beat=0:10,900:10
+        Volume=0:0.7,900:0.7
+        """
+        let result = try BWGImporter.importPreset(from: Data(text.utf8), fallbackName: "Fallback")
+        #expect(result.preset.voices.count == 1)
+        #expect(result.preset.noise.pulseSourceVoiceIndex == 0)
+        #expect(result.preset.durationSec == 900.0)
+
+        let negativeTimeText = """
+        BrainWave Generator File
+        Name=Bad Colon Duration
+        Duration=10:-5
+        Voice1.Carrier=0:200
+        Voice1.Beat=0:10
+        """
+        let negativeResult = try BWGImporter.importPreset(from: Data(negativeTimeText.utf8), fallbackName: "Fallback")
+        #expect(negativeResult.preset.durationSec == 1800.0)
+        #expect(negativeResult.report.warnings.contains(where: { $0.contains("Missing duration") }))
+
+        let emptySegmentText = """
+        BrainWave Generator File
+        Name=Empty Segment Duration
+        Duration=1::30
+        Voice1.Carrier=0:200
+        Voice1.Beat=0:10
+        """
+        let emptySegmentResult = try BWGImporter.importPreset(from: Data(emptySegmentText.utf8), fallbackName: "Fallback")
+        #expect(emptySegmentResult.preset.durationSec == 1800.0)
+    }
+
+    @Test func presetStoreDeletesExternallyNamedWaveForgeFiles() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStoreExternal-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+        var custom = PresetCatalog.builtInPresets[0]
+        custom.id = UUID()
+        custom.isBuiltIn = false
+        custom.category = .custom
+        custom.name = "Externally Named Session"
+        let externalURL = dir.appendingPathComponent("external-custom-session.waveforge")
+        try PresetCodec.encode(custom).write(to: externalURL)
+
+        let store = PresetStore(storageDirectory: dir)
+        #expect(store.allPresets().count == 19)
+        #expect(store.allPresets().contains(where: { $0.id == custom.id }))
+
+        try store.deleteCustom(id: custom.id)
+        #expect(store.allPresets().count == 18)
+        #expect(!FileManager.default.fileExists(atPath: externalURL.path))
+
+        let reloaded = PresetStore(storageDirectory: dir)
+        #expect(reloaded.allPresets().count == 18)
+    }
 }

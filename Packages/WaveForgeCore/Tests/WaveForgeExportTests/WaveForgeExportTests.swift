@@ -130,6 +130,18 @@ struct WaveForgeExportTests {
         #expect(leftoverWaveForgeFiles.isEmpty)
     }
 
+    @Test func sessionExporterRejectsOverflowingDurationWithoutTrapping() async throws {
+        var preset = PresetCatalog.builtInPresets[0]
+        preset.durationSec = 1e300
+
+        do {
+            _ = try await SessionExporter.export(preset: preset, format: .wav, sampleRate: 48_000) { _ in }
+            Issue.record("Expected ExportError.invalidDuration")
+        } catch ExportError.invalidDuration {
+            // Expected
+        }
+    }
+
     private func rmsAmplitude(of file: AVAudioFile) throws -> Double {
         file.framePosition = 0
         let totalFrames = AVAudioFrameCount(file.length)

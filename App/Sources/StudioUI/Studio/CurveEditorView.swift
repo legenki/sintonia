@@ -433,7 +433,7 @@ public struct CurveEditorView: View {
                     selectedVoiceIndex = idx
                 } label: {
                     HStack {
-                        Text(verbatim: "Ch \(idx + 1) • \(preset.voices[idx].name)")
+                        Text(verbatim: "\(String(localized: "Ch \(idx + 1)")) • \(preset.voices[idx].name)")
                         if idx == safeVoiceIndex {
                             Image(systemName: "checkmark")
                         }

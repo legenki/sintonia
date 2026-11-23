@@ -380,6 +380,7 @@ public struct LibraryView: View {
 
     private func reloadPresets() {
         let loaded = presetStore.allPresets()
+        guard loaded != presets else { return }
         presets = loaded
 
         var updatedCache: [UUID: PresetSparklineSummary] = [:]
@@ -410,16 +411,9 @@ public struct LibraryView: View {
     private func createNewTemplatePreset() {
         haptics.prepare()
         let template = Self.makeTemplatePreset()
-        do {
-            try presetStore.saveCustom(template)
-            reloadPresets()
-            onPresetsChanged()
-            engine.load(template)
-            haptics.fireStep()
-            onOpenStudioForNewPreset()
-        } catch {
-            importAlert = ImportAlertContent.fromError(error)
-        }
+        engine.load(template)
+        haptics.fireStep()
+        onOpenStudioForNewPreset()
     }
 
     private func duplicatePreset(_ preset: Preset) {
@@ -565,7 +559,7 @@ public struct LibraryView: View {
             id: UUID(),
             name: String(localized: "New Preset"),
             category: .custom,
-            summary: String(localized: "Custom studio session"),
+            summary: "Custom studio session",
             durationSec: 1800.0,
             recommendedOutput: .headphones,
             masterGain: 0.85,
@@ -577,8 +571,15 @@ public struct LibraryView: View {
         )
     }
 
+    private static let localizablePresetSummaries: Set<String> = {
+        var summaries = Set(PresetCatalog.builtInPresets.map(\.summary))
+        summaries.insert("Imported from BrainWave Generator (.bwg)")
+        summaries.insert("Custom studio session")
+        return summaries
+    }()
+
     static func localizedSummary(for preset: Preset) -> String {
-        if preset.isBuiltIn || preset.summary == "Imported from BrainWave Generator (.bwg)" {
+        if preset.isBuiltIn || localizablePresetSummaries.contains(preset.summary) {
             return String(localized: String.LocalizationValue(preset.summary))
         }
         return preset.summary
@@ -730,6 +731,8 @@ private struct PresetLibraryCard: View {
                     .foregroundStyle(StudioTheme.secondaryText)
                     .frame(width: 30, height: 30)
                     .background(Circle().fill(Color.white.opacity(0.06)))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .accessibilityLabel(Text("Preset Actions"))
         }

@@ -4,11 +4,13 @@ import SwiftUI
 /// disclaimer, synthesis feature overview, offline privacy guarantee, and `.bwg` compatibility note.
 public struct AboutSheetView: View {
     private let accentColor: Color
+    private let onDismiss: (() -> Void)?
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var environmentDismiss
 
-    public init(accentColor: Color = StudioTheme.alphaColor) {
+    public init(accentColor: Color = StudioTheme.alphaColor, onDismiss: (() -> Void)? = nil) {
         self.accentColor = accentColor
+        self.onDismiss = onDismiss
     }
 
     private var appVersionLabel: String {
@@ -36,7 +38,11 @@ public struct AboutSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        dismiss()
+                        if let onDismiss {
+                            onDismiss()
+                        } else {
+                            environmentDismiss()
+                        }
                     }
                     .foregroundStyle(accentColor)
                 }

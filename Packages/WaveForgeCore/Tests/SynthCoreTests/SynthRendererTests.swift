@@ -479,4 +479,164 @@ struct SynthRendererTests {
             }
         }
     }
+
+    @Test func loadSnapshotResetsTimeEnvelopesPhasesAndDeclickStateCleanly() {
+        let voiceA = VoiceSnapshot(
+            id: UUID(), isEnabled: true, isMuted: false, isSolo: false,
+            mode: .binaural, waveform: .sine,
+            isochronicSoftness: 0.5, isochronicDutyCycle: 0.5, pan: 0,
+            carrierCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 440)], interpolation: .linear),
+            beatCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 12)], interpolation: .linear),
+            volumeCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 0.9)], interpolation: .linear)
+        )
+        let snapA = SynthSnapshot(durationSec: 120, masterGain: 1.0, fadeInSec: 0, fadeOutSec: 0, noise: .disabled, voices: [voiceA])
+
+        let voiceB = VoiceSnapshot(
+            id: UUID(), isEnabled: true, isMuted: false, isSolo: false,
+            mode: .binaural, waveform: .sine,
+            isochronicSoftness: 0.5, isochronicDutyCycle: 0.5, pan: 0,
+            carrierCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 180)], interpolation: .linear),
+            beatCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 6)], interpolation: .linear),
+            volumeCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 0.8)], interpolation: .linear)
+        )
+        let snapB = SynthSnapshot(durationSec: 60, masterGain: 1.0, fadeInSec: 0, fadeOutSec: 0, noise: .disabled, voices: [voiceB])
+
+        let renderer = SynthRenderer(sampleRate: 48_000, snapshot: snapA)
+        renderer.setPlaying(true)
+
+        // Render presetA well past the 15 ms ramp so transportEnvelope == 1.0 and renderTime > 0.25 s.
+        var warmupL = [Float](repeating: 0, count: 12_000)
+        var warmupR = [Float](repeating: 0, count: 12_000)
+        warmupL.withUnsafeMutableBufferPointer { lPtr in
+            warmupR.withUnsafeMutableBufferPointer { rPtr in
+                renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: 12_000)
+            }
+        }
+        #expect(renderer.currentTimeSeconds() >= 0.24)
+
+        // Request a stale seek, pause without rendering, and load presetB.
+        renderer.seek(to: 45.0)
+        renderer.setPlaying(false)
+        renderer.loadSnapshot(snapB)
+        #expect(renderer.currentTimeSeconds() == 0.0)
+
+        // Immediately press Play and render 24_000 frames (0.5 s).
+        renderer.setPlaying(true)
+        var bL = [Float](repeating: 0, count: 24_000)
+        var bR = [Float](repeating: 0, count: 24_000)
+        bL.withUnsafeMutableBufferPointer { lPtr in
+            bR.withUnsafeMutableBufferPointer { rPtr in
+                renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: 24_000)
+            }
+        }
+
+        // Frame 0 must ramp smoothly up from near-zero (zero declick burst or old-timestamp burst).
+        #expect(abs(bL[0]) < 0.005)
+        #expect(abs(bR[0]) < 0.005)
+        // Elapsed render time must start cleanly from 0.0 -> 0.5 s (not ~45.5 s or ~0.75 s).
+        #expect(abs(renderer.currentTimeSeconds() - 0.5) < 1e-6)
+
+        let measuredL = measureFrequencyZeroCrossings(samples: Array(bL.dropFirst(4800)), sampleRate: 48_000)
+        let measuredR = measureFrequencyZeroCrossings(samples: Array(bR.dropFirst(4800)), sampleRate: 48_000)
+        #expect(abs(((measuredL + measuredR) * 0.5) - 180.0) < 0.1)
+        #expect(abs((measuredR - measuredL) - 6.0) < 0.1)
+
+        // A seek issued *after* loadSnapshot (before next render) must still be honored.
+        renderer.setPlaying(false)
+        renderer.loadSnapshot(snapB)
+        renderer.seek(to: 10.0)
+        #expect(abs(renderer.currentTimeSeconds() - 10.0) < 1e-6)
+        renderer.setPlaying(true)
+        var seekL = [Float](repeating: 0, count: 1024)
+        var seekR = [Float](repeating: 0, count: 1024)
+        seekL.withUnsafeMutableBufferPointer { lPtr in
+            seekR.withUnsafeMutableBufferPointer { rPtr in
+                renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: 1024)
+            }
+        }
+        #expect(abs(seekL[0]) < 0.005)
+        #expect(abs(renderer.currentTimeSeconds() - (10.0 + 1024.0 / 48_000.0)) < 1e-6)
+    }
+
+    @Test func deepBreathSync301PointCurvePacksLosslesslyAndResamplingUsesLinear() {
+        let duration = 1800.0
+        let cycleSec = 12.0
+        let cycleCount = Int(duration / cycleSec)
+        var points: [CurvePoint] = []
+        points.reserveCapacity(cycleCount * 2 + 1)
+        for cycle in 0..<cycleCount {
+            let start = Double(cycle) * cycleSec
+            let peak = start + cycleSec * 0.45
+            points.append(CurvePoint(timeSec: start, value: 0.45))
+            if peak < duration {
+                points.append(CurvePoint(timeSec: peak, value: 0.80))
+            }
+        }
+        points.append(CurvePoint(timeSec: duration, value: 0.45))
+        #expect(points.count == 301)
+
+        let volumeCurve = CompiledCurve(points: points, interpolation: .smoothStep)
+        let voice = VoiceSnapshot(
+            id: UUID(), isEnabled: true, isMuted: false, isSolo: false,
+            mode: .binaural, waveform: .sine,
+            isochronicSoftness: 0.5, isochronicDutyCycle: 0.5, pan: 0,
+            carrierCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 174)], interpolation: .linear),
+            beatCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 7.0)], interpolation: .linear),
+            volumeCurve: volumeCurve
+        )
+        let snap = SynthSnapshot(durationSec: duration, masterGain: 1.0, fadeInSec: 0, fadeOutSec: 0, noise: .disabled, voices: [voice])
+        let renderer = SynthRenderer(sampleRate: 48_000, snapshot: snap)
+
+        func rmsAt(timeSec: Double) -> Double {
+            renderer.loadSnapshot(snap)
+            renderer.seek(to: timeSec)
+            renderer.setPlaying(true)
+            var l = [Float](repeating: 0, count: 4800)
+            var r = [Float](repeating: 0, count: 4800)
+            l.withUnsafeMutableBufferPointer { lPtr in
+                r.withUnsafeMutableBufferPointer { rPtr in
+                    renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: 4800)
+                }
+            }
+            let steady = Array(l.dropFirst(1600))
+            let sq = steady.reduce(0.0) { $0 + Double($1) * Double($1) }
+            return (sq / Double(steady.count)).squareRoot()
+        }
+
+        // Verify every cycle's trough (0.45) and peak (0.80) pack losslessly with zero Nyquist aliasing.
+        let podChannel = SnapshotChannel(initial: snap)
+        let podSlot = podChannel.initialAudioSlot()
+        #expect(podSlot.pointee.voices[0].volumeCurve.count == 301)
+        #expect(podSlot.pointee.voices[0].volumeCurve.interpolationRaw == 1)
+        for cycle in 0..<cycleCount {
+            let troughT = Double(cycle) * cycleSec
+            let peakT = troughT + cycleSec * 0.45
+            let troughVal = podSlot.pointee.voices[0].volumeCurve.evaluate(at: troughT, points: podSlot.pointee.curvePoints)
+            let peakVal = podSlot.pointee.voices[0].volumeCurve.evaluate(at: peakT, points: podSlot.pointee.curvePoints)
+            #expect(abs(troughVal - 0.45) < 1e-6)
+            #expect(abs(peakVal - 0.80) < 1e-6)
+        }
+
+        // Verify audio output RMS across early, mid, and late cycles tracks peaks vs troughs.
+        for cycle in [10, 74, 140] {
+            let troughT = Double(cycle) * cycleSec
+            let peakT = troughT + cycleSec * 0.45
+            let troughRMS = rmsAt(timeSec: troughT)
+            let peakRMS = rmsAt(timeSec: peakT)
+            #expect(peakRMS / max(1e-6, troughRMS) > 1.55)
+        }
+
+        // Verify >512-point smoothStep curve disables second-pass smoothStep when resampled.
+        var longPoints: [CurvePoint] = []
+        for i in 0...600 {
+            longPoints.append(CurvePoint(timeSec: Double(i), value: Double(i)))
+        }
+        let longCurve = CompiledCurve(points: longPoints, interpolation: .smoothStep)
+        var longSnap = snap
+        longSnap.voices[0].carrierCurve = longCurve
+        let channel = SnapshotChannel(initial: longSnap)
+        let slot = channel.initialAudioSlot()
+        #expect(slot.pointee.voices[0].carrierCurve.count == SnapshotChannel.maxPointsPerCurve)
+        #expect(slot.pointee.voices[0].carrierCurve.interpolationRaw == 0)
+    }
 }

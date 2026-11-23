@@ -58,6 +58,7 @@ public final class SynthRenderer: @unchecked Sendable {
 
     private var renderTime: Double = 0.0
     private var previousVoiceCount: Int = 0
+    private var lastHandledResetGen: UInt64 = 0
     private var lastHandledSeekSeq: UInt64 = 0
     private var seekPhase: SeekPhase = .idle
     private var pendingSeekTarget: Double = 0.0
@@ -154,6 +155,20 @@ public final class SynthRenderer: @unchecked Sendable {
         channel.pointee.publish(snapshot)
     }
 
+    /// Atomically loads `snapshot` and requests a full session reset (timestamp `0.0`,
+    /// clean envelopes/phases, cleared declick & noise state, snapped smoothers) before frame 0
+    /// of the next audio render block.
+    public func loadSnapshot(_ snapshot: SynthSnapshot) {
+        while seekProducerLock.exchange(true, ordering: .acquiring) {
+            // Producer-side only; audio thread never accesses `seekProducerLock`.
+        }
+        defer { seekProducerLock.store(false, ordering: .releasing) }
+
+        let currentSeekSeq = seekControl.load(ordering: .acquiring) >> 1
+        channel.pointee.publish(snapshot, sessionResetSeekSeq: currentSeekSeq)
+        atomicCurrentTimeBits.store((0.0 as Double).bitPattern, ordering: .releasing)
+    }
+
     /// Updates live player performance multipliers lock-free; smoothed with tau = 15 ms.
     public func updateOverrides(_ overrides: LiveOverrides) {
         let master = overrides.masterGain.isFinite ? min(1.0, max(0.0, overrides.masterGain)) : 1.0
@@ -197,7 +212,26 @@ public final class SynthRenderer: @unchecked Sendable {
         let (audibleCount, pulseSourceIdx) = computeRouting(slot: slot)
 
         var captureDeclickThisBlock = false
-        if didSwap {
+        if slot.resetGeneration != lastHandledResetGen {
+            lastHandledResetGen = slot.resetGeneration
+            lastHandledSeekSeq = slot.resetSeekSeq
+            renderTime = 0.0
+            pendingSeekTarget = 0.0
+            seekPhase = .idle
+            seekEnvelope = 1.0
+            transportEnvelope = 0.0
+            hasRenderedAnyAudio = false
+            declickL = 0.0
+            declickR = 0.0
+            lastPreEnvL = 0.0
+            lastPreEnvR = 0.0
+            previousVoiceCount = slot.voiceCount
+            noiseGenerator = StereoNoiseGenerator(leftSeed: Self.noiseLeftSeed, rightSeed: Self.noiseRightSeed)
+            for i in 0..<SnapshotChannel.maxVoices {
+                voiceStates[i] = VoiceRenderState()
+            }
+            snapSmoothers(to: 0.0, slot: slotPtr, snapOverrides: targetOverrides)
+        } else if didSwap {
             handleSnapshotSwap(slot: slot)
             if hasRenderedAnyAudio && (transportEnvelope * seekEnvelope) > 0.0 {
                 captureDeclickThisBlock = true

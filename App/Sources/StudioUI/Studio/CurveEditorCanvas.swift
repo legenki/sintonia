@@ -403,6 +403,10 @@ public struct CurveEditorCanvas: View {
         points: [CurvePoint]
     ) {
         if dragState == nil {
+            if isPinching {
+                dragState = .suppressed
+                return
+            }
             if let hitIdx = hitPointIndex(near: gesture.startLocation, in: plotRect, points: points) {
                 haptics.prepare()
                 selectedPointIndex = hitIdx

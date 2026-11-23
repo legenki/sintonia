@@ -100,7 +100,36 @@ struct AudioRuntimeTests {
         #expect(controller.duration == second.durationSec)
         #expect(controller.currentTime == 0.0)
         #expect(!controller.isPlaying)
+        #expect(abs(controller.dominantBeatHz - 10.0) < 0.01)
+        #expect(controller.dominantBand == .alpha)
         controller.dismissHeadphoneBanner()
         #expect(!controller.showHeadphoneBanner)
+    }
+
+    @MainActor
+    @Test func duplicatedBuiltInPresetRetainsLocalizedSummaryLookup() {
+        var duplicated = PresetCatalog.builtInPresets[0]
+        duplicated.id = UUID()
+        duplicated.isBuiltIn = false
+        duplicated.category = .custom
+        duplicated.name = "\(duplicated.name) (Copy)"
+
+        let summary = LibraryView.localizedSummary(for: duplicated)
+        #expect(!summary.isEmpty)
+        #expect(summary == String(localized: String.LocalizationValue(PresetCatalog.builtInPresets[0].summary)))
+    }
+
+    @Test func importAlertContentSurfacesStructuredBWGWarnings() throws {
+        let bwgText = """
+        BrainWave Generator File
+        Name=Structured Warnings Test
+        Voice1.Carrier=0:200
+        Voice1.Beat=0:10
+        """
+        let result = try BWGImporter.importPreset(from: Data(bwgText.utf8), fallbackName: "Fallback")
+        let outcome = PresetImportOutcome(preset: result.preset, report: result.report)
+        let alert = ImportAlertContent.fromOutcome(outcome)
+        #expect(alert != nil)
+        #expect(alert?.message.contains("1800") == true)
     }
 }

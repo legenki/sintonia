@@ -13,7 +13,7 @@ public extension UTType {
     static let waveForgePreset = UTType(exportedAs: "com.waveforge.preset", conformingTo: .json)
 
     /// Imported classic BrainWave Generator preset (`com.noromaa.bwg`, `.bwg`).
-    static let brainWaveGenerator = UTType(importedAs: "com.noromaa.bwg", conformingTo: .plainText)
+    static let brainWaveGenerator = UTType(importedAs: "com.noromaa.bwg", conformingTo: .data)
 }
 
 // MARK: - Transferable `.waveforge` Document for ShareLink Export
@@ -373,6 +373,10 @@ public struct ImportAlertContent: Identifiable, Equatable, Sendable {
     }
 
     private static func filteredAdditionalWarnings(from report: ImportReport) -> [String] {
+        if !report.structuredWarnings.isEmpty {
+            return report.structuredWarnings.map { Self.localizedWarning($0) }
+        }
+
         guard !report.warnings.isEmpty else { return [] }
         let hasWavSkipped = report.skippedFeatures.contains(.externalWavBackground)
         let hasVisualSkipped = report.skippedFeatures.contains(.visualStimulation)
@@ -386,6 +390,87 @@ public struct ImportAlertContent: Identifiable, Equatable, Sendable {
             }
             return true
         }
+    }
+
+    private static func localizedWarning(_ warning: ImportWarning) -> String {
+        switch warning {
+        case let .unrecognizedMode(voiceNumber, rawValue):
+            return String(localized: "Voice \(voiceNumber): unrecognized mode '\(rawValue)'; defaulted to binaural.")
+        case let .unrecognizedWaveform(voiceNumber, rawValue):
+            return String(localized: "Voice \(voiceNumber): unrecognized waveform '\(rawValue)'; defaulted to sine.")
+        case let .skippedExcessVoice(voiceNumber, maxVoices):
+            return String(localized: "Skipped Voice \(voiceNumber): WaveForge supports at most \(maxVoices) voices.")
+        case let .skippedInvalidVoice(voiceNumber):
+            return String(localized: "Skipped Voice \(voiceNumber): no finite carrier or beat parameters.")
+        case let .ignoredInvalidTrackingRule(voiceNumber):
+            return String(localized: "Ignored invalid tracking rule on Voice \(voiceNumber).")
+        case let .removedCyclicTrackingRule(voiceName):
+            return String(localized: "Removed cyclic tracking rule on '\(voiceName)'.")
+        case let .droppedMalformedCurvePoints(target):
+            let label = localizedTarget(target)
+            return String(localized: "Dropped non-finite or malformed point(s) in \(label).")
+        case let .clampedNegativeTimestamps(target):
+            let label = localizedTarget(target)
+            return String(localized: "Clamped negative timestamp(s) to 0s in \(label).")
+        case let .clampedCurveValues(target, minVal, maxVal):
+            let label = localizedTarget(target)
+            let minStr = formatNumber(minVal)
+            let maxStr = formatNumber(maxVal)
+            return String(localized: "Clamped out-of-range value(s) in \(label) to \(minStr)...\(maxStr).")
+        case let .deduplicatedTimestamps(target):
+            let label = localizedTarget(target)
+            return String(localized: "Deduplicated overlapping timestamp(s) in \(label).")
+        case let .missingDurationDefaulted(defaultSeconds):
+            return String(localized: "Missing duration; defaulted to \(defaultSeconds)s.")
+        case let .replacedNonFiniteScalar(target, fallback):
+            let label = localizedTarget(target)
+            let fallbackStr = formatNumber(fallback)
+            return String(localized: "Replaced non-finite \(label) with \(fallbackStr).")
+        case let .clampedScalar(target, original, clamped):
+            let label = localizedTarget(target)
+            let origStr = formatNumber(original)
+            let clampedStr = formatNumber(clamped)
+            return String(localized: "Clamped \(label) from \(origStr) to \(clampedStr).")
+        }
+    }
+
+    private static func localizedTarget(_ target: ImportWarningTarget) -> String {
+        switch target {
+        case .masterGain:
+            return String(localized: "Master Gain")
+        case .fadeIn:
+            return String(localized: "Fade In")
+        case .fadeOut:
+            return String(localized: "Fade Out")
+        case .duration:
+            return String(localized: "Duration")
+        case .noiseVolume:
+            return String(localized: "Noise Volume")
+        case .noiseSmoothness:
+            return String(localized: "Noise Color")
+        case .noisePulseDepth:
+            return String(localized: "Pulse Depth")
+        case .voiceCarrier(let n):
+            return String(localized: "Voice \(n) Carrier")
+        case .voiceBeat(let n):
+            return String(localized: "Voice \(n) Beat")
+        case .voiceVolume(let n):
+            return String(localized: "Voice \(n) Volume")
+        case .voicePan(let n):
+            return String(localized: "Voice \(n) Pan")
+        case .voiceIsochronicSoftness(let n):
+            return String(localized: "Voice \(n) Softness")
+        case .voiceIsochronicDutyCycle(let n):
+            return String(localized: "Voice \(n) Duty Cycle")
+        }
+    }
+
+    private static func formatNumber(_ value: Double) -> String {
+        guard value.isFinite else { return String(value) }
+        if value == floor(value) && abs(value) < 1_000_000_000.0 {
+            return String(Int(value))
+        }
+        return String(value)
     }
 }
 
@@ -462,6 +547,8 @@ public struct ImportConfirmationToast: View {
                     .foregroundStyle(StudioTheme.secondaryText)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.white.opacity(0.08)))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Close"))

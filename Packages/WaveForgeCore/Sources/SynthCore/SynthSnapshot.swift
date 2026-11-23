@@ -134,6 +134,27 @@ public struct SynthSnapshot: Sendable, Equatable {
         self.noise = noise
         self.voices = voices.count > Self.maxVoices ? Array(voices.prefix(Self.maxVoices)) : voices
     }
+
+    /// Evaluates the loudest audible voice's beat frequency at `timeSec`.
+    public func dominantBeatHz(at timeSec: Double) -> Double {
+        let hasSolo = voices.contains { $0.isEnabled && $0.isSolo }
+        var found = false
+        var bestVolume = -Double.infinity
+        var bestBeat = 0.0
+
+        for v in voices where v.isEnabled && !v.isMuted && (!hasSolo || v.isSolo) {
+            let rawVol = v.volumeCurve.evaluate(at: timeSec)
+            let vol = rawVol.isFinite ? min(1.0, max(0.0, rawVol)) : 0.0
+            let rawBeat = v.beatCurve.evaluate(at: timeSec)
+            let beat = rawBeat.isFinite ? max(0.0, rawBeat) : 0.0
+            if !found || vol > bestVolume {
+                found = true
+                bestVolume = vol
+                bestBeat = beat
+            }
+        }
+        return bestBeat
+    }
 }
 
 /// Real-time performance multipliers and noise color offset controlled from the player UI.
@@ -259,6 +280,8 @@ internal struct PODNoise {
 }
 
 internal struct PODSnapshotSlot {
+    var resetGeneration: UInt64
+    var resetSeekSeq: UInt64
     var durationSec: Double
     var masterGain: Double
     var fadeInSec: Double
@@ -312,7 +335,7 @@ internal struct PODSnapshotSlot {
 /// Wait-free triple-buffered POD snapshot channel for real-time audio rendering.
 internal struct SnapshotChannel: ~Copyable {
     static let maxVoices = SynthSnapshot.maxVoices
-    static let maxPointsPerCurve = 256
+    static let maxPointsPerCurve = 512
     private static let curvesPerSnapshot = maxVoices * 3 + 2
     private static let pointsCapacityPerSlot = curvesPerSnapshot * maxPointsPerCurve
     private static let totalSlots = 4 // 0..2 triple-buffer slots + 3 UI query slot
@@ -324,6 +347,8 @@ internal struct SnapshotChannel: ~Copyable {
 
     // Owned exclusively by producer under `producerLock`; stored in Atomic for non-mutating access.
     private let producerIndex: Atomic<Int>
+    private let latestResetGeneration = Atomic<UInt64>(0)
+    private let latestResetSeekSeq = Atomic<UInt64>(0)
     // Owned exclusively by the audio render thread; stored in Atomic for non-mutating access.
     private let audioIndex: Atomic<Int>
 
@@ -359,6 +384,8 @@ internal struct SnapshotChannel: ~Copyable {
             pointsPtr.initialize(repeating: PODCurvePoint(timeSec: 0.0, value: 0.0), count: Self.pointsCapacityPerSlot)
             (allocatedSlots + i).initialize(
                 to: PODSnapshotSlot(
+                    resetGeneration: 0,
+                    resetSeekSeq: 0,
                     durationSec: 0.0,
                     masterGain: 1.0,
                     fadeInSec: 0.0,
@@ -402,13 +429,28 @@ internal struct SnapshotChannel: ~Copyable {
     }
 
     /// Publishes a new snapshot from caller/UI thread without blocking the audio thread.
-    func publish(_ snapshot: SynthSnapshot) {
+    /// When `sessionResetSeekSeq` is provided, increments the atomic session-reset generation
+    /// so the audio thread performs a clean zero-click reset on the next render block.
+    func publish(_ snapshot: SynthSnapshot, sessionResetSeekSeq: UInt64? = nil) {
         acquireProducerLock()
         defer { producerLock.store(false, ordering: .releasing) }
 
+        var resetGen = latestResetGeneration.load(ordering: .relaxed)
+        var resetSeekSeq = latestResetSeekSeq.load(ordering: .relaxed)
+        if let seekSeq = sessionResetSeekSeq {
+            resetGen &+= 1
+            resetSeekSeq = seekSeq
+            latestResetGeneration.store(resetGen, ordering: .relaxed)
+            latestResetSeekSeq.store(resetSeekSeq, ordering: .relaxed)
+        }
+
         let currentProducer = producerIndex.load(ordering: .relaxed)
         Self.pack(snapshot: snapshot, into: slots + currentProducer)
+        (slots + currentProducer).pointee.resetGeneration = resetGen
+        (slots + currentProducer).pointee.resetSeekSeq = resetSeekSeq
         Self.pack(snapshot: snapshot, into: slots + 3)
+        (slots + 3).pointee.resetGeneration = resetGen
+        (slots + 3).pointee.resetSeekSeq = resetSeekSeq
 
         let safeDuration = Self.sanitizeDuration(snapshot.durationSec)
         latestDurationBits.store(safeDuration.bitPattern, ordering: .releasing)
@@ -555,7 +597,8 @@ internal struct SnapshotChannel: ~Copyable {
             let v = curve.evaluate(at: t)
             pointsBuf[offset + idx] = PODCurvePoint(timeSec: t, value: v.isFinite ? v : 0.0)
         }
-        return PODCurveHeader(offset: offset, count: maxPointsPerCurve, interpolationRaw: interpRaw)
+        // Force linear interpolation on uniformly resampled curves to avoid double smoothStep distortion.
+        return PODCurveHeader(offset: offset, count: maxPointsPerCurve, interpolationRaw: 0)
     }
 
     private static func encodeMode(_ mode: EntrainmentMode) -> UInt8 {

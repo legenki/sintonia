@@ -106,8 +106,8 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.plain-text</string>
 				<string>public.data</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>BrainWave Generator Preset</string>
@@ -122,6 +122,7 @@
 				<key>public.mime-type</key>
 				<array>
 					<string>text/plain</string>
+					<string>application/octet-stream</string>
 				</array>
 			</dict>
 		</dict>

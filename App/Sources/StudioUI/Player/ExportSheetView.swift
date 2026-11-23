@@ -8,8 +8,9 @@ import WaveForgeExport
 public struct ExportSheetView: View {
     private let preset: Preset
     private let accentColor: Color
+    private let onDismiss: (() -> Void)?
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var environmentDismiss
 
     @State private var selectedFormat: ExportFormat = .m4a
     @State private var exportState: ExportState = .idle
@@ -24,9 +25,14 @@ public struct ExportSheetView: View {
         case failed(String)
     }
 
-    public init(preset: Preset, accentColor: Color = StudioTheme.alphaColor) {
+    public init(
+        preset: Preset,
+        accentColor: Color = StudioTheme.alphaColor,
+        onDismiss: (() -> Void)? = nil
+    ) {
         self.preset = preset
         self.accentColor = accentColor
+        self.onDismiss = onDismiss
     }
 
     private var isExporting: Bool {
@@ -67,7 +73,7 @@ public struct ExportSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(completedURL == nil ? "Close" : "Done") {
-                        dismiss()
+                        dismissSheet()
                     }
                     .foregroundStyle(accentColor)
                 }
@@ -120,7 +126,7 @@ public struct ExportSheetView: View {
                 )
                 summaryRow(
                     titleKey: "Sample Rate",
-                    value: "48 kHz Stereo"
+                    value: String(localized: "48 kHz Stereo")
                 )
                 summaryRow(
                     titleKey: "Estimated Size",
@@ -379,8 +385,9 @@ public struct ExportSheetView: View {
                 ) { progress in
                     Task { @MainActor in
                         guard activeRunID == runID else { return }
-                        if case .exporting = exportState {
-                            exportState = .exporting(progress: progress)
+                        if case .exporting(let currentProgress) = exportState {
+                            let clamped = progress.isFinite ? min(1.0, max(0.0, progress)) : currentProgress
+                            exportState = .exporting(progress: max(currentProgress, clamped))
                         }
                     }
                 }
@@ -397,7 +404,7 @@ public struct ExportSheetView: View {
                 }
             } catch {
                 if activeRunID == runID {
-                    exportState = .failed(error.localizedDescription)
+                    exportState = .failed(Self.localizedErrorMessage(for: error))
                     exportTask = nil
                 }
             }
@@ -413,5 +420,33 @@ public struct ExportSheetView: View {
         activeRunID = nil
         exportTask?.cancel()
         exportTask = nil
+    }
+
+    private func dismissSheet() {
+        if let onDismiss {
+            onDismiss()
+        } else {
+            environmentDismiss()
+        }
+    }
+
+    private static func localizedErrorMessage(for error: any Error) -> String {
+        if let exportError = error as? ExportError {
+            switch exportError {
+            case .invalidDuration:
+                return String(localized: "Session duration must be greater than zero.")
+            case .invalidSampleRate:
+                return String(localized: "Export sample rate must be finite and positive.")
+            case .insufficientStorage:
+                return String(localized: "Not enough free storage space to export this audio file.")
+            case .audioFormatUnavailable:
+                return String(localized: "Unable to configure 48 kHz stereo PCM audio format.")
+            case .bufferAllocationFailed:
+                return String(localized: "Unable to allocate offline audio render buffer.")
+            case .writeFailed(let detail):
+                return detail.isEmpty ? String(localized: "Export Failed") : detail
+            }
+        }
+        return error.localizedDescription
     }
 }

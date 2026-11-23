@@ -31,11 +31,21 @@ struct WaveForgeApp: App {
 
 /// Root coordinator wiring `PlayerView`, `LibraryView`, `StudioRackView`, and system `.onOpenURL` imports.
 struct WaveForgeRootView: View {
+    private enum RootSheet: String, Identifiable {
+        case library
+        case export
+        case about
+
+        var id: String { rawValue }
+    }
+
     let engine: AudioEngineController
     let presetStore: PresetStore
 
-    @State private var isShowingLibrary: Bool = false
+    @State private var activeSheet: RootSheet? = nil
     @State private var isShowingStudio: Bool = false
+    @State private var isDismissingSheet: Bool = false
+    @State private var isDismissingStudio: Bool = false
     @State private var pendingOpenStudioAfterLibraryDismiss: Bool = false
     @State private var presetsRevision: Int = 0
 
@@ -44,15 +54,25 @@ struct WaveForgeRootView: View {
     @State private var importToastPresetName: String? = nil
     @State private var toastDismissTask: Task<Void, Never>? = nil
 
+    private var isModalBusy: Bool {
+        activeSheet != nil || isShowingStudio || isDismissingSheet || isDismissingStudio
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             PlayerView(
                 engine: engine,
                 onOpenLibrary: {
-                    isShowingLibrary = true
+                    presentSheet(.library)
                 },
                 onOpenStudio: {
-                    isShowingStudio = true
+                    presentStudio()
+                },
+                onOpenExport: {
+                    presentSheet(.export)
+                },
+                onOpenAbout: {
+                    presentSheet(.about)
                 }
             )
 
@@ -67,25 +87,43 @@ struct WaveForgeRootView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $isShowingLibrary, onDismiss: handleModalDismissed) {
-            LibraryView(
-                engine: engine,
-                presetStore: presetStore,
-                presetsRevision: presetsRevision,
-                onPresetsChanged: {
-                    presetsRevision += 1
-                },
-                onSelectPreset: { _ in },
-                onOpenStudioForNewPreset: {
-                    pendingOpenStudioAfterLibraryDismiss = true
-                    isShowingLibrary = false
-                },
-                onDismiss: {
-                    isShowingLibrary = false
-                }
-            )
+        .sheet(item: $activeSheet, onDismiss: handleSheetDismissed) { sheet in
+            switch sheet {
+            case .library:
+                LibraryView(
+                    engine: engine,
+                    presetStore: presetStore,
+                    presetsRevision: presetsRevision,
+                    onPresetsChanged: {},
+                    onSelectPreset: { _ in },
+                    onOpenStudioForNewPreset: {
+                        pendingOpenStudioAfterLibraryDismiss = true
+                        dismissActiveSheet()
+                    },
+                    onDismiss: {
+                        dismissActiveSheet()
+                    }
+                )
+
+            case .export:
+                ExportSheetView(
+                    preset: engine.currentPreset,
+                    accentColor: engine.dominantBand.accentColor,
+                    onDismiss: {
+                        dismissActiveSheet()
+                    }
+                )
+
+            case .about:
+                AboutSheetView(
+                    accentColor: engine.dominantBand.accentColor,
+                    onDismiss: {
+                        dismissActiveSheet()
+                    }
+                )
+            }
         }
-        .fullScreenCover(isPresented: $isShowingStudio, onDismiss: handleModalDismissed) {
+        .fullScreenCover(isPresented: $isShowingStudio, onDismiss: handleStudioDismissed) {
             StudioRackView(
                 engine: engine,
                 presetStore: presetStore,
@@ -93,7 +131,7 @@ struct WaveForgeRootView: View {
                     presetsRevision += 1
                 },
                 onDismiss: {
-                    isShowingStudio = false
+                    dismissStudio()
                 }
             )
         }
@@ -108,9 +146,65 @@ struct WaveForgeRootView: View {
         }
     }
 
+    // MARK: - Modal Presentation & Dismissal Coordination
+
+    private func presentSheet(_ sheet: RootSheet) {
+        guard !isModalBusy else { return }
+        activeSheet = sheet
+    }
+
+    private func presentStudio() {
+        guard !isModalBusy else { return }
+        isShowingStudio = true
+    }
+
+    private func dismissActiveSheet() {
+        guard activeSheet != nil else { return }
+        isDismissingSheet = true
+        activeSheet = nil
+    }
+
+    private func dismissStudio() {
+        guard isShowingStudio else { return }
+        isDismissingStudio = true
+        isShowingStudio = false
+    }
+
+    private func dismissAllModals() {
+        dismissActiveSheet()
+        dismissStudio()
+    }
+
+    private func handleSheetDismissed() {
+        isDismissingSheet = false
+        processPendingTransitions()
+    }
+
+    private func handleStudioDismissed() {
+        isDismissingStudio = false
+        processPendingTransitions()
+    }
+
+    private func processPendingTransitions() {
+        guard !isModalBusy else { return }
+
+        if pendingOpenStudioAfterLibraryDismiss {
+            pendingOpenStudioAfterLibraryDismiss = false
+            isShowingStudio = true
+            return
+        }
+
+        if let pendingAlert = pendingImportAlertAfterModalDismiss {
+            pendingImportAlertAfterModalDismiss = nil
+            importAlert = pendingAlert
+        }
+    }
+
     // MARK: - System `.bwg` / `.waveforge` Import Handling
 
     private func handleIncomingURL(_ url: URL) {
+        pendingOpenStudioAfterLibraryDismiss = false
+
         do {
             let outcome = try PresetImportCoordinator.importFile(at: url, into: presetStore)
             presetsRevision += 1
@@ -119,12 +213,7 @@ struct WaveForgeRootView: View {
             if let alert = ImportAlertContent.fromOutcome(outcome) {
                 presentImportAlertSafely(alert)
             } else {
-                if isShowingLibrary {
-                    isShowingLibrary = false
-                }
-                if isShowingStudio {
-                    isShowingStudio = false
-                }
+                dismissAllModals()
                 showImportToast(for: outcome.preset.name)
             }
         } catch {
@@ -133,25 +222,11 @@ struct WaveForgeRootView: View {
     }
 
     private func presentImportAlertSafely(_ alert: ImportAlertContent) {
-        if isShowingLibrary || isShowingStudio {
+        if isModalBusy {
             pendingImportAlertAfterModalDismiss = alert
-            isShowingLibrary = false
-            isShowingStudio = false
+            dismissAllModals()
         } else {
             importAlert = alert
-        }
-    }
-
-    private func handleModalDismissed() {
-        if pendingOpenStudioAfterLibraryDismiss && !isShowingLibrary {
-            pendingOpenStudioAfterLibraryDismiss = false
-            isShowingStudio = true
-            return
-        }
-
-        if let pendingAlert = pendingImportAlertAfterModalDismiss, !isShowingLibrary, !isShowingStudio {
-            pendingImportAlertAfterModalDismiss = nil
-            importAlert = pendingAlert
         }
     }
 

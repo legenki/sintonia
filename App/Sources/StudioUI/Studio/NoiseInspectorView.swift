@@ -182,7 +182,7 @@ public struct NoiseInspectorView: View {
                         haptics.fireModeShift()
                     } label: {
                         HStack {
-                            Text(verbatim: "Ch \(index + 1) • \(voices[index].name)")
+                            Text(verbatim: "\(String(localized: "Ch \(index + 1)")) • \(voices[index].name)")
                             if safePulseSourceIndex == index {
                                 Image(systemName: "checkmark")
                             }

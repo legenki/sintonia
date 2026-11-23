@@ -69,13 +69,14 @@ targets:
           - UTTypeIdentifier: com.noromaa.bwg
             UTTypeDescription: BrainWave Generator Preset
             UTTypeConformsTo:
-              - public.plain-text
               - public.data
+              - public.content
             UTTypeTagSpecification:
               public.filename-extension:
                 - bwg
               public.mime-type:
                 - text/plain
+                - application/octet-stream
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app

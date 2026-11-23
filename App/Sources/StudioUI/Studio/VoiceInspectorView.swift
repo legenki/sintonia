@@ -474,7 +474,7 @@ public struct VoiceInspectorView: View {
                         haptics.fireModeShift()
                     } label: {
                         HStack {
-                            Text(verbatim: "Ch \(idx + 1) • \(allVoices[idx].name)")
+                            Text(verbatim: "\(String(localized: "Ch \(idx + 1)")) • \(allVoices[idx].name)")
                             if isSelected {
                                 Image(systemName: "checkmark")
                             }

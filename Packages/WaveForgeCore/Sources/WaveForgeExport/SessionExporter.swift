@@ -24,17 +24,17 @@ public enum ExportError: Error, LocalizedError, Equatable, Sendable {
     public var errorDescription: String? {
         switch self {
         case .invalidDuration:
-            return "Session duration must be greater than zero."
+            return String(localized: "Session duration must be greater than zero.")
         case .invalidSampleRate:
-            return "Export sample rate must be finite and positive."
+            return String(localized: "Export sample rate must be finite and positive.")
         case .insufficientStorage:
-            return String(localized: "Insufficient Storage")
+            return String(localized: "Not enough free storage space to export this audio file.")
         case .audioFormatUnavailable:
-            return "Unable to configure 48 kHz stereo PCM audio format."
+            return String(localized: "Unable to configure 48 kHz stereo PCM audio format.")
         case .bufferAllocationFailed:
-            return "Unable to allocate offline audio render buffer."
+            return String(localized: "Unable to allocate offline audio render buffer.")
         case .writeFailed(let detail):
-            return detail
+            return detail.isEmpty ? String(localized: "Export Failed") : detail
         }
     }
 }
@@ -63,10 +63,13 @@ public enum SessionExporter {
             throw ExportError.invalidDuration
         }
 
-        let totalFrames = Int64((snapshot.durationSec * sampleRate).rounded())
-        guard totalFrames > 0 else {
+        let totalFramesDouble = (snapshot.durationSec * sampleRate).rounded()
+        guard totalFramesDouble.isFinite,
+              totalFramesDouble >= 1.0,
+              totalFramesDouble <= Double(Int64.max / 8) else {
             throw ExportError.invalidDuration
         }
+        let totalFrames = Int64(totalFramesDouble)
 
         let tempDirectory = FileManager.default.temporaryDirectory
         try validateAvailableStorage(
@@ -209,11 +212,18 @@ public enum SessionExporter {
         totalFrames: Int64,
         in directory: URL
     ) throws {
-        let estimatedAudioBytes: Int64 = switch format {
+        let estimatedAudioBytes: Int64
+        switch format {
         case .wav:
-            totalFrames * 2 * 3
+            estimatedAudioBytes = totalFrames * 2 * 3
         case .m4a:
-            Int64((durationSec * Double(aacBitRate / 8)).rounded(.up))
+            let estimatedDouble = (durationSec * Double(aacBitRate / 8)).rounded(.up)
+            guard estimatedDouble.isFinite,
+                  estimatedDouble >= 0.0,
+                  estimatedDouble <= Double(Int64.max - storageSafetyMarginBytes) else {
+                throw ExportError.invalidDuration
+            }
+            estimatedAudioBytes = Int64(estimatedDouble)
         }
         let requiredBytes = estimatedAudioBytes + storageSafetyMarginBytes
 

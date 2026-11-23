@@ -14,11 +14,14 @@ public final class PresetStore: @unchecked Sendable {
     private let storageDirectory: URL
     private let lock = NSLock()
     private var customPresetsByID: [UUID: Preset]
+    private var customFileURLsByID: [UUID: URL]
 
     /// Creates a store rooted at `storageDirectory`, loading any valid persisted `.waveforge` files.
     public init(storageDirectory: URL) {
         self.storageDirectory = storageDirectory
-        self.customPresetsByID = Self.loadCustomPresets(from: storageDirectory)
+        let loaded = Self.loadCustomPresets(from: storageDirectory)
+        self.customPresetsByID = loaded.presets
+        self.customFileURLsByID = loaded.fileURLs
     }
 
     /// Returns all 18 built-in presets followed by deterministically sorted custom presets.
@@ -69,12 +72,17 @@ public final class PresetStore: @unchecked Sendable {
             throw PresetStoreError.cannotModifyBuiltIn
         }
 
-        let targetURL = fileURL(for: id)
+        let canonicalURL = fileURL(for: id)
         try lock.withLock {
-            if FileManager.default.fileExists(atPath: targetURL.path) {
-                try FileManager.default.removeItem(at: targetURL)
+            let trackedURL = customFileURLsByID[id] ?? canonicalURL
+            if FileManager.default.fileExists(atPath: trackedURL.path) {
+                try FileManager.default.removeItem(at: trackedURL)
+            }
+            if trackedURL != canonicalURL, FileManager.default.fileExists(atPath: canonicalURL.path) {
+                try FileManager.default.removeItem(at: canonicalURL)
             }
             customPresetsByID.removeValue(forKey: id)
+            customFileURLsByID.removeValue(forKey: id)
         }
     }
 
@@ -87,12 +95,14 @@ public final class PresetStore: @unchecked Sendable {
         }
 
         let encoded = try PresetCodec.encode(preset)
-        let destination = fileURL(for: preset.id)
+        let defaultURL = fileURL(for: preset.id)
 
         try lock.withLock {
+            let destination = customFileURLsByID[preset.id] ?? defaultURL
             try FileManager.default.createDirectory(at: storageDirectory, withIntermediateDirectories: true)
             try encoded.write(to: destination, options: [.atomic])
             customPresetsByID[preset.id] = preset
+            customFileURLsByID[preset.id] = destination
         }
     }
 
@@ -100,17 +110,18 @@ public final class PresetStore: @unchecked Sendable {
         storageDirectory.appendingPathComponent("\(id.uuidString).waveforge", isDirectory: false)
     }
 
-    private static func loadCustomPresets(from directory: URL) -> [UUID: Preset] {
+    private static func loadCustomPresets(from directory: URL) -> (presets: [UUID: Preset], fileURLs: [UUID: URL]) {
         guard let urls = try? FileManager.default.contentsOfDirectory(
             at: directory,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         ) else {
-            return [:]
+            return ([:], [:])
         }
 
-        var loaded: [UUID: Preset] = [:]
-        for url in urls where url.pathExtension.lowercased() == "waveforge" {
+        var loadedPresets: [UUID: Preset] = [:]
+        var loadedURLs: [UUID: URL] = [:]
+        for url in urls.sorted(by: { $0.path < $1.path }) where url.pathExtension.lowercased() == "waveforge" {
             guard let data = try? Data(contentsOf: url),
                   let preset = try? PresetCodec.decode(data),
                   !preset.isBuiltIn,
@@ -118,8 +129,9 @@ public final class PresetStore: @unchecked Sendable {
                   PresetValidator.validate(preset).isEmpty else {
                 continue
             }
-            loaded[preset.id] = preset
+            loadedPresets[preset.id] = preset
+            loadedURLs[preset.id] = url
         }
-        return loaded
+        return (loadedPresets, loadedURLs)
     }
 }

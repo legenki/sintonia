@@ -17,6 +17,38 @@
         }
       }
     },
+    "%lldm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldm"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld мин"
+          }
+        }
+      }
+    },
+    "%llds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%llds"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld с"
+          }
+        }
+      }
+    },
     "20-minute dip from 12 -> 4.5 Hz Theta followed by an invigorating rise to 14 Hz.": {
       "localizations": {
         "en": {
@@ -45,6 +77,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "45-минутный глубокий дрейф Дельта 2.5 → 1.2 Гц с глубоким коричневым шумом и 5-минутным затуханием."
+          }
+        }
+      }
+    },
+    "48 kHz Stereo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 kHz Stereo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 кГц, стерео"
+          }
+        }
+      }
+    },
+    "60–7200s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60–7200s"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60–7200 с"
           }
         }
       }
@@ -689,6 +753,54 @@
         }
       }
     },
+    "Clamped %@ from %@ to %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clamped %@ from %@ to %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Параметр «%@» ограничен с %@ до %@."
+          }
+        }
+      }
+    },
+    "Clamped negative timestamp(s) to 0s in %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clamped negative timestamp(s) to 0s in %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отрицательные отметки времени ограничены до 0 с в «%@»."
+          }
+        }
+      }
+    },
+    "Clamped out-of-range value(s) in %@ to %@...%@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clamped out-of-range value(s) in %@ to %@...%@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Значения вне диапазона в «%@» ограничены пределами %@...%@."
+          }
+        }
+      }
+    },
     "Close": {
       "localizations": {
         "en": {
@@ -833,6 +945,22 @@
         }
       }
     },
+    "Deduplicated overlapping timestamp(s) in %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deduplicated overlapping timestamp(s) in %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалены дублирующиеся отметки времени в «%@»."
+          }
+        }
+      }
+    },
     "Delete": {
       "localizations": {
         "en": {
@@ -909,6 +1037,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "Dropped non-finite or malformed point(s) in %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropped non-finite or malformed point(s) in %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалены некорректные или нечисловые точки в «%@»."
           }
         }
       }
@@ -1153,6 +1297,22 @@
         }
       }
     },
+    "Export sample rate must be finite and positive.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export sample rate must be finite and positive."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Частота дискретизации экспорта должна быть конечной и положительной."
+          }
+        }
+      }
+    },
     "Exporting Audio…": {
       "localizations": {
         "en": {
@@ -1393,6 +1553,22 @@
         }
       }
     },
+    "Ignored invalid tracking rule on Voice %lld.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignored invalid tracking rule on Voice %lld."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Игнорировано некорректное правило слежения для голоса %lld."
+          }
+        }
+      }
+    },
     "Import": {
       "localizations": {
         "en": {
@@ -1494,13 +1670,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not enough free storage space to export this audio file."
+            "value": "Insufficient Storage"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Недостаточно свободного места для экспорта аудиофайла."
+            "value": "Недостаточно места"
           }
         }
       }
@@ -1697,6 +1873,22 @@
         }
       }
     },
+    "Master Gain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master Gain"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общая громкость"
+          }
+        }
+      }
+    },
     "Max 10 Voices": {
       "localizations": {
         "en": {
@@ -1725,6 +1917,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Медитация"
+          }
+        }
+      }
+    },
+    "Missing duration; defaulted to %llds.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing duration; defaulted to %llds."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Длительность не указана; установлено значение по умолчанию %lld с."
           }
         }
       }
@@ -1917,6 +2125,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет"
+          }
+        }
+      }
+    },
+    "Not enough free storage space to export this audio file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough free storage space to export this audio file."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недостаточно свободного места для экспорта аудиофайла."
           }
         }
       }
@@ -2321,6 +2545,38 @@
         }
       }
     },
+    "Removed cyclic tracking rule on '%@'.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removed cyclic tracking rule on '%@'."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалено циклическое правило слежения для «%@»."
+          }
+        }
+      }
+    },
+    "Replaced non-finite %@ with %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replaced non-finite %@ with %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нечисловое значение «%@» заменено на %@."
+          }
+        }
+      }
+    },
     "Reset": {
       "localizations": {
         "en": {
@@ -2449,6 +2705,22 @@
         }
       }
     },
+    "Session duration must be greater than zero.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session duration must be greater than zero."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Длительность сессии должна быть больше нуля."
+          }
+        }
+      }
+    },
     "Share": {
       "localizations": {
         "en": {
@@ -2541,6 +2813,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вперёд на 30 с"
+          }
+        }
+      }
+    },
+    "Skipped Voice %lld: WaveForge supports at most %lld voices.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped Voice %lld: WaveForge supports at most %lld voices."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос %lld пропущен: WaveForge поддерживает не более %lld голосов."
+          }
+        }
+      }
+    },
+    "Skipped Voice %lld: no finite carrier or beat parameters.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped Voice %lld: no finite carrier or beat parameters."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос %lld пропущен: отсутствуют корректные параметры несущей или биения."
           }
         }
       }
@@ -3041,6 +3345,38 @@
         }
       }
     },
+    "Unable to allocate offline audio render buffer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to allocate offline audio render buffer."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось выделить буфер для оффлайн-рендеринга аудио."
+          }
+        }
+      }
+    },
+    "Unable to configure 48 kHz stereo PCM audio format.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to configure 48 kHz stereo PCM audio format."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось настроить стереофонический PCM-формат 48 кГц."
+          }
+        }
+      }
+    },
     "Undulating Alpha 8.5 Hz / Theta 6.5 Hz oscillation across triangle and sine voices with light pink noise.": {
       "localizations": {
         "en": {
@@ -3181,6 +3517,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Голос %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Beat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Beat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Биение голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Carrier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Carrier"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Несущая голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Duty Cycle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Duty Cycle"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скважность голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Pan": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Pan"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Панорама голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Softness": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Softness"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мягкость голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld Volume": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld Volume"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Громкость голоса %lld"
+          }
+        }
+      }
+    },
+    "Voice %lld: unrecognized mode '%@'; defaulted to binaural.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld: unrecognized mode '%@'; defaulted to binaural."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос %lld: неизвестный режим «%@»; выбран бинауральный."
+          }
+        }
+      }
+    },
+    "Voice %lld: unrecognized waveform '%@'; defaulted to sine.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice %lld: unrecognized waveform '%@'; defaulted to sine."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голос %lld: неизвестная форма волны «%@»; выбран синус."
           }
         }
       }

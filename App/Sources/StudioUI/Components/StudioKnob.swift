@@ -11,6 +11,7 @@ public struct StudioKnob: View {
     private let accentColor: Color
     private let size: CGFloat
 
+    @GestureState private var isGestureActive = false
     @State private var isDragging = false
     @State private var isFineTuning = false
     @State private var lastTranslationY: CGFloat = 0
@@ -111,6 +112,9 @@ public struct StudioKnob: View {
             }
             .gesture(
                 DragGesture(minimumDistance: 3)
+                    .updating($isGestureActive) { _, state, _ in
+                        state = true
+                    }
                     .onChanged { gesture in
                         handleDragChanged(gesture)
                     }
@@ -119,6 +123,12 @@ public struct StudioKnob: View {
                         isFineTuning = false
                     }
             )
+            .onChange(of: isGestureActive) { _, active in
+                if !active {
+                    isDragging = false
+                    isFineTuning = false
+                }
+            }
 
             VStack(spacing: 2) {
                 Text(LocalizedStringKey(title))

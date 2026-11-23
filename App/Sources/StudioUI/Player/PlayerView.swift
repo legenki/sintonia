@@ -10,6 +10,8 @@ public struct PlayerView: View {
     private let engine: AudioEngineController
     private let onOpenLibrary: () -> Void
     private let onOpenStudio: () -> Void
+    private let onOpenExport: (() -> Void)?
+    private let onOpenAbout: (() -> Void)?
 
     @State private var isShowingExportSheet = false
     @State private var isShowingAboutSheet = false
@@ -20,11 +22,15 @@ public struct PlayerView: View {
     public init(
         engine: AudioEngineController,
         onOpenLibrary: @escaping () -> Void = {},
-        onOpenStudio: @escaping () -> Void = {}
+        onOpenStudio: @escaping () -> Void = {},
+        onOpenExport: (() -> Void)? = nil,
+        onOpenAbout: (() -> Void)? = nil
     ) {
         self.engine = engine
         self.onOpenLibrary = onOpenLibrary
         self.onOpenStudio = onOpenStudio
+        self.onOpenExport = onOpenExport
+        self.onOpenAbout = onOpenAbout
     }
 
     private var accentColor: Color {
@@ -175,7 +181,11 @@ public struct PlayerView: View {
                     .accessibilityLabel(Text("Studio"))
 
                     Button {
-                        isShowingExportSheet = true
+                        if let onOpenExport {
+                            onOpenExport()
+                        } else {
+                            isShowingExportSheet = true
+                        }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
                             .font(.subheadline.weight(.semibold))
@@ -187,7 +197,11 @@ public struct PlayerView: View {
                     .accessibilityLabel(Text("Export"))
 
                     Button {
-                        isShowingAboutSheet = true
+                        if let onOpenAbout {
+                            onOpenAbout()
+                        } else {
+                            isShowingAboutSheet = true
+                        }
                     } label: {
                         Image(systemName: "info.circle")
                             .font(.subheadline.weight(.semibold))
@@ -301,6 +315,8 @@ public struct PlayerView: View {
                     .foregroundStyle(StudioTheme.secondaryText)
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(Color.white.opacity(0.08)))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Close"))
@@ -336,6 +352,8 @@ public struct PlayerView: View {
                     .foregroundStyle(StudioTheme.secondaryText)
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(Color.white.opacity(0.08)))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Close"))
@@ -366,6 +384,8 @@ public struct PlayerView: View {
                     .foregroundStyle(StudioTheme.secondaryText)
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(Color.white.opacity(0.08)))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Close"))

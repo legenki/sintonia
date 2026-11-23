@@ -15,14 +15,103 @@ public enum SkippedLegacyFeature: String, Equatable, Sendable {
     case visualStimulation
 }
 
+/// Target field identified by an `ImportWarning`.
+public enum ImportWarningTarget: Equatable, Sendable {
+    case masterGain
+    case fadeIn
+    case fadeOut
+    case duration
+    case noiseVolume
+    case noiseSmoothness
+    case noisePulseDepth
+    case voiceCarrier(Int)
+    case voiceBeat(Int)
+    case voiceVolume(Int)
+    case voicePan(Int)
+    case voiceIsochronicSoftness(Int)
+    case voiceIsochronicDutyCycle(Int)
+
+    public var englishLabel: String {
+        switch self {
+        case .masterGain: return "MasterGain"
+        case .fadeIn: return "FadeIn"
+        case .fadeOut: return "FadeOut"
+        case .duration: return "Duration"
+        case .noiseVolume: return "NoiseVolume"
+        case .noiseSmoothness: return "NoiseSmoothness"
+        case .noisePulseDepth: return "NoisePulseDepth"
+        case .voiceCarrier(let n): return "Voice \(n) Carrier"
+        case .voiceBeat(let n): return "Voice \(n) Beat"
+        case .voiceVolume(let n): return "Voice \(n) Volume"
+        case .voicePan(let n): return "Voice \(n) Pan"
+        case .voiceIsochronicSoftness(let n): return "Voice \(n) IsochronicSoftness"
+        case .voiceIsochronicDutyCycle(let n): return "Voice \(n) IsochronicDutyCycle"
+        }
+    }
+}
+
+/// Structured, localizable sanitization warning recorded during `.bwg` import.
+public enum ImportWarning: Equatable, Sendable {
+    case unrecognizedMode(voiceNumber: Int, rawValue: String)
+    case unrecognizedWaveform(voiceNumber: Int, rawValue: String)
+    case skippedExcessVoice(voiceNumber: Int, maxVoices: Int)
+    case skippedInvalidVoice(voiceNumber: Int)
+    case ignoredInvalidTrackingRule(voiceNumber: Int)
+    case removedCyclicTrackingRule(voiceName: String)
+    case droppedMalformedCurvePoints(target: ImportWarningTarget)
+    case clampedNegativeTimestamps(target: ImportWarningTarget)
+    case clampedCurveValues(target: ImportWarningTarget, min: Double, max: Double)
+    case deduplicatedTimestamps(target: ImportWarningTarget)
+    case missingDurationDefaulted(defaultSeconds: Int)
+    case replacedNonFiniteScalar(target: ImportWarningTarget, fallback: Double)
+    case clampedScalar(target: ImportWarningTarget, original: Double, clamped: Double)
+
+    public var englishMessage: String {
+        switch self {
+        case let .unrecognizedMode(voiceNumber, rawValue):
+            return "Voice \(voiceNumber): unrecognized mode '\(rawValue)'; defaulted to binaural."
+        case let .unrecognizedWaveform(voiceNumber, rawValue):
+            return "Voice \(voiceNumber): unrecognized waveform '\(rawValue)'; defaulted to sine."
+        case let .skippedExcessVoice(voiceNumber, maxVoices):
+            return "Skipped Voice \(voiceNumber): WaveForge supports at most \(maxVoices) voices."
+        case let .skippedInvalidVoice(voiceNumber):
+            return "Skipped Voice \(voiceNumber): no finite carrier or beat parameters."
+        case let .ignoredInvalidTrackingRule(voiceNumber):
+            return "Ignored invalid tracking rule on Voice \(voiceNumber)."
+        case let .removedCyclicTrackingRule(voiceName):
+            return "Removed cyclic tracking rule on '\(voiceName)'."
+        case let .droppedMalformedCurvePoints(target):
+            return "Dropped non-finite or malformed point(s) in \(target.englishLabel)."
+        case let .clampedNegativeTimestamps(target):
+            return "Clamped negative timestamp(s) to 0s in \(target.englishLabel)."
+        case let .clampedCurveValues(target, min, max):
+            return "Clamped out-of-range value(s) in \(target.englishLabel) to \(min)...\(max)."
+        case let .deduplicatedTimestamps(target):
+            return "Deduplicated overlapping timestamp(s) in \(target.englishLabel)."
+        case let .missingDurationDefaulted(defaultSeconds):
+            return "Missing duration; defaulted to \(defaultSeconds)s."
+        case let .replacedNonFiniteScalar(target, fallback):
+            return "Replaced non-finite \(target.englishLabel) with \(fallback)."
+        case let .clampedScalar(target, original, clamped):
+            return "Clamped \(target.englishLabel) from \(original) to \(clamped)."
+        }
+    }
+}
+
 /// Non-fatal report summarizing skipped legacy features and sanitization warnings during `.bwg` import.
 public struct ImportReport: Equatable, Sendable {
     public var skippedFeatures: [SkippedLegacyFeature]
     public var warnings: [String]
+    public var structuredWarnings: [ImportWarning]
 
-    public init(skippedFeatures: [SkippedLegacyFeature] = [], warnings: [String] = []) {
+    public init(
+        skippedFeatures: [SkippedLegacyFeature] = [],
+        warnings: [String] = [],
+        structuredWarnings: [ImportWarning] = []
+    ) {
         self.skippedFeatures = skippedFeatures
         self.warnings = warnings
+        self.structuredWarnings = structuredWarnings
     }
 }
 
@@ -62,21 +151,21 @@ public enum BWGImporter {
             throw BWGImportError.corruptedStructure
         }
 
-        let builtVoices = buildVoices(from: state, warnings: &state.warnings)
+        let (builtVoices, numberToIndex) = buildVoices(from: state, stateWarnings: &state)
         guard !builtVoices.isEmpty else {
             throw isBinaryPayload && state.voices.isEmpty
                 ? BWGImportError.corruptedStructure
                 : BWGImportError.noValidVoices
         }
 
-        let durationSec = resolveDuration(from: state, voices: builtVoices, warnings: &state.warnings)
-        let noiseLayer = buildNoiseLayer(from: state, voiceCount: builtVoices.count, warnings: &state.warnings)
+        let durationSec = resolveDuration(from: state, voices: builtVoices, state: &state)
+        let noiseLayer = buildNoiseLayer(from: state, numberToIndex: numberToIndex, state: &state)
         let resolvedName = resolveName(parsed: state.name, fallbackName: fallbackName)
         let resolvedSummary = state.summary ?? "Imported from BrainWave Generator (.bwg)"
-        let masterGain = clampScalar(state.masterGain ?? defaultMasterGain, to: PresetLimits.unitRange, label: "MasterGain", warnings: &state.warnings)
+        let masterGain = clampScalar(state.masterGain ?? defaultMasterGain, to: PresetLimits.unitRange, target: .masterGain, state: &state)
         let defaultFade = min(10.0, durationSec * 0.1)
-        let fadeInSec = clampScalar(state.fadeInSec ?? defaultFade, to: PresetLimits.fadeRange, label: "FadeIn", warnings: &state.warnings)
-        let fadeOutSec = clampScalar(state.fadeOutSec ?? defaultFade, to: PresetLimits.fadeRange, label: "FadeOut", warnings: &state.warnings)
+        let fadeInSec = clampScalar(state.fadeInSec ?? defaultFade, to: PresetLimits.fadeRange, target: .fadeIn, state: &state)
+        let fadeOutSec = clampScalar(state.fadeOutSec ?? defaultFade, to: PresetLimits.fadeRange, target: .fadeOut, state: &state)
         let hasBinaural = builtVoices.contains { $0.isEnabled && $0.mode == .binaural }
 
         let preset = Preset(
@@ -96,7 +185,11 @@ public enum BWGImporter {
 
         return BWGImportResult(
             preset: preset,
-            report: ImportReport(skippedFeatures: state.skippedFeatures, warnings: state.warnings)
+            report: ImportReport(
+                skippedFeatures: state.skippedFeatures,
+                warnings: state.warnings,
+                structuredWarnings: state.structuredWarnings
+            )
         )
     }
 
@@ -206,12 +299,18 @@ public enum BWGImporter {
         var voices: [Int: PartialVoice] = [:]
         var skippedFeatures: [SkippedLegacyFeature] = []
         var warnings: [String] = []
+        var structuredWarnings: [ImportWarning] = []
 
         mutating func recordSkipped(_ feature: SkippedLegacyFeature, warning: String) {
             if !skippedFeatures.contains(feature) {
                 skippedFeatures.append(feature)
             }
             warnings.append(warning)
+        }
+
+        mutating func recordWarning(_ warning: ImportWarning) {
+            structuredWarnings.append(warning)
+            warnings.append(warning.englishMessage)
         }
     }
 
@@ -388,13 +487,13 @@ public enum BWGImporter {
             if let parsed = parseMode(value) {
                 voice.mode = parsed
             } else {
-                state.warnings.append("Voice \(voiceNumber): unrecognized mode '\(value)'; defaulted to binaural.")
+                state.recordWarning(.unrecognizedMode(voiceNumber: voiceNumber, rawValue: value))
             }
         case "waveform", "wave":
             if let parsed = parseWaveform(value) {
                 voice.waveform = parsed
             } else {
-                state.warnings.append("Voice \(voiceNumber): unrecognized waveform '\(value)'; defaulted to sine.")
+                state.recordWarning(.unrecognizedWaveform(voiceNumber: voiceNumber, rawValue: value))
             }
         case "isochronicsoftness", "softness":
             if let parsed = parseDouble(value) { voice.isochronicSoftness = parsed }
@@ -428,33 +527,33 @@ public enum BWGImporter {
 
     // MARK: - Assembly & Sanitization
 
-    private static func buildVoices(from state: ParseState, warnings: inout [String]) -> [Voice] {
+    private static func buildVoices(from state: ParseState, stateWarnings: inout ParseState) -> (voices: [Voice], numberToIndex: [Int: Int]) {
         let sortedNumbers = state.voices.keys.sorted()
         var validEntries: [(number: Int, partial: PartialVoice, carrier: [CurvePoint], beat: [CurvePoint], volume: [CurvePoint])] = []
 
         for voiceNum in sortedNumbers {
             guard let partial = state.voices[voiceNum] else { continue }
             if validEntries.count >= PresetLimits.voiceCountRange.upperBound {
-                warnings.append("Skipped Voice \(voiceNum): WaveForge supports at most 10 voices.")
+                stateWarnings.recordWarning(.skippedExcessVoice(voiceNumber: voiceNum, maxVoices: PresetLimits.voiceCountRange.upperBound))
                 continue
             }
 
             let parsedCarrier = partial.carrierRaw.map {
-                sanitizeCurvePoints($0, range: PresetLimits.carrierHzRange, label: "Voice \(voiceNum) Carrier", warnings: &warnings)
+                sanitizeCurvePoints($0, range: PresetLimits.carrierHzRange, target: .voiceCarrier(voiceNum), state: &stateWarnings)
             } ?? []
             let parsedBeat = partial.beatRaw.map {
-                sanitizeCurvePoints($0, range: PresetLimits.beatHzRange, label: "Voice \(voiceNum) Beat", warnings: &warnings)
+                sanitizeCurvePoints($0, range: PresetLimits.beatHzRange, target: .voiceBeat(voiceNum), state: &stateWarnings)
             } ?? []
 
             guard !parsedCarrier.isEmpty || !parsedBeat.isEmpty else {
-                warnings.append("Skipped Voice \(voiceNum): no finite carrier or beat parameters.")
+                stateWarnings.recordWarning(.skippedInvalidVoice(voiceNumber: voiceNum))
                 continue
             }
 
             let carrierPoints = parsedCarrier.isEmpty ? [CurvePoint(timeSec: 0, value: 200.0)] : parsedCarrier
             let beatPoints = parsedBeat.isEmpty ? [CurvePoint(timeSec: 0, value: 10.0)] : parsedBeat
             let parsedVolume = partial.volumeRaw.map {
-                sanitizeCurvePoints($0, range: PresetLimits.unitRange, label: "Voice \(voiceNum) Volume", warnings: &warnings)
+                sanitizeCurvePoints($0, range: PresetLimits.unitRange, target: .voiceVolume(voiceNum), state: &stateWarnings)
             } ?? []
             let volumePoints = parsedVolume.isEmpty ? [CurvePoint(timeSec: 0, value: 0.7)] : parsedVolume
 
@@ -465,25 +564,25 @@ public enum BWGImporter {
 
         var voices: [Voice] = validEntries.map { entry in
             let p = entry.partial
-            let pan = clampScalar(p.pan, to: PresetLimits.panRange, label: "Voice \(entry.number) Pan", warnings: &warnings)
+            let pan = clampScalar(p.pan, to: PresetLimits.panRange, target: .voicePan(entry.number), state: &stateWarnings)
             let softness = clampScalar(
                 p.isochronicSoftness,
                 to: PresetLimits.isochronicSoftnessRange,
-                label: "Voice \(entry.number) IsochronicSoftness",
-                warnings: &warnings
+                target: .voiceIsochronicSoftness(entry.number),
+                state: &stateWarnings
             )
             let duty = clampScalar(
                 p.isochronicDutyCycle,
                 to: PresetLimits.isochronicDutyCycleRange,
-                label: "Voice \(entry.number) IsochronicDutyCycle",
-                warnings: &warnings
+                target: .voiceIsochronicDutyCycle(entry.number),
+                state: &stateWarnings
             )
 
             let tracking = resolveTrackingRule(
                 for: entry.number,
                 partial: p,
                 numberToIndex: numberToIndex,
-                warnings: &warnings
+                state: &stateWarnings
             )
 
             return Voice(
@@ -504,15 +603,15 @@ public enum BWGImporter {
             )
         }
 
-        breakAnyTrackingCycles(&voices, warnings: &warnings)
-        return voices
+        breakAnyTrackingCycles(&voices, state: &stateWarnings)
+        return (voices, numberToIndex)
     }
 
     private static func resolveTrackingRule(
         for voiceNumber: Int,
         partial: PartialVoice,
         numberToIndex: [Int: Int],
-        warnings: inout [String]
+        state: inout ParseState
     ) -> VoiceTrackingRule? {
         var sourceNumber = partial.trackingSourceNumber
         var targetParam = partial.trackingParam ?? .carrier
@@ -542,7 +641,7 @@ public enum BWGImporter {
               ratio.isFinite,
               offset.isFinite else {
             if partial.trackingRaw != nil || partial.trackingSourceNumber != nil {
-                warnings.append("Ignored invalid tracking rule on Voice \(voiceNumber).")
+                state.recordWarning(.ignoredInvalidTrackingRule(voiceNumber: voiceNumber))
             }
             return nil
         }
@@ -555,7 +654,7 @@ public enum BWGImporter {
         )
     }
 
-    private static func breakAnyTrackingCycles(_ voices: inout [Voice], warnings: inout [String]) {
+    private static func breakAnyTrackingCycles(_ voices: inout [Voice], state: inout ParseState) {
         for index in voices.indices {
             guard voices[index].trackingRule != nil else { continue }
             var visited: Set<Int> = [index]
@@ -563,7 +662,7 @@ public enum BWGImporter {
             while let next = cursor, voices.indices.contains(next) {
                 if visited.contains(next) {
                     voices[index].trackingRule = nil
-                    warnings.append("Removed cyclic tracking rule on '\(voices[index].name)'.")
+                    state.recordWarning(.removedCyclicTrackingRule(voiceName: voices[index].name))
                     break
                 }
                 visited.insert(next)
@@ -575,8 +674,8 @@ public enum BWGImporter {
     private static func sanitizeCurvePoints(
         _ raw: String,
         range: ClosedRange<Double>,
-        label: String,
-        warnings: inout [String]
+        target: ImportWarningTarget,
+        state: inout ParseState
     ) -> [CurvePoint] {
         let rawSegments = raw
             .replacingOccurrences(of: ";", with: ",")
@@ -645,13 +744,13 @@ public enum BWGImporter {
         }
 
         if droppedNonFinite {
-            warnings.append("Dropped non-finite or malformed point(s) in \(label).")
+            state.recordWarning(.droppedMalformedCurvePoints(target: target))
         }
         if clampedNegativeTime {
-            warnings.append("Clamped negative timestamp(s) to 0s in \(label).")
+            state.recordWarning(.clampedNegativeTimestamps(target: target))
         }
         if clampedValue {
-            warnings.append("Clamped out-of-range value(s) in \(label) to \(range.lowerBound)...\(range.upperBound).")
+            state.recordWarning(.clampedCurveValues(target: target, min: range.lowerBound, max: range.upperBound))
         }
 
         indexedValid.sort { lhs, rhs in
@@ -673,27 +772,27 @@ public enum BWGImporter {
             }
         }
         if deduplicated {
-            warnings.append("Deduplicated overlapping timestamp(s) in \(label).")
+            state.recordWarning(.deduplicatedTimestamps(target: target))
         }
 
         return collapsed
     }
 
     private static func buildNoiseLayer(
-        from state: ParseState,
-        voiceCount: Int,
-        warnings: inout [String]
+        from parseState: ParseState,
+        numberToIndex: [Int: Int],
+        state: inout ParseState
     ) -> NoiseLayer {
         let volPoints: [CurvePoint]
-        if let rawVol = state.noiseVolumeRaw {
-            let parsed = sanitizeCurvePoints(rawVol, range: PresetLimits.unitRange, label: "NoiseVolume", warnings: &warnings)
+        if let rawVol = parseState.noiseVolumeRaw {
+            let parsed = sanitizeCurvePoints(rawVol, range: PresetLimits.unitRange, target: .noiseVolume, state: &state)
             volPoints = parsed.isEmpty ? [CurvePoint(timeSec: 0, value: 0.0)] : parsed
         } else {
-            volPoints = [CurvePoint(timeSec: 0, value: state.noiseEnabled == true ? 0.2 : 0.0)]
+            volPoints = [CurvePoint(timeSec: 0, value: parseState.noiseEnabled == true ? 0.2 : 0.0)]
         }
 
         let smoothPoints: [CurvePoint]
-        if let rawSmooth = state.noiseSmoothnessRaw {
+        if let rawSmooth = parseState.noiseSmoothnessRaw {
             let lower = rawSmooth.trimmingCharacters(in: .whitespaces).lowercased()
             switch lower {
             case "white":
@@ -703,7 +802,7 @@ public enum BWGImporter {
             case "brown":
                 smoothPoints = [CurvePoint(timeSec: 0, value: 1.0)]
             default:
-                let parsed = sanitizeCurvePoints(rawSmooth, range: PresetLimits.unitRange, label: "NoiseSmoothness", warnings: &warnings)
+                let parsed = sanitizeCurvePoints(rawSmooth, range: PresetLimits.unitRange, target: .noiseSmoothness, state: &state)
                 smoothPoints = parsed.isEmpty ? [CurvePoint(timeSec: 0, value: 0.5)] : parsed
             }
         } else {
@@ -711,30 +810,29 @@ public enum BWGImporter {
         }
 
         let hasAudibleNoise = volPoints.contains { $0.value > 0.0 }
-        let isEnabled = state.noiseEnabled ?? hasAudibleNoise
-        let pulseDepth = clampScalar(state.noisePulseDepth, to: PresetLimits.unitRange, label: "NoisePulseDepth", warnings: &warnings)
+        let isEnabled = parseState.noiseEnabled ?? hasAudibleNoise
+        let pulseDepth = clampScalar(parseState.noisePulseDepth, to: PresetLimits.unitRange, target: .noisePulseDepth, state: &state)
 
         let pulseSourceIndex: Int?
-        if let sourceNum = state.noisePulseSourceVoiceNumber {
-            let candidate = sourceNum >= 1 ? sourceNum - 1 : sourceNum
-            pulseSourceIndex = (0..<voiceCount).contains(candidate) ? candidate : nil
+        if let sourceNum = parseState.noisePulseSourceVoiceNumber {
+            pulseSourceIndex = numberToIndex[sourceNum]
         } else {
             pulseSourceIndex = nil
         }
 
         return NoiseLayer(
             isEnabled: isEnabled,
-            volumeCurve: EnvelopeCurve(points: volPoints, interpolation: state.noiseInterpolation),
-            smoothnessCurve: EnvelopeCurve(points: smoothPoints, interpolation: state.noiseInterpolation),
-            pulseEnabled: state.noisePulseEnabled,
+            volumeCurve: EnvelopeCurve(points: volPoints, interpolation: parseState.noiseInterpolation),
+            smoothnessCurve: EnvelopeCurve(points: smoothPoints, interpolation: parseState.noiseInterpolation),
+            pulseEnabled: parseState.noisePulseEnabled,
             pulseDepth: pulseDepth,
             pulseSourceVoiceIndex: pulseSourceIndex
         )
     }
 
-    private static func resolveDuration(from state: ParseState, voices: [Voice], warnings: inout [String]) -> Double {
-        if let parsed = state.durationSec {
-            return clampScalar(parsed, to: PresetLimits.durationRange, label: "Duration", warnings: &warnings)
+    private static func resolveDuration(from parseState: ParseState, voices: [Voice], state: inout ParseState) -> Double {
+        if let parsed = parseState.durationSec {
+            return clampScalar(parsed, to: PresetLimits.durationRange, target: .duration, state: &state)
         }
 
         let maxCurveTime = voices.flatMap { voice in
@@ -742,10 +840,11 @@ public enum BWGImporter {
         }.map(\.timeSec).max() ?? 0.0
 
         if maxCurveTime >= PresetLimits.durationRange.lowerBound {
-            return clampScalar(maxCurveTime, to: PresetLimits.durationRange, label: "Duration", warnings: &warnings)
+            return clampScalar(maxCurveTime, to: PresetLimits.durationRange, target: .duration, state: &state)
         }
 
-        warnings.append("Missing duration; defaulted to \(Int(defaultDurationSec))s.")
+        let defaultSec = Int(defaultDurationSec)
+        state.recordWarning(.missingDurationDefaulted(defaultSeconds: defaultSec))
         return defaultDurationSec
     }
 
@@ -802,14 +901,23 @@ public enum BWGImporter {
         if let numeric = Double(trimmed), numeric.isFinite {
             return numeric
         }
-        let parts = trimmed.split(separator: ":").compactMap { Double($0) }
-        if parts.count == 2 {
-            return parts[0] * 60.0 + parts[1]
+        let rawParts = trimmed.split(separator: ":", omittingEmptySubsequences: false)
+        guard rawParts.count == 2 || rawParts.count == 3 else {
+            return nil
         }
-        if parts.count == 3 {
-            return parts[0] * 3600.0 + parts[1] * 60.0 + parts[2]
+        var parts: [Double] = []
+        parts.reserveCapacity(rawParts.count)
+        for segment in rawParts {
+            let cleaned = segment.trimmingCharacters(in: .whitespaces)
+            guard !cleaned.isEmpty, let parsed = Double(cleaned), parsed.isFinite, parsed >= 0.0 else {
+                return nil
+            }
+            parts.append(parsed)
         }
-        return nil
+        let total = parts.count == 2
+            ? (parts[0] * 60.0 + parts[1])
+            : (parts[0] * 3600.0 + parts[1] * 60.0 + parts[2])
+        return total.isFinite ? total : nil
     }
 
     private static func parseBool(_ raw: String) -> Bool? {
@@ -864,16 +972,16 @@ public enum BWGImporter {
     private static func clampScalar(
         _ value: Double,
         to range: ClosedRange<Double>,
-        label: String,
-        warnings: inout [String]
+        target: ImportWarningTarget,
+        state: inout ParseState
     ) -> Double {
         guard value.isFinite else {
-            warnings.append("Replaced non-finite \(label) with \(range.lowerBound).")
+            state.recordWarning(.replacedNonFiniteScalar(target: target, fallback: range.lowerBound))
             return range.lowerBound
         }
         if !range.contains(value) {
             let clamped = min(range.upperBound, max(range.lowerBound, value))
-            warnings.append("Clamped \(label) from \(value) to \(clamped).")
+            state.recordWarning(.clampedScalar(target: target, original: value, clamped: clamped))
             return clamped
         }
         return value
