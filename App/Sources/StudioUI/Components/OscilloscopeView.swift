@@ -29,11 +29,35 @@ public enum OscilloscopeDisplayMode: Int, CaseIterable, Sendable {
 private final class TelemetryScratchBox {
     static let waveformPointCount = 256
     static let lissajousPointCount = 384
+    static let lissajousTrailCapacity = 5
 
     var frame = TelemetryFrame()
+    var smoothedLeft = [Double](repeating: 0.0, count: TelemetryScratchBox.waveformPointCount)
+    var smoothedRight = [Double](repeating: 0.0, count: TelemetryScratchBox.waveformPointCount)
+    var hasWaveformHistory: Bool = false
+
     var leftPoints = [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
     var rightPoints = [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
-    var lissajousPoints = [CGPoint](repeating: .zero, count: TelemetryScratchBox.lissajousPointCount)
+
+    var lissajousRawX = [Double](repeating: 0.0, count: TelemetryScratchBox.lissajousPointCount)
+    var lissajousRawY = [Double](repeating: 0.0, count: TelemetryScratchBox.lissajousPointCount)
+    var lissajousTrails: [[CGPoint]] = (0..<TelemetryScratchBox.lissajousTrailCapacity).map { _ in
+        [CGPoint](repeating: .zero, count: TelemetryScratchBox.lissajousPointCount)
+    }
+    var lissajousTrailHead: Int = 0
+    var lissajousTrailCount: Int = 0
+
+    var smoothedWaveformGain: Double = 1.0
+    var smoothedLissajousGain: Double = 1.0
+    var lastTimestamp: TimeInterval? = nil
+    var lastDisplayMode: OscilloscopeDisplayMode? = nil
+    var lastCanvasSize: CGSize = .zero
+
+    func resetTemporalState() {
+        hasWaveformHistory = false
+        lissajousTrailHead = 0
+        lissajousTrailCount = 0
+    }
 }
 
 /// 60–120 fps studio CRT/OLED oscilloscope backed by `TelemetryRingBuffer`.
@@ -74,18 +98,23 @@ public struct OscilloscopeView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(StudioTheme.recessedWell)
 
-            TimelineView(.animation(paused: !isPlaying)) { _ in
+            TimelineView(.animation(paused: !isPlaying)) { timeline in
                 Canvas { context, size in
                     let box = scratch
+                    let dt = computeFrameDelta(
+                        now: timeline.date.timeIntervalSinceReferenceDate,
+                        size: size,
+                        box: box
+                    )
                     telemetryBuffer.readLatest(into: &box.frame)
 
                     switch displayMode {
                     case .waveform:
                         drawWaveformGraticule(in: &context, size: size)
-                        drawStereoWaveform(in: &context, size: size, box: box)
+                        drawStereoWaveform(in: &context, size: size, dt: dt, box: box)
                     case .lissajous:
                         drawLissajousGraticule(in: &context, size: size)
-                        drawLissajousPlot(in: &context, size: size, box: box)
+                        drawLissajousPlot(in: &context, size: size, dt: dt, box: box)
                     case .bandMonitor:
                         drawWaveformGraticule(in: &context, size: size, subtle: true)
                         drawBandMonitorAmbientBars(in: &context, size: size, frame: box.frame)
@@ -276,12 +305,128 @@ public struct OscilloscopeView: View {
         context.stroke(centerPath, with: .color(Color.white.opacity(midOpacity)), lineWidth: 0.75)
     }
 
+    private func computeFrameDelta(
+        now: TimeInterval,
+        size: CGSize,
+        box: TelemetryScratchBox
+    ) -> Double {
+        let sizeChanged = abs(box.lastCanvasSize.width - size.width) > 0.5
+            || abs(box.lastCanvasSize.height - size.height) > 0.5
+        let modeChanged = box.lastDisplayMode != displayMode
+        let rawDelta = box.lastTimestamp.map { now - $0 } ?? (1.0 / 60.0)
+
+        if sizeChanged || modeChanged || rawDelta > 0.25 || rawDelta < 0.0 {
+            box.resetTemporalState()
+        }
+
+        box.lastTimestamp = now
+        box.lastDisplayMode = displayMode
+        box.lastCanvasSize = size
+        return min(1.0 / 20.0, max(1.0 / 240.0, rawDelta))
+    }
+
+    private func smoothAutoGain(
+        current: Double,
+        target: Double,
+        dt: Double,
+        snap: Bool
+    ) -> Double {
+        if snap { return target }
+        // Fast attack when level increases (target < current), silky release when level drops.
+        let tau = target < current ? 0.045 : 0.22
+        let alpha = 1.0 - exp(-dt / tau)
+        return current + (target - current) * alpha
+    }
+
+    private func interpolatedSample(_ samples: [Float], at position: Double) -> Double {
+        let maxIndex = samples.count - 1
+        guard maxIndex >= 0 else { return 0.0 }
+        let clamped = min(Double(maxIndex), max(0.0, position))
+        let i0 = Int(clamped)
+        let i1 = min(maxIndex, i0 + 1)
+        let frac = clamped - Double(i0)
+        let s0 = Double(samples[i0])
+        let s1 = Double(samples[i1])
+        return s0 + (s1 - s0) * frac
+    }
+
+    private func smoothedTriggerSample(_ samples: [Float], at index: Int) -> Float {
+        // 5-tap symmetric low-pass kernel suppresses pink/brown noise false zero crossings.
+        let s0 = samples[index - 2]
+        let s1 = samples[index - 1]
+        let s2 = samples[index]
+        let s3 = samples[index + 1]
+        let s4 = samples[index + 2]
+        return (s0 + 2.0 * s1 + 3.0 * s2 + 2.0 * s3 + s4) * 0.11111111
+    }
+
+    private func findSubsampleTriggerPosition(
+        samples: [Float],
+        windowLength: Int,
+        maxAbs: Float
+    ) -> Double {
+        let searchLimit = samples.count - windowLength - 2
+        guard maxAbs > 1e-4, searchLimit > 3 else { return 0.0 }
+
+        // Schmitt-style hysteresis: arm once smoothed signal dips below -threshold,
+        // then lock onto the next rising zero-crossing with fractional interpolation.
+        let armThreshold = max(1e-4, maxAbs * 0.06)
+        var armed = false
+        var prev = smoothedTriggerSample(samples, at: 2)
+        if prev <= -armThreshold {
+            armed = true
+        }
+
+        for i in 3..<searchLimit {
+            let curr = smoothedTriggerSample(samples, at: i)
+            if !armed && curr <= -armThreshold {
+                armed = true
+            } else if armed && prev < 0.0 && curr >= 0.0 {
+                let delta = Double(curr - prev)
+                let frac = delta > 1e-9 ? min(1.0, max(0.0, Double(-prev) / delta)) : 0.0
+                return Double(i - 1) + frac
+            }
+            prev = curr
+        }
+
+        // Fallback to first rising crossing if wave didn't cross the hysteresis threshold.
+        for i in 1..<(samples.count - windowLength) {
+            let s0 = samples[i - 1]
+            let s1 = samples[i]
+            if s0 < 0.0 && s1 >= 0.0 {
+                let delta = Double(s1 - s0)
+                let frac = delta > 1e-9 ? min(1.0, max(0.0, Double(-s0) / delta)) : 0.0
+                return Double(i - 1) + frac
+            }
+        }
+        return 0.0
+    }
+
+    private func smoothPath(through points: [CGPoint], count: Int) -> Path {
+        var path = Path()
+        guard count >= 2 else { return path }
+        path.move(to: points[0])
+        if count == 2 {
+            path.addLine(to: points[1])
+            return path
+        }
+        for i in 1..<(count - 1) {
+            let p = points[i]
+            let next = points[i + 1]
+            let mid = CGPoint(x: (p.x + next.x) * 0.5, y: (p.y + next.y) * 0.5)
+            path.addQuadCurve(to: mid, control: p)
+        }
+        path.addLine(to: points[count - 1])
+        return path
+    }
+
     private func drawStereoWaveform(
         in context: inout GraphicsContext,
         size: CGSize,
+        dt: Double,
         box: TelemetryScratchBox
     ) {
-        let sampleCount = box.frame.leftSamples.count
+        let sampleCount = min(box.frame.leftSamples.count, box.frame.rightSamples.count)
         let pointCount = TelemetryScratchBox.waveformPointCount
         guard sampleCount >= 512, pointCount > 1, size.width > 1, size.height > 1 else { return }
 
@@ -294,40 +439,45 @@ public struct OscilloscopeView: View {
             if aR > maxAbs { maxAbs = aR }
         }
 
-        // Rising zero-crossing trigger on Left channel stabilizes stationary carrier cycles
-        // while allowing Right channel binaural phase drift to glide cleanly.
-        var triggerIndex = 0
-        if maxAbs > 1e-4 {
-            let searchLimit = sampleCount - windowLength
-            for i in 1..<searchLimit {
-                if box.frame.leftSamples[i - 1] < 0.0 && box.frame.leftSamples[i] >= 0.0 {
-                    triggerIndex = i
-                    break
-                }
-            }
-        }
+        let triggerPos = findSubsampleTriggerPosition(
+            samples: box.frame.leftSamples,
+            windowLength: windowLength,
+            maxAbs: maxAbs
+        )
 
-        let gainScale = min(3.2, 0.86 / max(0.22, Double(maxAbs)))
+        let targetGain = min(3.2, 0.86 / max(0.22, Double(maxAbs)))
+        box.smoothedWaveformGain = smoothAutoGain(
+            current: box.smoothedWaveformGain,
+            target: targetGain,
+            dt: dt,
+            snap: !box.hasWaveformHistory
+        )
+
+        let gainScale = box.smoothedWaveformGain
         let midY = size.height * 0.5
+        let amplitudeY = size.height * 0.42
         let dx = size.width / CGFloat(pointCount - 1)
-        let stride = windowLength / pointCount
+        let sampleStep = Double(windowLength - 1) / Double(pointCount - 1)
+        let temporalAlpha = box.hasWaveformHistory ? (1.0 - exp(-dt / 0.032)) : 1.0
 
         for i in 0..<pointCount {
-            let idx = min(sampleCount - 1, triggerIndex + i * stride)
+            let pos = triggerPos + Double(i) * sampleStep
+            let rawL = min(1.0, max(-1.0, interpolatedSample(box.frame.leftSamples, at: pos) * gainScale))
+            let rawR = min(1.0, max(-1.0, interpolatedSample(box.frame.rightSamples, at: pos) * gainScale))
+
+            let nextL = box.smoothedLeft[i] + (rawL - box.smoothedLeft[i]) * temporalAlpha
+            let nextR = box.smoothedRight[i] + (rawR - box.smoothedRight[i]) * temporalAlpha
+            box.smoothedLeft[i] = nextL
+            box.smoothedRight[i] = nextR
+
             let x = CGFloat(i) * dx
-            let sampleL = Double(box.frame.leftSamples[idx])
-            let sampleR = Double(box.frame.rightSamples[idx])
-            let clampedL = min(1.0, max(-1.0, sampleL * gainScale))
-            let clampedR = min(1.0, max(-1.0, sampleR * gainScale))
-
-            box.leftPoints[i] = CGPoint(x: x, y: midY - CGFloat(clampedL) * (size.height * 0.42))
-            box.rightPoints[i] = CGPoint(x: x, y: midY - CGFloat(clampedR) * (size.height * 0.42))
+            box.leftPoints[i] = CGPoint(x: x, y: midY - CGFloat(nextL) * amplitudeY)
+            box.rightPoints[i] = CGPoint(x: x, y: midY - CGFloat(nextR) * amplitudeY)
         }
+        box.hasWaveformHistory = true
 
-        var leftPath = Path()
-        leftPath.addLines(box.leftPoints)
-        var rightPath = Path()
-        rightPath.addLines(box.rightPoints)
+        let leftPath = smoothPath(through: box.leftPoints, count: pointCount)
+        let rightPath = smoothPath(through: box.rightPoints, count: pointCount)
 
         let alphaMultiplier = isPlaying || maxAbs > 1e-4 ? 1.0 : 0.45
         drawPhosphorTrace(path: rightPath, color: StudioTheme.rightTraceColor.opacity(alphaMultiplier), in: &context)
@@ -370,6 +520,7 @@ public struct OscilloscopeView: View {
     private func drawLissajousPlot(
         in context: inout GraphicsContext,
         size: CGSize,
+        dt: Double,
         box: TelemetryScratchBox
     ) {
         let sampleCount = min(box.frame.leftSamples.count, box.frame.rightSamples.count)
@@ -389,6 +540,7 @@ public struct OscilloscopeView: View {
         let radius = min(size.width, size.height) * 0.39
 
         if maxAbs < 1e-4 {
+            box.lissajousTrailCount = 0
             let glowDot = Path(ellipseIn: CGRect(x: centerX - 6, y: centerY - 6, width: 12, height: 12))
             let coreDot = Path(ellipseIn: CGRect(x: centerX - 2.5, y: centerY - 2.5, width: 5, height: 5))
             context.fill(glowDot, with: .color(dominantBand.accentColor.opacity(0.28)))
@@ -396,22 +548,65 @@ public struct OscilloscopeView: View {
             return
         }
 
-        let gainScale = min(3.0, 0.90 / max(0.24, Double(maxAbs)))
-        let lastSampleIndex = sampleCount - 1
+        let targetGain = min(3.0, 0.90 / max(0.24, Double(maxAbs)))
+        box.smoothedLissajousGain = smoothAutoGain(
+            current: box.smoothedLissajousGain,
+            target: targetGain,
+            dt: dt,
+            snap: box.lissajousTrailCount == 0
+        )
 
+        let gainScale = box.smoothedLissajousGain
+        let sampleStep = Double(sampleCount - 1) / Double(pointCount - 1)
+
+        // Sub-sample fractional indexing eliminates uneven integer decimation steps.
         for i in 0..<pointCount {
-            let sampleIdx = (i * lastSampleIndex) / (pointCount - 1)
-            let xVal = min(1.0, max(-1.0, Double(box.frame.leftSamples[sampleIdx]) * gainScale))
-            let yVal = min(1.0, max(-1.0, Double(box.frame.rightSamples[sampleIdx]) * gainScale))
-            box.lissajousPoints[i] = CGPoint(
+            let pos = Double(i) * sampleStep
+            box.lissajousRawX[i] = min(1.0, max(-1.0, interpolatedSample(box.frame.leftSamples, at: pos) * gainScale))
+            box.lissajousRawY[i] = min(1.0, max(-1.0, interpolatedSample(box.frame.rightSamples, at: pos) * gainScale))
+        }
+
+        // Write into the next slot of the CRT phosphor persistence ring buffer,
+        // applying a gentle 3-tap [0.25, 0.5, 0.25] spatial filter to keep curves silky even with noise.
+        let capacity = TelemetryScratchBox.lissajousTrailCapacity
+        let writeSlot = box.lissajousTrailHead
+        for i in 0..<pointCount {
+            let xVal: Double
+            let yVal: Double
+            if i == 0 || i == pointCount - 1 {
+                xVal = box.lissajousRawX[i]
+                yVal = box.lissajousRawY[i]
+            } else {
+                xVal = 0.25 * box.lissajousRawX[i - 1] + 0.5 * box.lissajousRawX[i] + 0.25 * box.lissajousRawX[i + 1]
+                yVal = 0.25 * box.lissajousRawY[i - 1] + 0.5 * box.lissajousRawY[i] + 0.25 * box.lissajousRawY[i + 1]
+            }
+            box.lissajousTrails[writeSlot][i] = CGPoint(
                 x: centerX + CGFloat(xVal) * radius,
                 y: centerY - CGFloat(yVal) * radius
             )
         }
 
-        var path = Path()
-        path.addLines(box.lissajousPoints)
-        drawPhosphorTrace(path: path, color: dominantBand.accentColor, in: &context)
+        box.lissajousTrailHead = (writeSlot + 1) % capacity
+        box.lissajousTrailCount = min(capacity, box.lissajousTrailCount + 1)
+
+        // Draw fading phosphor afterglow trails from oldest to newest.
+        let total = box.lissajousTrailCount
+        if total > 1 {
+            for ageIndex in 0..<(total - 1) {
+                let slot = (writeSlot - (total - 1 - ageIndex) + capacity) % capacity
+                let progress = Double(ageIndex + 1) / Double(total)
+                let trailOpacity = 0.06 + 0.24 * progress * progress
+                let trailPath = smoothPath(through: box.lissajousTrails[slot], count: pointCount)
+                context.stroke(
+                    trailPath,
+                    with: .color(dominantBand.accentColor.opacity(trailOpacity)),
+                    style: StrokeStyle(lineWidth: 1.6 + CGFloat(progress) * 1.4, lineCap: .round, lineJoin: .round)
+                )
+            }
+        }
+
+        let currentPath = smoothPath(through: box.lissajousTrails[writeSlot], count: pointCount)
+        drawPhosphorTrace(path: currentPath, color: dominantBand.accentColor, in: &context)
     }
 
     private func drawBandMonitorAmbientBars(
