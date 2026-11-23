@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.waveforge
   deploymentTarget:
     iOS: "27.2"
+    macOS: "27.2"
   createIntermediateGroups: true
 packages:
   WaveForgeCore:
@@ -11,14 +12,15 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    IPHONEOS_DEPLOYMENT_TARGET: "27.2"
 targets:
   WaveForge:
     type: application
     platform: iOS
     deploymentTarget: "27.2"
     sources:
-      - path: App/Sources
+      - path: App/Sources/AudioRuntime
+      - path: App/Sources/StudioUI
+      - path: App/iOS
       - path: App/Resources
     info:
       path: App/Info.plist
@@ -82,6 +84,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
+        IPHONEOS_DEPLOYMENT_TARGET: "27.2"
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: App/Info.plist
@@ -96,6 +99,9 @@ targets:
         product: PresetKit
       - package: WaveForgeCore
         product: WaveForgeExport
+    scheme:
+      testTargets:
+        - WaveForgeTests
   WaveForgeTests:
     type: bundle.unit-test
     platform: iOS
@@ -105,11 +111,119 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.tests
+        IPHONEOS_DEPLOYMENT_TARGET: "27.2"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
     dependencies:
       - target: WaveForge
+      - package: WaveForgeCore
+        product: SynthCore
+      - package: WaveForgeCore
+        product: PresetKit
+      - package: WaveForgeCore
+        product: WaveForgeExport
+  WaveForgeMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "27.2"
+    sources:
+      - path: App/Sources/AudioRuntime
+      - path: App/Sources/StudioUI
+      - path: App/Sources/MacUI
+      - path: App/Mac
+        excludes:
+          - WaveForgeMac.entitlements
+          - Info.plist
+      - path: App/Resources
+    info:
+      path: App/Mac/Info.plist
+      properties:
+        CFBundleDisplayName: WaveForge
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.music
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHighResolutionCapable: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: WaveForge Preset
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - com.waveforge.preset
+          - CFBundleTypeName: BrainWave Generator Preset
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.noromaa.bwg
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.waveforge.preset
+            UTTypeDescription: WaveForge Preset
+            UTTypeConformsTo:
+              - public.json
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - waveforge
+              public.mime-type:
+                - application/vnd.waveforge.preset+json
+                - application/json
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: com.noromaa.bwg
+            UTTypeDescription: BrainWave Generator Preset
+            UTTypeConformsTo:
+              - public.data
+              - public.content
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - bwg
+              public.mime-type:
+                - text/plain
+                - application/octet-stream
+    entitlements:
+      path: App/Mac/WaveForgeMac.entitlements
+    settings:
+      base:
+        PRODUCT_NAME: WaveForge
+        PRODUCT_MODULE_NAME: WaveForgeMac
+        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.mac
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        MACOSX_DEPLOYMENT_TARGET: "27.2"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: App/Mac/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/Mac/WaveForgeMac.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        ENABLE_HARDENED_RUNTIME: YES
+    dependencies:
+      - package: WaveForgeCore
+        product: SynthCore
+      - package: WaveForgeCore
+        product: PresetKit
+      - package: WaveForgeCore
+        product: WaveForgeExport
+    scheme:
+      testTargets:
+        - WaveForgeMacTests
+  WaveForgeMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "27.2"
+    sources:
+      - path: App/Tests/MacRuntimeTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.mac.tests
+        MACOSX_DEPLOYMENT_TARGET: "27.2"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/WaveForge.app/Contents/MacOS/WaveForge"
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+    dependencies:
+      - target: WaveForgeMac
       - package: WaveForgeCore
         product: SynthCore
       - package: WaveForgeCore
