@@ -1,6 +1,9 @@
 import PresetKit
 import SwiftUI
 import SynthCore
+#if os(macOS)
+import AppKit
+#endif
 
 /// Editable automation curve targets exposed in `CurveEditorView`.
 public enum CurveEditorParameter: String, CaseIterable, Identifiable, Sendable {
@@ -286,9 +289,17 @@ public struct CurveEditorCanvas: View {
             .onContinuousHover { phase in
                 switch phase {
                 case .active(let location):
-                    hoveredPointIndex = hitPointIndex(near: location, in: plotRect, points: points)
+                    let nextHovered = hitPointIndex(near: location, in: plotRect, points: points)
+                    if nextHovered != hoveredPointIndex {
+                        hoveredPointIndex = nextHovered
+                    }
                 case .ended:
-                    hoveredPointIndex = nil
+                    let event = NSApp.currentEvent
+                    let isContextClick = event?.type == .rightMouseDown
+                        || (event?.type == .leftMouseDown && event?.modifierFlags.contains(.control) == true)
+                    if !isContextClick, hoveredPointIndex != nil {
+                        hoveredPointIndex = nil
+                    }
                 }
             }
             .contextMenu {
@@ -538,7 +549,11 @@ public struct CurveEditorCanvas: View {
         remaining.remove(at: index)
         curve.points = remaining
         selectedPointIndex = min(index, remaining.count - 1)
-        hoveredPointIndex = nil
+        #if os(macOS)
+        if hoveredPointIndex != nil {
+            hoveredPointIndex = nil
+        }
+        #endif
         dragState = .suppressed
         haptics.fireReset()
     }
