@@ -28,16 +28,23 @@ public enum OscilloscopeDisplayMode: Int, CaseIterable, Sendable {
 @MainActor
 private final class TelemetryScratchBox {
     static let waveformPointCount = 256
+    static let waveformTrailCapacity = 9
     static let lissajousPointCount = 384
-    static let lissajousTrailCapacity = 5
+    static let lissajousTrailCapacity = 14
 
     var frame = TelemetryFrame()
     var smoothedLeft = [Double](repeating: 0.0, count: TelemetryScratchBox.waveformPointCount)
     var smoothedRight = [Double](repeating: 0.0, count: TelemetryScratchBox.waveformPointCount)
     var hasWaveformHistory: Bool = false
 
-    var leftPoints = [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
-    var rightPoints = [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
+    var leftTrails: [[CGPoint]] = (0..<TelemetryScratchBox.waveformTrailCapacity).map { _ in
+        [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
+    }
+    var rightTrails: [[CGPoint]] = (0..<TelemetryScratchBox.waveformTrailCapacity).map { _ in
+        [CGPoint](repeating: .zero, count: TelemetryScratchBox.waveformPointCount)
+    }
+    var waveformTrailHead: Int = 0
+    var waveformTrailCount: Int = 0
 
     var lissajousRawX = [Double](repeating: 0.0, count: TelemetryScratchBox.lissajousPointCount)
     var lissajousRawY = [Double](repeating: 0.0, count: TelemetryScratchBox.lissajousPointCount)
@@ -55,6 +62,8 @@ private final class TelemetryScratchBox {
 
     func resetTemporalState() {
         hasWaveformHistory = false
+        waveformTrailHead = 0
+        waveformTrailCount = 0
         lissajousTrailHead = 0
         lissajousTrailCount = 0
     }
@@ -460,6 +469,9 @@ public struct OscilloscopeView: View {
         let sampleStep = Double(windowLength - 1) / Double(pointCount - 1)
         let temporalAlpha = box.hasWaveformHistory ? (1.0 - exp(-dt / 0.032)) : 1.0
 
+        let capacity = TelemetryScratchBox.waveformTrailCapacity
+        let writeSlot = box.waveformTrailHead
+
         for i in 0..<pointCount {
             let pos = triggerPos + Double(i) * sampleStep
             let rawL = min(1.0, max(-1.0, interpolatedSample(box.frame.leftSamples, at: pos) * gainScale))
@@ -471,17 +483,70 @@ public struct OscilloscopeView: View {
             box.smoothedRight[i] = nextR
 
             let x = CGFloat(i) * dx
-            box.leftPoints[i] = CGPoint(x: x, y: midY - CGFloat(nextL) * amplitudeY)
-            box.rightPoints[i] = CGPoint(x: x, y: midY - CGFloat(nextR) * amplitudeY)
+            box.leftTrails[writeSlot][i] = CGPoint(x: x, y: midY - CGFloat(nextL) * amplitudeY)
+            box.rightTrails[writeSlot][i] = CGPoint(x: x, y: midY - CGFloat(nextR) * amplitudeY)
         }
         box.hasWaveformHistory = true
-
-        let leftPath = smoothPath(through: box.leftPoints, count: pointCount)
-        let rightPath = smoothPath(through: box.rightPoints, count: pointCount)
+        box.waveformTrailHead = (writeSlot + 1) % capacity
+        box.waveformTrailCount = min(capacity, box.waveformTrailCount + 1)
 
         let alphaMultiplier = isPlaying || maxAbs > 1e-4 ? 1.0 : 0.45
-        drawPhosphorTrace(path: rightPath, color: StudioTheme.rightTraceColor.opacity(alphaMultiplier), in: &context)
-        drawPhosphorTrace(path: leftPath, color: StudioTheme.leftTraceColor.opacity(alphaMultiplier), in: &context)
+        var glowContext = context
+        glowContext.blendMode = .plusLighter
+
+        // Draw decaying CRT phosphor persistence ribbons for both channels from oldest to newest.
+        let total = box.waveformTrailCount
+        if total > 1 {
+            for ageIndex in 0..<(total - 1) {
+                let slot = (writeSlot - (total - 1 - ageIndex) + capacity) % capacity
+                let progress = Double(ageIndex + 1) / Double(total)
+                let decay = pow(progress, 1.8)
+                let haloOpacity = (0.025 + 0.13 * decay) * alphaMultiplier
+                let coreOpacity = (0.045 + 0.28 * decay) * alphaMultiplier
+                let haloWidth = 2.6 + CGFloat(progress) * 4.0
+                let coreWidth = 1.0 + CGFloat(progress) * 1.1
+
+                let trailRightPath = smoothPath(through: box.rightTrails[slot], count: pointCount)
+                let trailLeftPath = smoothPath(through: box.leftTrails[slot], count: pointCount)
+
+                glowContext.stroke(
+                    trailRightPath,
+                    with: .color(StudioTheme.rightTraceColor.opacity(haloOpacity)),
+                    style: StrokeStyle(lineWidth: haloWidth, lineCap: .round, lineJoin: .round)
+                )
+                glowContext.stroke(
+                    trailRightPath,
+                    with: .color(StudioTheme.rightTraceColor.opacity(coreOpacity)),
+                    style: StrokeStyle(lineWidth: coreWidth, lineCap: .round, lineJoin: .round)
+                )
+                glowContext.stroke(
+                    trailLeftPath,
+                    with: .color(StudioTheme.leftTraceColor.opacity(haloOpacity)),
+                    style: StrokeStyle(lineWidth: haloWidth, lineCap: .round, lineJoin: .round)
+                )
+                glowContext.stroke(
+                    trailLeftPath,
+                    with: .color(StudioTheme.leftTraceColor.opacity(coreOpacity)),
+                    style: StrokeStyle(lineWidth: coreWidth, lineCap: .round, lineJoin: .round)
+                )
+            }
+        }
+
+        let leftPath = smoothPath(through: box.leftTrails[writeSlot], count: pointCount)
+        let rightPath = smoothPath(through: box.rightTrails[writeSlot], count: pointCount)
+
+        drawPhosphorTrace(
+            path: rightPath,
+            color: StudioTheme.rightTraceColor,
+            intensity: alphaMultiplier,
+            in: &glowContext
+        )
+        drawPhosphorTrace(
+            path: leftPath,
+            color: StudioTheme.leftTraceColor,
+            intensity: alphaMultiplier,
+            in: &glowContext
+        )
     }
 
     private func drawLissajousGraticule(in context: inout GraphicsContext, size: CGSize) {
@@ -589,24 +654,35 @@ public struct OscilloscopeView: View {
         box.lissajousTrailHead = (writeSlot + 1) % capacity
         box.lissajousTrailCount = min(capacity, box.lissajousTrailCount + 1)
 
-        // Draw fading phosphor afterglow trails from oldest to newest.
+        // Draw rich additive CRT phosphor afterglow trails from oldest to newest.
+        var glowContext = context
+        glowContext.blendMode = .plusLighter
+
         let total = box.lissajousTrailCount
         if total > 1 {
             for ageIndex in 0..<(total - 1) {
                 let slot = (writeSlot - (total - 1 - ageIndex) + capacity) % capacity
                 let progress = Double(ageIndex + 1) / Double(total)
-                let trailOpacity = 0.06 + 0.24 * progress * progress
+                let decay = pow(progress, 1.7)
+                let haloOpacity = 0.025 + 0.14 * decay
+                let coreOpacity = 0.05 + 0.34 * decay
                 let trailPath = smoothPath(through: box.lissajousTrails[slot], count: pointCount)
-                context.stroke(
+
+                glowContext.stroke(
                     trailPath,
-                    with: .color(dominantBand.accentColor.opacity(trailOpacity)),
-                    style: StrokeStyle(lineWidth: 1.6 + CGFloat(progress) * 1.4, lineCap: .round, lineJoin: .round)
+                    with: .color(dominantBand.accentColor.opacity(haloOpacity)),
+                    style: StrokeStyle(lineWidth: 3.0 + CGFloat(progress) * 4.5, lineCap: .round, lineJoin: .round)
+                )
+                glowContext.stroke(
+                    trailPath,
+                    with: .color(dominantBand.accentColor.opacity(coreOpacity)),
+                    style: StrokeStyle(lineWidth: 1.1 + CGFloat(progress) * 1.4, lineCap: .round, lineJoin: .round)
                 )
             }
         }
 
         let currentPath = smoothPath(through: box.lissajousTrails[writeSlot], count: pointCount)
-        drawPhosphorTrace(path: currentPath, color: dominantBand.accentColor, in: &context)
+        drawPhosphorTrace(path: currentPath, color: dominantBand.accentColor, intensity: 1.0, in: &glowContext)
     }
 
     private func drawBandMonitorAmbientBars(
@@ -649,22 +725,28 @@ public struct OscilloscopeView: View {
     private func drawPhosphorTrace(
         path: Path,
         color: Color,
+        intensity: Double = 1.0,
         in context: inout GraphicsContext
     ) {
         context.stroke(
             path,
-            with: .color(color.opacity(0.22)),
-            style: StrokeStyle(lineWidth: 5.5, lineCap: .round, lineJoin: .round)
+            with: .color(color.opacity(0.16 * intensity)),
+            style: StrokeStyle(lineWidth: 9.0, lineCap: .round, lineJoin: .round)
         )
         context.stroke(
             path,
-            with: .color(color.opacity(0.42)),
-            style: StrokeStyle(lineWidth: 2.8, lineCap: .round, lineJoin: .round)
+            with: .color(color.opacity(0.36 * intensity)),
+            style: StrokeStyle(lineWidth: 4.2, lineCap: .round, lineJoin: .round)
         )
         context.stroke(
             path,
-            with: .color(color),
-            style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round)
+            with: .color(color.opacity(0.95 * intensity)),
+            style: StrokeStyle(lineWidth: 1.75, lineCap: .round, lineJoin: .round)
+        )
+        context.stroke(
+            path,
+            with: .color(Color.white.opacity(0.55 * intensity)),
+            style: StrokeStyle(lineWidth: 0.85, lineCap: .round, lineJoin: .round)
         )
     }
 
