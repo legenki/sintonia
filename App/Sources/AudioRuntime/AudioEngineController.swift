@@ -346,6 +346,9 @@ public final class AudioEngineController {
             lastErrorMessage = nil
         } catch {
             lastErrorMessage = error.localizedDescription
+            if isPlaying && !engineHolder.engine.isRunning {
+                performPause(fadeBeforeStoppingEngine: false)
+            }
         }
         refreshOutputRoute()
         if outputRoute == .headphones {
@@ -558,6 +561,9 @@ public final class AudioEngineController {
             try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
         } catch {
             lastErrorMessage = error.localizedDescription
+            if isPlaying && !engineHolder.engine.isRunning {
+                performPause(fadeBeforeStoppingEngine: false)
+            }
         }
     }
     #endif

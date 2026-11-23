@@ -225,21 +225,30 @@ public final class MacAudioDeviceManager {
             systemDefaultUID: systemDefaultUID
         )
 
-        selectedDeviceUID = result.resolvedUID
-        persistSelectedUID(result.resolvedUID)
-        currentRoute = result.activeRoute
+        let targetDeviceID = resolveTargetDeviceID(for: result.resolvedUID)
+        try bindDeviceID(targetDeviceID, to: engine) {
+            self.selectedDeviceUID = result.resolvedUID
+            self.persistSelectedUID(result.resolvedUID)
+            self.currentRoute = result.activeRoute
 
-        if result.didLoseSelectedDevice {
-            onRouteStateChanged?(previousRoute, result.activeRoute, true)
+            if result.didLoseSelectedDevice {
+                self.onRouteStateChanged?(previousRoute, result.activeRoute, true)
+            }
         }
-
-        try bindCurrentDevice(to: engine)
     }
 
     /// Binds the currently resolved CoreAudio output device (`selectedDeviceUID` or System Default) to `engine`.
     public func bindCurrentDevice(to engine: AVAudioEngine) throws {
-        let targetDeviceID = resolveTargetDeviceID()
+        try bindDeviceID(resolveTargetDeviceID(for: selectedDeviceUID), to: engine)
+    }
+
+    private func bindDeviceID(
+        _ targetDeviceID: AudioDeviceID,
+        to engine: AVAudioEngine,
+        beforeRestart: (() -> Void)? = nil
+    ) throws {
         guard targetDeviceID != 0 else {
+            beforeRestart?()
             return
         }
 
@@ -258,6 +267,7 @@ public final class MacAudioDeviceManager {
             return !(getStatus == noErr && currentDeviceID == targetDeviceID)
         }
         guard needsRebind else {
+            beforeRestart?()
             return
         }
 
@@ -281,9 +291,10 @@ public final class MacAudioDeviceManager {
         }
 
         guard let setStatus else {
+            beforeRestart?()
             if wasRunning {
                 engine.prepare()
-                try? engine.start()
+                try engine.start()
             }
             return
         }
@@ -301,6 +312,9 @@ public final class MacAudioDeviceManager {
                 ]
             )
         }
+
+        // Commit selection and route state once AUHAL accepts the device, before restarting the engine.
+        beforeRestart?()
 
         if wasRunning {
             engine.prepare()
@@ -384,9 +398,9 @@ public final class MacAudioDeviceManager {
         }
     }
 
-    private func resolveTargetDeviceID() -> AudioDeviceID {
-        if let selectedDeviceUID,
-           let selected = availableDevices.first(where: { $0.uid == selectedDeviceUID }) {
+    private func resolveTargetDeviceID(for resolvedUID: String?) -> AudioDeviceID {
+        if let resolvedUID,
+           let selected = availableDevices.first(where: { $0.uid == resolvedUID }) {
             return selected.deviceID
         }
         if systemDefaultDeviceID != 0 {
@@ -566,14 +580,14 @@ public final class MacAudioDeviceManager {
             alignment: MemoryLayout<AudioBufferList>.alignment
         )
         defer { rawPointer.deallocate() }
-        rawPointer.initializeMemory(as: UInt8.self, repeating: 0, count: byteCount)
+        memset(rawPointer, 0, byteCount)
 
         var bufferSize = UInt32(byteCount)
         let dataStatus = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &bufferSize, rawPointer)
         guard dataStatus == noErr else { return false }
 
         let bufferList = UnsafeMutableAudioBufferListPointer(
-            rawPointer.assumingMemoryBound(to: AudioBufferList.self)
+            rawPointer.bindMemory(to: AudioBufferList.self, capacity: 1)
         )
         return bufferList.reduce(UInt32(0)) { $0 &+ $1.mNumberChannels } > 0
     }
