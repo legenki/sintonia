@@ -46,6 +46,61 @@ struct WaveForgeExportTests {
         #expect(!AudioRoutePolicy.hasActiveBinauralVoices(in: preset))
     }
 
+    @Test func coreAudioTransportClassificationDistinguishesWiredJackBluetoothUSBAndSpeakers() {
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .builtIn, hasWiredHeadphonesConnected: true) == .headphones)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .builtIn, hasWiredHeadphonesConnected: false) == .speaker)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .bluetooth, hasWiredHeadphonesConnected: false) == .headphones)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .bluetoothLE, hasWiredHeadphonesConnected: false) == .headphones)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .usb, hasWiredHeadphonesConnected: false) == .headphones)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .airPlay, hasWiredHeadphonesConnected: false) == .other)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .displayPort, hasWiredHeadphonesConnected: false) == .other)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .hdmi, hasWiredHeadphonesConnected: false) == .other)
+        #expect(AudioRoutePolicy.classifyCoreAudioRoute(transport: .virtual, hasWiredHeadphonesConnected: false) == .other)
+    }
+
+    @Test func deviceSelectionPolicyResolvesSelectedUIDAndFallsBackCleanlyWhenLostOrEmpty() {
+        let speakers = AudioDeviceCandidate(uid: "builtin-spk", route: .speaker)
+        let airpods = AudioDeviceCandidate(uid: "bt-airpods", route: .headphones)
+
+        let systemResult = AudioDeviceSelectionPolicy.resolveSelection(
+            selectedUID: nil, availableDevices: [speakers, airpods], systemDefaultUID: "builtin-spk"
+        )
+        #expect(systemResult == AudioDeviceSelectionResult(resolvedUID: nil, activeRoute: .speaker, didLoseSelectedDevice: false))
+
+        let explicitResult = AudioDeviceSelectionPolicy.resolveSelection(
+            selectedUID: "bt-airpods", availableDevices: [speakers, airpods], systemDefaultUID: "builtin-spk"
+        )
+        #expect(explicitResult == AudioDeviceSelectionResult(resolvedUID: "bt-airpods", activeRoute: .headphones, didLoseSelectedDevice: false))
+
+        let lostResult = AudioDeviceSelectionPolicy.resolveSelection(
+            selectedUID: "usb-dac-gone", availableDevices: [speakers], systemDefaultUID: "builtin-spk"
+        )
+        #expect(lostResult == AudioDeviceSelectionResult(resolvedUID: nil, activeRoute: .speaker, didLoseSelectedDevice: true))
+
+        let emptyResult = AudioDeviceSelectionPolicy.resolveSelection(
+            selectedUID: "stale", availableDevices: [], systemDefaultUID: nil
+        )
+        #expect(emptyResult == AudioDeviceSelectionResult(resolvedUID: nil, activeRoute: .other, didLoseSelectedDevice: true))
+    }
+
+    @Test func macRouteTransitionAutoPauseTriggersOnlyWhenBinauralLosesHeadphonesDuringPlayback() {
+        #expect(AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: .headphones, newRoute: .speaker, selectedDeviceWasRemoved: false, isPlaying: true, presetHasActiveBinaural: true
+        ))
+        #expect(AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: .headphones, newRoute: .headphones, selectedDeviceWasRemoved: true, isPlaying: true, presetHasActiveBinaural: true
+        ))
+        #expect(!AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: .speaker, newRoute: .headphones, selectedDeviceWasRemoved: false, isPlaying: true, presetHasActiveBinaural: true
+        ))
+        #expect(!AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: .headphones, newRoute: .speaker, selectedDeviceWasRemoved: false, isPlaying: false, presetHasActiveBinaural: true
+        ))
+        #expect(!AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: .headphones, newRoute: .speaker, selectedDeviceWasRemoved: false, isPlaying: true, presetHasActiveBinaural: false
+        ))
+    }
+
     @Test func sessionExporterProducesValidWavAndM4AWithExactDurationAndAudio() async throws {
         var preset = PresetCatalog.builtInPresets[0]
         preset.durationSec = 2.0
