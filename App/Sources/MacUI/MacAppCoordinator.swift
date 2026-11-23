@@ -94,7 +94,7 @@ public final class MacAppCoordinator {
     @ObservationIgnored private var studioSaveHandler: (() -> Bool)? = nil
     @ObservationIgnored private var windowOpener: ((String) -> Void)? = nil
     @ObservationIgnored private var toastDismissTask: Task<Void, Never>? = nil
-    @ObservationIgnored private weak var cachedPlayPauseMenuItem: NSMenuItem? = nil
+    @ObservationIgnored internal var targetMainMenuForTesting: NSMenu? = nil
     @ObservationIgnored private var didSuppressMenuSpaceShortcut: Bool = false
     @ObservationIgnored private nonisolated(unsafe) let responderObservers = FirstResponderObserverState()
 
@@ -164,6 +164,11 @@ public final class MacAppCoordinator {
         return false
     }
 
+    /// Attaches first-responder observation directly to `window` for deterministic testing even in background test hosts.
+    internal func observeWindowFirstResponderForTesting(_ window: NSWindow) {
+        handleKeyWindowChanged(window)
+    }
+
     /// Recomputes `isTextInputFirstResponder` for `window` and immediately syncs the live `Playback -> Play/Pause`
     /// `NSMenuItem` key equivalent so AppKit `NSMenu.performKeyEquivalent` cannot swallow `Space` during text entry.
     internal func refreshFirstResponderTextInputState(for window: NSWindow?) {
@@ -172,8 +177,9 @@ public final class MacAppCoordinator {
             isTextInputFirstResponder = isTextInput
         }
         let activeKeyWindow = (NSApp as NSApplication?)?.keyWindow
-        if window == nil || window === activeKeyWindow || window?.isKeyWindow == true {
-            syncPlayPauseMenuKeyEquivalent(suppressSpace: isTextInput)
+        if targetMainMenuForTesting != nil || window == nil || window === activeKeyWindow || window?.isKeyWindow == true {
+            let targetMenu = targetMainMenuForTesting ?? (NSApp as NSApplication?)?.mainMenu
+            syncPlayPauseMenuKeyEquivalent(in: targetMenu, suppressSpace: isTextInput)
         }
     }
 
@@ -477,6 +483,12 @@ public final class MacAppCoordinator {
         )
         center.addObserver(
             bridge,
+            selector: #selector(ResponderNotificationBridge.handleWindowWillClose(_:)),
+            name: NSWindow.willCloseNotification,
+            object: nil
+        )
+        center.addObserver(
+            bridge,
             selector: #selector(ResponderNotificationBridge.handleTextDidBeginEditing(_:)),
             name: NSText.didBeginEditingNotification,
             object: nil
@@ -516,14 +528,19 @@ public final class MacAppCoordinator {
                         MainActor.assumeIsolated {
                             guard let self else { return }
                             let activeKeyWindow = (NSApp as NSApplication?)?.keyWindow
-                            if activeKeyWindow == nil || activeKeyWindow === observedWindow || observedWindow.isKeyWindow {
+                            if self.targetMainMenuForTesting != nil
+                                || activeKeyWindow == nil
+                                || activeKeyWindow === observedWindow
+                                || observedWindow.isKeyWindow {
                                 self.refreshFirstResponderTextInputState(for: observedWindow)
                             }
                         }
                     } else {
                         Task { @MainActor [weak self] in
                             guard let self else { return }
-                            self.refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+                            let fallbackWindow = self.responderObservers.observedKeyWindow
+                                ?? (NSApp as NSApplication?)?.keyWindow
+                            self.refreshFirstResponderTextInputState(for: fallbackWindow)
                         }
                     }
                 }
@@ -532,8 +549,20 @@ public final class MacAppCoordinator {
         refreshFirstResponderTextInputState(for: window)
     }
 
-    private func syncPlayPauseMenuKeyEquivalent(suppressSpace: Bool) {
-        guard let menuItem = findPlayPauseMenuItem(in: (NSApp as NSApplication?)?.mainMenu) else {
+    private func handleWindowWillClose(_ closingWindow: NSWindow?) {
+        if let closingWindow, responderObservers.observedKeyWindow === closingWindow {
+            responderObservers.firstResponderObservation?.invalidate()
+            responderObservers.firstResponderObservation = nil
+            responderObservers.observedKeyWindow = nil
+            let remainingKey = (NSApp as NSApplication?)?.keyWindow
+            handleKeyWindowChanged(remainingKey === closingWindow ? nil : remainingKey)
+        } else if responderObservers.observedKeyWindow == nil {
+            refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+        }
+    }
+
+    private func syncPlayPauseMenuKeyEquivalent(in targetMenu: NSMenu?, suppressSpace: Bool) {
+        guard let menuItem = findPlayPauseMenuItem(in: targetMenu) else {
             return
         }
         if suppressSpace {
@@ -552,9 +581,6 @@ public final class MacAppCoordinator {
     }
 
     private func findPlayPauseMenuItem(in mainMenu: NSMenu?) -> NSMenuItem? {
-        if let cached = cachedPlayPauseMenuItem, cached.menu != nil {
-            return cached
-        }
         guard let mainMenu else { return nil }
 
         for topItem in mainMenu.items {
@@ -562,7 +588,6 @@ public final class MacAppCoordinator {
             if let spaceItem = submenu.items.first(where: {
                 $0.keyEquivalent == " " && $0.keyEquivalentModifierMask.isEmpty
             }) {
-                cachedPlayPauseMenuItem = spaceItem
                 return spaceItem
             }
         }
@@ -578,7 +603,6 @@ public final class MacAppCoordinator {
             guard let submenu = topItem.submenu else { continue }
             if playbackTitles.contains(topItem.title) || playbackTitles.contains(submenu.title) {
                 if let item = submenu.items.first(where: { playPauseTitles.contains($0.title) }) {
-                    cachedPlayPauseMenuItem = item
                     return item
                 }
             }
@@ -627,20 +651,35 @@ public final class MacAppCoordinator {
 
         @objc func handleWindowDidResignKey(_ notification: Notification) {
             guard let coordinator else { return }
+            let resigning = notification.object as? NSWindow
+            if coordinator.targetMainMenuForTesting != nil,
+               let observed = coordinator.responderObservers.observedKeyWindow,
+               resigning !== observed {
+                return
+            }
             let currentKey = (NSApp as NSApplication?)?.keyWindow
-            if let resigning = notification.object as? NSWindow, currentKey === resigning {
+            if let resigning, currentKey === resigning {
                 coordinator.handleKeyWindowChanged(nil)
             } else {
                 coordinator.handleKeyWindowChanged(currentKey)
             }
         }
 
+        @objc func handleWindowWillClose(_ notification: Notification) {
+            guard let coordinator else { return }
+            coordinator.handleWindowWillClose(notification.object as? NSWindow)
+        }
+
         @objc func handleTextDidBeginEditing(_ notification: Notification) {
             guard let coordinator else { return }
             let textWindow = (notification.object as? NSText)?.window
             let keyWindow = (NSApp as NSApplication?)?.keyWindow
-            if let textWindow, textWindow === keyWindow || textWindow.isKeyWindow {
+            let isObservedTestWindow = coordinator.targetMainMenuForTesting != nil
+                && textWindow === coordinator.responderObservers.observedKeyWindow
+            if let textWindow, textWindow === keyWindow || textWindow.isKeyWindow || isObservedTestWindow {
                 coordinator.handleKeyWindowChanged(textWindow)
+            } else if coordinator.targetMainMenuForTesting != nil {
+                coordinator.refreshFirstResponderTextInputState(for: coordinator.responderObservers.observedKeyWindow)
             } else {
                 coordinator.refreshFirstResponderTextInputState(for: keyWindow)
             }
@@ -648,7 +687,15 @@ public final class MacAppCoordinator {
 
         @objc func handleTextDidEndEditing(_ notification: Notification) {
             guard let coordinator else { return }
-            coordinator.refreshFirstResponderTextInputState(for: (NSApp as NSApplication?)?.keyWindow)
+            let textWindow = (notification.object as? NSText)?.window
+            let targetWindow: NSWindow? = if coordinator.targetMainMenuForTesting != nil,
+                                             let observed = coordinator.responderObservers.observedKeyWindow,
+                                             textWindow == nil || textWindow === observed {
+                observed
+            } else {
+                (NSApp as NSApplication?)?.keyWindow
+            }
+            coordinator.refreshFirstResponderTextInputState(for: targetWindow)
         }
     }
 

@@ -42,6 +42,42 @@ struct MacRuntimeTests {
     }
 
     @MainActor
+    @Test func liveAudioEnginePlaysAndPausesOnRealAudioThreadWithoutActorCrash() async throws {
+        let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
+        defer { cleanupDefaults() }
+
+        let controller = AudioEngineController(
+            preset: PresetCatalog.builtInPresets[0],
+            deviceUserDefaults: defaults,
+            startHardwareMonitoring: false
+        )
+        defer {
+            controller.pause()
+        }
+
+        controller.play()
+        try await Task.sleep(for: .milliseconds(150))
+
+        if controller.lastErrorMessage == nil {
+            #expect(controller.isPlaying)
+            #expect(controller.currentTime > 0.0)
+
+            var frame = TelemetryFrame()
+            controller.telemetryBuffer.readLatest(into: &frame)
+            let leftAllFinite = frame.leftSamples.allSatisfy(\.isFinite)
+            let rightAllFinite = frame.rightSamples.allSatisfy(\.isFinite)
+            #expect(!frame.leftSamples.isEmpty)
+            #expect(!frame.rightSamples.isEmpty)
+            #expect(leftAllFinite)
+            #expect(rightAllFinite)
+
+            controller.pause()
+            try await Task.sleep(for: .milliseconds(80))
+            #expect(!controller.isPlaying)
+        }
+    }
+
+    @MainActor
     @Test func reviewFocus1_headphoneDisconnectDuringBinauralAutoPausesAndResetsSelection() throws {
         let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
         defer { cleanupDefaults() }
@@ -335,58 +371,11 @@ struct MacRuntimeTests {
         }
 
         activateKeyWindow(window)
-        coordinator.refreshFirstResponderTextInputState(for: window)
-        #expect(!coordinator.isTextInputFirstResponder)
-
-        let becameFirstResponder = window.makeFirstResponder(searchField)
-        #expect(becameFirstResponder)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-        if !window.isKeyWindow {
-            coordinator.refreshFirstResponderTextInputState(for: window)
-        }
-
-        let fieldEditor = try #require(window.firstResponder as? NSText)
-        #expect(MacAppCoordinator.isTextInputFirstResponder(in: window))
-        if window.isKeyWindow {
-            #expect(MacAppCoordinator.isFirstResponderTextEditor)
-        }
-        #expect(coordinator.isTextInputFirstResponder)
-        #expect(!coordinator.shouldHandlePlayPauseSpaceShortcut(
-            isTextInputFocused: nil,
-            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
-        ))
-
-        let spaceDown = try makeSpaceKeyDownEvent(in: window)
-        let swallowedByMainMenu = NSApp.mainMenu?.performKeyEquivalent(with: spaceDown) ?? false
-        #expect(!swallowedByMainMenu, "NSApp.mainMenu.performKeyEquivalent swallowed Space while toolbar NSSearchField had focus!")
-        #expect(!coordinator.engine.isPlaying)
-
-        window.sendEvent(spaceDown)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
-
-        #expect(fieldEditor.string == " " || searchField.stringValue == " ")
-
-        // Resigning search focus restores Space Play/Pause availability and main menu shortcut state.
-        #expect(window.makeFirstResponder(contentView))
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
-        if !window.isKeyWindow {
-            coordinator.refreshFirstResponderTextInputState(for: window)
-        }
-        #expect(!coordinator.isTextInputFirstResponder)
-        #expect(coordinator.shouldHandlePlayPauseSpaceShortcut(
-            isTextInputFocused: false,
-            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
-        ))
-        if let mainMenu = NSApp.mainMenu {
-            let playTitles: Set<String> = ["Play", "Pause", String(localized: "Play"), String(localized: "Pause")]
-            let playPauseItem = mainMenu.items
-                .compactMap(\.submenu)
-                .flatMap(\.items)
-                .first { playTitles.contains($0.title) }
-            if let playPauseItem {
-                #expect(playPauseItem.keyEquivalent == " ")
-            }
-        }
+        try verifyToolbarSearchFieldSpaceBehavior(
+            in: window,
+            searchField: searchField,
+            coordinator: coordinator
+        )
     }
 
     @MainActor
@@ -415,6 +404,7 @@ struct MacRuntimeTests {
         )
 
         let hostingController = NSHostingController(rootView: libraryView)
+        hostingController.preferredContentSize = NSSize(width: 780, height: 640)
         let window = NSWindow(
             contentRect: NSRect(x: 120, y: 120, width: 780, height: 640),
             styleMask: [.titled, .closable, .resizable],
@@ -439,22 +429,11 @@ struct MacRuntimeTests {
         }
 
         let searchField = try #require(foundSearchField)
-        #expect(window.makeFirstResponder(searchField))
-        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-        if !window.isKeyWindow {
-            coordinator.refreshFirstResponderTextInputState(for: window)
-        }
-
-        let fieldEditor = try #require(window.firstResponder as? NSText)
-        #expect(coordinator.isTextInputFirstResponder)
-
-        let spaceDown = try makeSpaceKeyDownEvent(in: window)
-        let swallowedByMainMenu = NSApp.mainMenu?.performKeyEquivalent(with: spaceDown) ?? false
-        #expect(!swallowedByMainMenu)
-
-        window.sendEvent(spaceDown)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
-        #expect(fieldEditor.string == " " || searchField.stringValue == " ")
+        try verifyToolbarSearchFieldSpaceBehavior(
+            in: window,
+            searchField: searchField,
+            coordinator: coordinator
+        )
     }
 
     @MainActor
@@ -633,6 +612,76 @@ struct MacRuntimeTests {
     }
 
     @MainActor
+    private func verifyToolbarSearchFieldSpaceBehavior(
+        in window: NSWindow,
+        searchField: NSSearchField,
+        coordinator: MacAppCoordinator
+    ) throws {
+        let (testMenu, playItem, menuTarget) = makeIsolatedPlaybackMenu()
+        coordinator.targetMainMenuForTesting = testMenu
+        coordinator.observeWindowFirstResponderForTesting(window)
+        #expect(!coordinator.isTextInputFirstResponder)
+        #expect(playItem.keyEquivalent == " ")
+
+        #expect(window.makeFirstResponder(searchField))
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        let fieldEditor = try #require(window.firstResponder as? NSText)
+        #expect(MacAppCoordinator.isTextInputFirstResponder(in: window))
+        #expect(coordinator.isTextInputFirstResponder)
+        #expect(!coordinator.shouldHandlePlayPauseSpaceShortcut(
+            isTextInputFocused: nil,
+            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
+        ))
+        #expect(playItem.keyEquivalent.isEmpty)
+
+        let spaceDown = try makeSpaceKeyDownEvent(in: window)
+        #expect(!testMenu.performKeyEquivalent(with: spaceDown))
+        #expect(!menuTarget.playActionTriggered)
+
+        if window.isKeyWindow {
+            #expect(MacAppCoordinator.isFirstResponderTextEditor)
+            let swallowedByMainMenu = NSApp.mainMenu?.performKeyEquivalent(with: spaceDown) ?? false
+            #expect(!swallowedByMainMenu, "NSApp.mainMenu.performKeyEquivalent swallowed Space while toolbar NSSearchField had focus!")
+        }
+
+        window.sendEvent(spaceDown)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        #expect(fieldEditor.string == " " || searchField.stringValue == " ")
+
+        // Resigning search focus restores Space Play/Pause availability and menu keyEquivalent.
+        #expect(window.makeFirstResponder(nil))
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        #expect(!coordinator.isTextInputFirstResponder)
+        #expect(coordinator.shouldHandlePlayPauseSpaceShortcut(
+            isTextInputFocused: false,
+            isFirstResponderTextEditor: coordinator.isTextInputFirstResponder
+        ))
+        #expect(playItem.keyEquivalent == " ")
+        #expect(testMenu.performKeyEquivalent(with: spaceDown))
+        #expect(menuTarget.playActionTriggered)
+    }
+
+    @MainActor
+    private func makeIsolatedPlaybackMenu() -> (menu: NSMenu, playItem: NSMenuItem, target: TestMenuActionTarget) {
+        let target = TestMenuActionTarget()
+        let rootMenu = NSMenu(title: "MainMenu")
+        let playbackTopItem = NSMenuItem(title: "Playback", action: nil, keyEquivalent: "")
+        let playbackSubmenu = NSMenu(title: "Playback")
+        let playItem = NSMenuItem(
+            title: "Play",
+            action: #selector(TestMenuActionTarget.handlePlay(_:)),
+            keyEquivalent: " "
+        )
+        playItem.keyEquivalentModifierMask = []
+        playItem.target = target
+        playbackSubmenu.addItem(playItem)
+        playbackTopItem.submenu = playbackSubmenu
+        rootMenu.addItem(playbackTopItem)
+        return (rootMenu, playItem, target)
+    }
+
+    @MainActor
     private func activateKeyWindow(_ window: NSWindow) {
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
@@ -717,5 +766,14 @@ private final class TestSearchToolbarDelegate: NSObject, NSToolbarDelegate {
         let item = NSToolbarItem(itemIdentifier: itemIdentifier)
         item.view = searchField
         return item
+    }
+}
+
+@MainActor
+private final class TestMenuActionTarget: NSObject {
+    var playActionTriggered = false
+
+    @objc func handlePlay(_ sender: Any?) {
+        playActionTriggered = true
     }
 }

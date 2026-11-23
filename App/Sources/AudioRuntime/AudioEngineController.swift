@@ -57,7 +57,7 @@ public final class AudioEngineController {
     public static let sampleRate: Double = 48_000.0
     private static let pollingInterval: Duration = .milliseconds(33)
     private static let pauseFadeGracePeriod: Duration = .milliseconds(40)
-    private static let remoteSkipIntervalSeconds: Double = 30.0
+    nonisolated private static let remoteSkipIntervalSeconds: Double = 30.0
     private static let nowPlayingRefreshIntervalSeconds: Double = 1.0
 
     public private(set) var isPlaying: Bool = false
@@ -430,8 +430,26 @@ public final class AudioEngineController {
             return
         }
 
-        let capturedRenderer = self.renderer
-        let node = AVAudioSourceNode(format: sourceFormat) { _, _, frameCount, audioBufferList -> OSStatus in
+        let node = Self.makeSourceNode(format: sourceFormat, renderer: self.renderer)
+
+        engineHolder.sourceNode = node
+        engineHolder.engine.attach(node)
+        do {
+            try engineHolder.engine.connectNode(node, to: engineHolder.engine.mainMixerNode, format: sourceFormat)
+            #if os(macOS)
+            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
+            #endif
+            engineHolder.engine.prepare()
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    nonisolated private static func makeSourceNode(
+        format: AVAudioFormat,
+        renderer: SynthRenderer
+    ) -> AVAudioSourceNode {
+        AVAudioSourceNode(format: format) { _, _, frameCount, audioBufferList -> OSStatus in
             let ablPointer = UnsafeMutableAudioBufferListPointer(audioBufferList)
             let requestedFrames = Int(frameCount)
             guard ablPointer.count >= 2,
@@ -452,20 +470,8 @@ public final class AudioEngineController {
 
             let leftPtr = leftData.assumingMemoryBound(to: Float.self)
             let rightPtr = rightData.assumingMemoryBound(to: Float.self)
-            capturedRenderer.render(intoLeft: leftPtr, intoRight: rightPtr, frameCount: safeFrames)
+            renderer.render(intoLeft: leftPtr, intoRight: rightPtr, frameCount: safeFrames)
             return noErr
-        }
-
-        engineHolder.sourceNode = node
-        engineHolder.engine.attach(node)
-        do {
-            try engineHolder.engine.connectNode(node, to: engineHolder.engine.mainMixerNode, format: sourceFormat)
-            #if os(macOS)
-            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
-            #endif
-            engineHolder.engine.prepare()
-        } catch {
-            lastErrorMessage = error.localizedDescription
         }
     }
 
@@ -728,65 +734,71 @@ public final class AudioEngineController {
     // MARK: - Lock Screen NowPlaying & Remote Commands
 
     private func registerRemoteCommands() {
+        remoteCommandTokens = Self.registerRemoteCommandTokens(for: self)
+    }
+
+    nonisolated private static func registerRemoteCommandTokens(
+        for controller: AudioEngineController
+    ) -> [RemoteCommandToken] {
         let center = MPRemoteCommandCenter.shared()
 
         center.playCommand.isEnabled = true
-        let playTarget = center.playCommand.addTarget { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.play()
+        let playTarget = center.playCommand.addTarget { [weak controller] _ in
+            Task { @MainActor [weak controller] in
+                controller?.play()
             }
             return .success
         }
 
         center.pauseCommand.isEnabled = true
-        let pauseTarget = center.pauseCommand.addTarget { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.pause()
+        let pauseTarget = center.pauseCommand.addTarget { [weak controller] _ in
+            Task { @MainActor [weak controller] in
+                controller?.pause()
             }
             return .success
         }
 
         center.togglePlayPauseCommand.isEnabled = true
-        let toggleTarget = center.togglePlayPauseCommand.addTarget { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.togglePlayPause()
+        let toggleTarget = center.togglePlayPauseCommand.addTarget { [weak controller] _ in
+            Task { @MainActor [weak controller] in
+                controller?.togglePlayPause()
             }
             return .success
         }
 
         center.skipForwardCommand.isEnabled = true
         center.skipForwardCommand.preferredIntervals = [NSNumber(value: Self.remoteSkipIntervalSeconds)]
-        let skipForwardTarget = center.skipForwardCommand.addTarget { [weak self] event in
+        let skipForwardTarget = center.skipForwardCommand.addTarget { [weak controller] event in
             let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? Self.remoteSkipIntervalSeconds
-            Task { @MainActor [weak self] in
-                self?.skip(by: interval)
+            Task { @MainActor [weak controller] in
+                controller?.skip(by: interval)
             }
             return .success
         }
 
         center.skipBackwardCommand.isEnabled = true
         center.skipBackwardCommand.preferredIntervals = [NSNumber(value: Self.remoteSkipIntervalSeconds)]
-        let skipBackwardTarget = center.skipBackwardCommand.addTarget { [weak self] event in
+        let skipBackwardTarget = center.skipBackwardCommand.addTarget { [weak controller] event in
             let interval = (event as? MPSkipIntervalCommandEvent)?.interval ?? Self.remoteSkipIntervalSeconds
-            Task { @MainActor [weak self] in
-                self?.skip(by: -interval)
+            Task { @MainActor [weak controller] in
+                controller?.skip(by: -interval)
             }
             return .success
         }
 
         center.changePlaybackPositionCommand.isEnabled = true
-        let scrubTarget = center.changePlaybackPositionCommand.addTarget { [weak self] event in
+        let scrubTarget = center.changePlaybackPositionCommand.addTarget { [weak controller] event in
             guard let positionEvent = event as? MPChangePlaybackPositionCommandEvent else {
                 return .commandFailed
             }
             let targetTime = positionEvent.positionTime
-            Task { @MainActor [weak self] in
-                self?.seek(to: targetTime)
+            Task { @MainActor [weak controller] in
+                controller?.seek(to: targetTime)
             }
             return .success
         }
 
-        remoteCommandTokens = [
+        return [
             RemoteCommandToken(command: center.playCommand, target: playTarget),
             RemoteCommandToken(command: center.pauseCommand, target: pauseTarget),
             RemoteCommandToken(command: center.togglePlayPauseCommand, target: toggleTarget),

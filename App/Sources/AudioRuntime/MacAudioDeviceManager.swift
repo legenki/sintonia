@@ -443,7 +443,7 @@ public final class MacAudioDeviceManager {
         Self.makeHardwareListenerBlock(for: self)
     }
 
-    private static func makeHardwareListenerBlock(
+    nonisolated private static func makeHardwareListenerBlock(
         for manager: MacAudioDeviceManager?
     ) -> AudioObjectPropertyListenerBlock {
         { [weak manager] _, _ in
