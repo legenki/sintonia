@@ -10,6 +10,7 @@
 		00C7429E53B70AAA17D07CCA /* MacRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9477DE842B3AEA513334F74 /* MacRuntimeTests.swift */; };
 		0E52CA0AD5FC745ECF02D986 /* StudioKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1A6C8D479694991647091 /* StudioKnob.swift */; };
 		173D65369740808D58B06FC6 /* PlatformViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40502E959494208C24C2519 /* PlatformViewModifiers.swift */; };
+		181B2F0D5A9AF9AB87AB899F /* MacOutputDeviceMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAFA817E91BF90B3DE528E7 /* MacOutputDeviceMenu.swift */; };
 		183C5903B6F87E5DE49A8709 /* PresetSparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00B9103DE723BDB67C004B8 /* PresetSparklineView.swift */; };
 		1C9557F7D35BCE0F056356C1 /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7AC576BFF5858BCF65C61432 /* PresetKit */; };
 		1CA360E3A2EDC3D4A07BE039 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3980221A9DB7289EAA39172 /* Assets.xcassets */; };
@@ -41,8 +42,10 @@
 		8A411CCA20B5775A65F408E9 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 28CA6710B3EC273BE093BB7E /* SynthCore */; };
 		93A0AB5D40944176461285B7 /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7498C51DB2DE343F5A5B9528 /* PresetKit */; };
 		9759474B9E571879E066049F /* CurveEditorCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */; };
+		984803DD3CA547153C1105D5 /* MacMenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A4DBBE03D0FD1B18E25C09 /* MacMenuBarView.swift */; };
 		99D76C030E6C300830943364 /* StudioKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1A6C8D479694991647091 /* StudioKnob.swift */; };
 		9A2C6F53D369F5536580E762 /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C840F707E55200BF6FF9D43E /* MiniTimelineScrubber.swift */; };
+		A21CE02296189947A2A77A15 /* MacLibraryWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A10E2776B2D1CADAA1F594 /* MacLibraryWindowView.swift */; };
 		A77226EF6B41A35ABA03715C /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = A07279C567B879C7AB56DC47 /* SynthCore */; };
 		A840650ADC8C469DD2996173 /* CurveEditorCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */; };
 		AB025F9B25101AC268BDDB11 /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C840F707E55200BF6FF9D43E /* MiniTimelineScrubber.swift */; };
@@ -51,6 +54,7 @@
 		B1A958C3E1DB5D9DC99EC752 /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = A7C42098E2A6CAE8A1D31634 /* WaveForgeExport */; };
 		B292A462668A948122F4514B /* HardwarePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */; };
 		B82DDBA554E76C413674FA2A /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 309397BCCE07B24B821A2747 /* PresetKit */; };
+		B9936474F0FEA86D172DAAC8 /* MacStudioWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A466C6675F8D6A296D62EA /* MacStudioWindowView.swift */; };
 		BAC335182D0F0695867001EA /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31488F69B99BBEB09D8B3EC4 /* PlayerView.swift */; };
 		BC2437D3CB733F319E20F1CF /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF261F0EB37EE06FAC9B42 /* AudioRuntimeTests.swift */; };
 		BC84A7D9758BD06D47812239 /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */; };
@@ -64,8 +68,10 @@
 		CBDC19446A80E31039DAF555 /* WaveForgeExport in Frameworks */ = {isa = PBXBuildFile; productRef = 9B939F519E798374FC6C37B7 /* WaveForgeExport */; };
 		CC4132A03F5C790B57A0185F /* AboutSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA284825B239B13DFF399F16 /* AboutSheetView.swift */; };
 		D25DC8274BC2633CA91B2E86 /* StudioRackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9B3CFC4BF7F5404768A503 /* StudioRackView.swift */; };
+		D522E3EFE95AB1923C21B6B8 /* MacCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F65859A53D3B74402E3FA25 /* MacCommands.swift */; };
 		D658EBDA12D9645DC8A38C54 /* MacAudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A294F3B84780DC8B0F9868 /* MacAudioDeviceManager.swift */; };
 		D9838B7A44AA8E22076BFFDE /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D91994D81AAD8FF9CFC914 /* ExportSheetView.swift */; };
+		DC2B0985FD8FD1EF889A39C6 /* MacPlayerWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5722CC10947286EB11AD197F /* MacPlayerWindowView.swift */; };
 		DDD8B9C4D0BC77B60D7979CE /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA399037651AE61D8072CFE6 /* StudioTheme.swift */; };
 		E264DA4237A82241D9D2D08A /* CurveEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FD118D7F07BEDC626642A1C /* CurveEditorView.swift */; };
 		EF69C1B4AA12422E84FF9865 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 625FD0B419DF946EF05655DC /* PrivacyInfo.xcprivacy */; };
@@ -92,6 +98,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01A466C6675F8D6A296D62EA /* MacStudioWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacStudioWindowView.swift; sourceTree = "<group>"; };
 		0C3C91A7672A39A7CD4DFA8F /* CurveEditorCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorCanvas.swift; sourceTree = "<group>"; };
 		247C8DA78635A0F4B37F4C53 /* VoiceInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInspectorView.swift; sourceTree = "<group>"; };
 		31488F69B99BBEB09D8B3EC4 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
@@ -102,9 +109,12 @@
 		4A025A26AFE64FD077870558 /* LEDMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEDMeterView.swift; sourceTree = "<group>"; };
 		4C609083B8FB32D74C9F31DB /* WaveForgeMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WaveForgeMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D1640A9D9F1B412AF0137D6 /* WaveForgeMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WaveForgeMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		53A10E2776B2D1CADAA1F594 /* MacLibraryWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLibraryWindowView.swift; sourceTree = "<group>"; };
+		5722CC10947286EB11AD197F /* MacPlayerWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPlayerWindowView.swift; sourceTree = "<group>"; };
 		5A962EF35D5821BFC73EF160 /* HardwarePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwarePickers.swift; sourceTree = "<group>"; };
 		625FD0B419DF946EF05655DC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7A08FE57AB4D586E976D277B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		7F65859A53D3B74402E3FA25 /* MacCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacCommands.swift; sourceTree = "<group>"; };
 		82D583560AB0AFFDF174A3EF /* ImportResultAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportResultAlert.swift; sourceTree = "<group>"; };
 		83BA3FF5AD93E6F8A3CE39E9 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		847038FBF53DA1FC9892C761 /* WaveForgeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WaveForgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -112,6 +122,7 @@
 		9B4398134C066F90F891B89B /* NoiseInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseInspectorView.swift; sourceTree = "<group>"; };
 		A9477DE842B3AEA513334F74 /* MacRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRuntimeTests.swift; sourceTree = "<group>"; };
 		AA399037651AE61D8072CFE6 /* StudioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioTheme.swift; sourceTree = "<group>"; };
+		B1A4DBBE03D0FD1B18E25C09 /* MacMenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBarView.swift; sourceTree = "<group>"; };
 		B38624634FD1E6C0E4230AD6 /* WaveForgeMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForgeMacApp.swift; sourceTree = "<group>"; };
 		B4BC975A214DAB972A2BFEB4 /* StudioFader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioFader.swift; sourceTree = "<group>"; };
 		BFFA78D31F7EDB2DAF337290 /* MacAppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppCoordinator.swift; sourceTree = "<group>"; };
@@ -126,6 +137,7 @@
 		FA284825B239B13DFF399F16 /* AboutSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSheetView.swift; sourceTree = "<group>"; };
 		FB1EFB13349FFC1C1A1432C9 /* OscilloscopeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OscilloscopeView.swift; sourceTree = "<group>"; };
 		FF9B3CFC4BF7F5404768A503 /* StudioRackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioRackView.swift; sourceTree = "<group>"; };
+		FFAFA817E91BF90B3DE528E7 /* MacOutputDeviceMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOutputDeviceMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -276,6 +288,12 @@
 			isa = PBXGroup;
 			children = (
 				BFFA78D31F7EDB2DAF337290 /* MacAppCoordinator.swift */,
+				7F65859A53D3B74402E3FA25 /* MacCommands.swift */,
+				53A10E2776B2D1CADAA1F594 /* MacLibraryWindowView.swift */,
+				B1A4DBBE03D0FD1B18E25C09 /* MacMenuBarView.swift */,
+				FFAFA817E91BF90B3DE528E7 /* MacOutputDeviceMenu.swift */,
+				5722CC10947286EB11AD197F /* MacPlayerWindowView.swift */,
+				01A466C6675F8D6A296D62EA /* MacStudioWindowView.swift */,
 			);
 			path = MacUI;
 			sourceTree = "<group>";
@@ -523,6 +541,12 @@
 				65ADA3EFE2A89A2F0EA9A16E /* LibraryView.swift in Sources */,
 				C8B7E9ED545A8B571FA191BD /* MacAppCoordinator.swift in Sources */,
 				D658EBDA12D9645DC8A38C54 /* MacAudioDeviceManager.swift in Sources */,
+				D522E3EFE95AB1923C21B6B8 /* MacCommands.swift in Sources */,
+				A21CE02296189947A2A77A15 /* MacLibraryWindowView.swift in Sources */,
+				984803DD3CA547153C1105D5 /* MacMenuBarView.swift in Sources */,
+				181B2F0D5A9AF9AB87AB899F /* MacOutputDeviceMenu.swift in Sources */,
+				DC2B0985FD8FD1EF889A39C6 /* MacPlayerWindowView.swift in Sources */,
+				B9936474F0FEA86D172DAAC8 /* MacStudioWindowView.swift in Sources */,
 				AB025F9B25101AC268BDDB11 /* MiniTimelineScrubber.swift in Sources */,
 				C55C9D3572A208E208A43582 /* NoiseInspectorView.swift in Sources */,
 				4F30AC64587B1402971D867C /* OscilloscopeView.swift in Sources */,
