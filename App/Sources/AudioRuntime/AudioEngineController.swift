@@ -49,8 +49,8 @@ private final class AudioEngineHolder: @unchecked Sendable {
     }
 }
 
-/// Main-actor controller managing real-time `AVAudioEngine` playback, `AVAudioSession` policies,
-/// Lock Screen Now Playing metadata, remote commands, and live UI telemetry/state synchronization.
+/// Main-actor controller managing real-time `AVAudioEngine` playback, platform audio route/session policies,
+/// Lock Screen / Control Center Now Playing metadata, remote commands, and live UI telemetry/state synchronization.
 @MainActor
 @Observable
 public final class AudioEngineController {
@@ -73,6 +73,18 @@ public final class AudioEngineController {
 
     public let telemetryBuffer: TelemetryRingBuffer
 
+    #if os(macOS)
+    /// Available CoreAudio output devices currently enumerated on macOS.
+    public var availableOutputDevices: [AudioOutputDevice] {
+        macDeviceManager.availableDevices
+    }
+
+    /// Currently selected CoreAudio output device UID, or `nil` for System Default.
+    public var selectedOutputDeviceUID: String? {
+        macDeviceManager.selectedDeviceUID
+    }
+    #endif
+
     /// Indicates whether the active preset currently produces binaural entrainment audio.
     public var presetHasActiveBinaural: Bool {
         AudioRoutePolicy.hasActiveBinauralVoices(in: currentPreset)
@@ -80,6 +92,9 @@ public final class AudioEngineController {
 
     @ObservationIgnored private let engineHolder = AudioEngineHolder()
     @ObservationIgnored private let renderer: SynthRenderer
+    #if os(macOS)
+    @ObservationIgnored private let macDeviceManager: MacAudioDeviceManager
+    #endif
     @ObservationIgnored private var notificationTokens: [NotificationToken] = []
     @ObservationIgnored private var remoteCommandTokens: [RemoteCommandToken] = []
     @ObservationIgnored private let pollingTaskBox = Mutex<Task<Void, Never>?>(nil)
@@ -102,12 +117,31 @@ public final class AudioEngineController {
         self.duration = snapshot.durationSec
         self.telemetryBuffer = telemetry
         self.renderer = synthRenderer
+        #if os(macOS)
+        let deviceManager = MacAudioDeviceManager()
+        self.macDeviceManager = deviceManager
+        #endif
 
         let initialBeat = synthRenderer.dominantBeatHz(at: 0.0)
         self.dominantBeatHz = initialBeat
         self.dominantBand = BrainwaveBand.from(frequencyHz: initialBeat)
 
+        #if os(macOS)
+        deviceManager.onRouteStateChanged = { [weak self] previousRoute, newRoute, selectedDeviceWasRemoved in
+            self?.handleMacRouteStateChanged(
+                previousRoute: previousRoute,
+                newRoute: newRoute,
+                selectedDeviceWasRemoved: selectedDeviceWasRemoved
+            )
+        }
+        deviceManager.onHardwareDevicesRefreshed = { [weak self] in
+            self?.handleMacHardwareDevicesRefreshed()
+        }
+        #endif
+
+        #if os(iOS)
         configureAudioSessionCategory()
+        #endif
         refreshOutputRoute()
         configureAudioEngineGraph()
         registerNotifications()
@@ -170,6 +204,7 @@ public final class AudioEngineController {
             seek(to: 0.0)
         }
 
+        #if os(iOS)
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default)
@@ -181,6 +216,20 @@ public final class AudioEngineController {
             updateNowPlayingInfo(force: true)
             return
         }
+        #elseif os(macOS)
+        do {
+            if !macDeviceManager.isUsingTestingSnapshot {
+                macDeviceManager.refreshDevices()
+            }
+            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
+            refreshOutputRoute()
+        } catch {
+            lastErrorMessage = error.localizedDescription
+            isPlaying = false
+            updateNowPlayingInfo(force: true)
+            return
+        }
+        #endif
 
         do {
             if !engineHolder.engine.isRunning {
@@ -289,8 +338,29 @@ public final class AudioEngineController {
         lastErrorMessage = nil
     }
 
+    #if os(macOS)
+    /// Selects the active macOS output device (`nil` uses the System Default output device).
+    public func selectOutputDevice(uid: String?) {
+        do {
+            try macDeviceManager.selectDevice(uid: uid, for: engineHolder.engine)
+            lastErrorMessage = nil
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+        refreshOutputRoute()
+        if outputRoute == .headphones {
+            showHeadphoneBanner = false
+        }
+    }
+
+    internal func applyMacDeviceSnapshotForTesting(devices: [AudioOutputDevice], defaultUID: String?) {
+        macDeviceManager.applySnapshotForTesting(devices: devices, defaultUID: defaultUID)
+    }
+    #endif
+
     // MARK: - Graph & Session Configuration
 
+    #if os(iOS)
     private func configureAudioSessionCategory() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -298,10 +368,15 @@ public final class AudioEngineController {
             lastErrorMessage = error.localizedDescription
         }
     }
+    #endif
 
     private func refreshOutputRoute() {
+        #if os(iOS)
         let portTypes = AVAudioSession.sharedInstance().currentRoute.outputs.map(\.portType)
         outputRoute = AudioRoutePolicy.classifyRoute(portTypes: portTypes)
+        #elseif os(macOS)
+        outputRoute = macDeviceManager.currentRoute
+        #endif
     }
 
     private func configureAudioEngineGraph() {
@@ -345,6 +420,9 @@ public final class AudioEngineController {
         engineHolder.engine.attach(node)
         do {
             try engineHolder.engine.connectNode(node, to: engineHolder.engine.mainMixerNode, format: sourceFormat)
+            #if os(macOS)
+            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
+            #endif
             engineHolder.engine.prepare()
         } catch {
             lastErrorMessage = error.localizedDescription
@@ -355,6 +433,9 @@ public final class AudioEngineController {
 
     private func registerNotifications() {
         let center = NotificationCenter.default
+        var tokens: [NotificationToken] = []
+
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
 
         let inactiveObserver = center.addObserver(
@@ -368,6 +449,7 @@ public final class AudioEngineController {
                 self?.handleSessionDeactivated(context: context)
             }
         }
+        tokens.append(NotificationToken(center: center, token: inactiveObserver))
 
         let resumptionObserver = center.addObserver(
             forName: AVAudioSession.resumptionRecommendationNotification,
@@ -380,6 +462,7 @@ public final class AudioEngineController {
                 self?.handleResumptionRecommendation(context: context)
             }
         }
+        tokens.append(NotificationToken(center: center, token: resumptionObserver))
 
         let routeObserver = center.addObserver(
             forName: AVAudioSession.routeChangeNotification,
@@ -391,6 +474,8 @@ public final class AudioEngineController {
                 self?.handleRouteChange(reasonRaw: reasonRaw)
             }
         }
+        tokens.append(NotificationToken(center: center, token: routeObserver))
+        #endif
 
         let configObserver = center.addObserver(
             forName: .AVAudioEngineConfigurationChange,
@@ -401,15 +486,12 @@ public final class AudioEngineController {
                 self?.handleEngineConfigurationChange()
             }
         }
+        tokens.append(NotificationToken(center: center, token: configObserver))
 
-        notificationTokens = [
-            NotificationToken(center: center, token: inactiveObserver),
-            NotificationToken(center: center, token: resumptionObserver),
-            NotificationToken(center: center, token: routeObserver),
-            NotificationToken(center: center, token: configObserver),
-        ]
+        notificationTokens = tokens
     }
 
+    #if os(iOS)
     private func handleSessionDeactivated(context: AVAudioSession.DeactivationContext?) {
         if let context, context.source == .app {
             return
@@ -445,12 +527,54 @@ public final class AudioEngineController {
             showHeadphoneBanner = false
         }
     }
+    #endif
+
+    #if os(macOS)
+    private func handleMacRouteStateChanged(
+        previousRoute: AudioOutputRoute,
+        newRoute: AudioOutputRoute,
+        selectedDeviceWasRemoved: Bool
+    ) {
+        outputRoute = newRoute
+
+        if AudioRoutePolicy.shouldAutoPauseOnMacRouteTransition(
+            previousRoute: previousRoute,
+            newRoute: newRoute,
+            selectedDeviceWasRemoved: selectedDeviceWasRemoved,
+            isPlaying: isPlaying,
+            presetHasActiveBinaural: presetHasActiveBinaural
+        ) {
+            pause()
+            showHeadphoneBanner = true
+        } else if newRoute == .headphones {
+            showHeadphoneBanner = false
+        }
+    }
+
+    private func handleMacHardwareDevicesRefreshed() {
+        refreshOutputRoute()
+        guard isPlaying, !macDeviceManager.isUsingTestingSnapshot else { return }
+        do {
+            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+        }
+    }
+    #endif
 
     private func handleEngineConfigurationChange() {
+        #if os(macOS)
+        if !macDeviceManager.isUsingTestingSnapshot {
+            macDeviceManager.refreshDevices()
+        }
+        #endif
         refreshOutputRoute()
         guard isPlaying, !engineHolder.engine.isRunning else { return }
 
         do {
+            #if os(macOS)
+            try macDeviceManager.bindCurrentDevice(to: engineHolder.engine)
+            #endif
             engineHolder.engine.prepare()
             try engineHolder.engine.start()
         } catch {
@@ -645,7 +769,11 @@ public final class AudioEngineController {
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
             MPNowPlayingInfoPropertyDefaultPlaybackRate: 1.0,
         ]
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+        let nowPlayingCenter = MPNowPlayingInfoCenter.default()
+        nowPlayingCenter.nowPlayingInfo = info
+        #if os(macOS)
+        nowPlayingCenter.playbackState = isPlaying ? .playing : .paused
+        #endif
     }
 
     private func localizedCategoryTitle(_ category: PresetCategory) -> String {
