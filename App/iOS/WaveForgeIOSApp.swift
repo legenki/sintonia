@@ -56,6 +56,17 @@ struct WaveForgeRootView: View {
     @State private var importToastPresetName: String? = nil
     @State private var toastDismissTask: Task<Void, Never>? = nil
 
+    @State private var studioHasUnsavedChanges: Bool = false
+    @State private var studioHandlers = StudioHandlerBox()
+    @State private var pendingStudioImport: PresetImportOutcome? = nil
+
+    private var pendingStudioImportBinding: Binding<Bool> {
+        Binding(
+            get: { pendingStudioImport != nil },
+            set: { if !$0 { pendingStudioImport = nil } }
+        )
+    }
+
     private var isModalBusy: Bool {
         activeSheet != nil || isShowingStudio || isDismissingSheet || isDismissingStudio
     }
@@ -129,6 +140,12 @@ struct WaveForgeRootView: View {
             StudioRackView(
                 engine: engine,
                 presetStore: presetStore,
+                onDirtyStateChanged: { dirty in
+                    studioHasUnsavedChanges = dirty
+                },
+                onRegisterSaveHandler: { handler in
+                    studioHandlers.save = handler
+                },
                 onSavedPreset: { _ in
                     presetsRevision += 1
                 },
@@ -136,6 +153,28 @@ struct WaveForgeRootView: View {
                     dismissStudio()
                 }
             )
+            .confirmationDialog(
+                "Unsaved Changes",
+                isPresented: pendingStudioImportBinding,
+                titleVisibility: .visible,
+                presenting: pendingStudioImport
+            ) { outcome in
+                Button("Save") {
+                    pendingStudioImport = nil
+                    if studioHandlers.save?() ?? true {
+                        applyImportOutcome(outcome)
+                    }
+                }
+                Button("Discard Changes", role: .destructive) {
+                    pendingStudioImport = nil
+                    applyImportOutcome(outcome)
+                }
+                Button("Keep Editing", role: .cancel) {
+                    pendingStudioImport = nil
+                }
+            } message: { _ in
+                Text("You have unsaved studio edits. Save before switching presets?")
+            }
         }
         .onOpenURL { url in
             handleIncomingURL(url)
@@ -207,19 +246,32 @@ struct WaveForgeRootView: View {
     private func handleIncomingURL(_ url: URL) {
         pendingOpenStudioAfterLibraryDismiss = false
 
-        do {
-            let outcome = try PresetImportCoordinator.importFile(at: url, into: presetStore)
-            presetsRevision += 1
-            engine.load(outcome.preset)
-
-            if let alert = ImportAlertContent.fromOutcome(outcome) {
-                presentImportAlertSafely(alert)
-            } else {
-                dismissAllModals()
-                showImportToast(for: outcome.preset.name)
+        Task { @MainActor in
+            let results = await PresetImportCoordinator.importFiles(at: [url], into: presetStore)
+            guard let result = results.first else { return }
+            switch result {
+            case .success(let outcome):
+                presetsRevision += 1
+                // Never silently replace unsaved Studio edits: ask first, from inside the Studio cover.
+                if isShowingStudio && !isDismissingStudio && studioHasUnsavedChanges {
+                    pendingStudioImport = outcome
+                } else {
+                    applyImportOutcome(outcome)
+                }
+            case .failure(let error):
+                presentImportAlertSafely(ImportAlertContent.fromError(error))
             }
-        } catch {
-            presentImportAlertSafely(ImportAlertContent.fromError(error))
+        }
+    }
+
+    private func applyImportOutcome(_ outcome: PresetImportOutcome) {
+        engine.load(outcome.preset)
+
+        if let alert = ImportAlertContent.fromOutcome(outcome) {
+            presentImportAlertSafely(alert)
+        } else {
+            dismissAllModals()
+            showImportToast(for: outcome.preset.name)
         }
     }
 
@@ -247,4 +299,10 @@ struct WaveForgeRootView: View {
         toastDismissTask = nil
         importToastPresetName = nil
     }
+}
+
+/// Holds Studio's live save handler without triggering view updates when it is (re)registered.
+@MainActor
+private final class StudioHandlerBox {
+    var save: (() -> Bool)?
 }

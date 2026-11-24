@@ -74,6 +74,9 @@ public struct StudioRackView: View {
     @State private var showSavedBadge: Bool = false
     @State private var savedBadgeTask: Task<Void, Never>?
     @State private var validationErrorMessage: String?
+    /// Draft value already pushed to (or pulled from) the engine synchronously; its deferred
+    /// `onChange(of: draft)` must not re-apply it after a coordinator has loaded another preset.
+    @State private var engineSyncedDraft: Preset?
 
     @State private var telemetryBox = StudioTelemetryBox()
     @State private var haptics = StudioControlHaptics()
@@ -810,6 +813,13 @@ public struct StudioRackView: View {
     private func handleDraftChanged(_ updatedDraft: Preset) {
         isDirty = (updatedDraft != baselinePreset)
 
+        if let synced = engineSyncedDraft {
+            engineSyncedDraft = nil
+            if synced == updatedDraft {
+                return
+            }
+        }
+
         var runtimeDraft = updatedDraft
         runtimeDraft.recommendedOutput = AudioRoutePolicy.hasActiveBinauralVoices(in: updatedDraft)
             ? .headphones
@@ -823,6 +833,9 @@ public struct StudioRackView: View {
     private func syncFromEngine() {
         let current = engine.currentPreset
         baselinePreset = current
+        if draft != current {
+            engineSyncedDraft = current
+        }
         draft = current
         hasSavedInStore = current.isBuiltIn || presetStore.allPresets().contains { $0.id == current.id }
         isDirty = false
@@ -927,6 +940,9 @@ public struct StudioRackView: View {
             let saved = try presetStore.saveEdited(toSave)
             validationErrorMessage = nil
             baselinePreset = saved
+            if draft != saved {
+                engineSyncedDraft = saved
+            }
             draft = saved
             hasSavedInStore = true
             isDirty = false
@@ -957,6 +973,9 @@ public struct StudioRackView: View {
     }
 
     private func revertDraftToBaseline() {
+        if draft != baselinePreset {
+            engineSyncedDraft = baselinePreset
+        }
         draft = baselinePreset
         isDirty = false
         engine.applyEditedPreset(baselinePreset)

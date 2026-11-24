@@ -80,6 +80,13 @@ public final class SynthRenderer: @unchecked Sendable {
     private var lastPreEnvR: Double = 0.0
     private var hasRenderedAnyAudio: Bool = false
 
+    // Post-envelope output residual bridging hard session resets (e.g. load + immediate play)
+    // so the last emitted sample decays smoothly instead of stepping to silence.
+    private var lastOutL: Double = 0.0
+    private var lastOutR: Double = 0.0
+    private var resetResidualL: Double = 0.0
+    private var resetResidualR: Double = 0.0
+
     public init(sampleRate: Double = 48_000, snapshot: SynthSnapshot, telemetry: TelemetryRingBuffer? = nil) {
         let safeRate = (sampleRate.isFinite && sampleRate > 0.0) ? sampleRate : 48_000.0
         self.sampleRate = safeRate
@@ -215,6 +222,8 @@ public final class SynthRenderer: @unchecked Sendable {
         if slot.resetGeneration != lastHandledResetGen {
             lastHandledResetGen = slot.resetGeneration
             lastHandledSeekSeq = slot.resetSeekSeq
+            resetResidualL = lastOutL
+            resetResidualR = lastOutR
             renderTime = 0.0
             pendingSeekTarget = 0.0
             seekPhase = .idle
@@ -265,8 +274,11 @@ public final class SynthRenderer: @unchecked Sendable {
                 if renderTime >= duration {
                     renderTime = duration
                 }
-                leftOut[frame] = 0.0
-                rightOut[frame] = 0.0
+                let residual = nextResetResidual()
+                leftOut[frame] = Float(residual.left)
+                rightOut[frame] = Float(residual.right)
+                lastOutL = residual.left
+                lastOutR = residual.right
                 lastPreEnvL = 0.0
                 lastPreEnvR = 0.0
                 declickL = 0.0
@@ -306,8 +318,13 @@ public final class SynthRenderer: @unchecked Sendable {
             lastPreEnvR = preEnvR
             hasRenderedAnyAudio = true
 
-            leftOut[frame] = softLimit(preEnvL * envGain)
-            rightOut[frame] = softLimit(preEnvR * envGain)
+            let residual = nextResetResidual()
+            let outL = min(1.0, max(-1.0, Double(softLimit(preEnvL * envGain)) + residual.left))
+            let outR = min(1.0, max(-1.0, Double(softLimit(preEnvR * envGain)) + residual.right))
+            leftOut[frame] = Float(outL)
+            rightOut[frame] = Float(outR)
+            lastOutL = outL
+            lastOutR = outR
 
             if seekPhase != .fadingOut {
                 renderTime = min(duration, renderTime + invSampleRate)
@@ -642,6 +659,18 @@ public final class SynthRenderer: @unchecked Sendable {
         let remaining = duration - timeSec
         let outGain = (fadeOut > 0.0 && remaining < fadeOut) ? min(1.0, max(0.0, remaining / fadeOut)) : 1.0
         return inGain * outGain
+    }
+
+    /// Returns the current reset residual and advances its 15 ms exponential decay.
+    @inline(__always)
+    private func nextResetResidual() -> (left: Double, right: Double) {
+        guard resetResidualL != 0.0 || resetResidualR != 0.0 else { return (0.0, 0.0) }
+        let current = (resetResidualL, resetResidualR)
+        resetResidualL *= declickDecay
+        resetResidualR *= declickDecay
+        if abs(resetResidualL) < 1e-9 { resetResidualL = 0.0 }
+        if abs(resetResidualR) < 1e-9 { resetResidualR = 0.0 }
+        return (current.0.isFinite ? current.0 : 0.0, current.1.isFinite ? current.1 : 0.0)
     }
 
     @inline(__always)

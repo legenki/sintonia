@@ -128,7 +128,7 @@ struct MacRuntimeTests {
     }
 
     @MainActor
-    @Test func reviewFocus2_unsavedStudioDraftGuardsPresetLoadAndOpenURL() throws {
+    @Test func reviewFocus2_unsavedStudioDraftGuardsPresetLoadAndOpenURL() async throws {
         let (tempDir, cleanupDir) = try makeTempDirectory()
         defer { cleanupDir() }
         let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
@@ -169,7 +169,7 @@ struct MacRuntimeTests {
 
         let previousSyncToken = coordinator.studioSyncToken
         coordinator.studioHasUnsavedChanges = true
-        coordinator.handleIncomingURLs([validBWGURL])
+        await coordinator.handleIncomingURLs([validBWGURL]).value
 
         #expect(coordinator.engine.currentPreset.id == otherPreset.id)
         #expect(coordinator.pendingConflict != nil)
@@ -489,7 +489,7 @@ struct MacRuntimeTests {
     }
 
     @MainActor
-    @Test func reviewFocus4_invalidAndMultiFileDropSurfacesImportAlertWithoutDisruptingPlayback() throws {
+    @Test func reviewFocus4_invalidAndMultiFileDropSurfacesImportAlertWithoutDisruptingPlayback() async throws {
         let (tempDir, cleanupDir) = try makeTempDirectory()
         defer { cleanupDir() }
         let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
@@ -510,7 +510,7 @@ struct MacRuntimeTests {
 
         let initialPresetID = coordinator.engine.currentPreset.id
         coordinator.engine.setIsPlayingForTesting(true)
-        coordinator.handleIncomingURLs([invalidTxtURL, truncatedBWGURL])
+        await coordinator.handleIncomingURLs([invalidTxtURL, truncatedBWGURL]).value
 
         #expect(coordinator.importAlert != nil)
         #expect(coordinator.engine.currentPreset.id == initialPresetID)
@@ -529,7 +529,7 @@ struct MacRuntimeTests {
         """
         try legacyBWG.write(to: legacyBWGURL, atomically: true, encoding: .utf8)
 
-        coordinator.handleIncomingURLs([legacyBWGURL])
+        await coordinator.handleIncomingURLs([legacyBWGURL]).value
 
         let alert = try #require(coordinator.importAlert)
         #expect(alert.message.contains(String(localized: "External WAV background audio is not supported.")))

@@ -607,30 +607,40 @@ public struct LibraryView: View {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            do {
-                let outcome = try PresetImportCoordinator.importFile(at: url, into: presetStore)
-                reloadPresets()
-                onPresetsChanged()
-                if loadsDirectlyOnSelect {
-                    engine.load(outcome.preset)
-                } else {
-                    onSelectPreset(outcome.preset)
+            Task { @MainActor in
+                let results = await PresetImportCoordinator.importFiles(at: [url], into: presetStore)
+                if let result = results.first {
+                    applyImportResult(result)
                 }
-                haptics.fireStep()
-
-                if let alert = ImportAlertContent.fromOutcome(outcome) {
-                    importAlert = alert
-                } else {
-                    showConfirmationToast(for: outcome.preset.name)
-                }
-            } catch {
-                importAlert = ImportAlertContent.fromError(error)
             }
 
         case .failure(let error):
             if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {
                 return
             }
+            importAlert = ImportAlertContent.fromError(error)
+        }
+    }
+
+    private func applyImportResult(_ result: Result<PresetImportOutcome, PresetImportError>) {
+        switch result {
+        case .success(let outcome):
+            reloadPresets()
+            onPresetsChanged()
+            if loadsDirectlyOnSelect {
+                engine.load(outcome.preset)
+            } else {
+                onSelectPreset(outcome.preset)
+            }
+            haptics.fireStep()
+
+            if let alert = ImportAlertContent.fromOutcome(outcome) {
+                importAlert = alert
+            } else {
+                showConfirmationToast(for: outcome.preset.name)
+            }
+
+        case .failure(let error):
             importAlert = ImportAlertContent.fromError(error)
         }
     }

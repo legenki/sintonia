@@ -103,6 +103,9 @@ public final class AudioEngineController {
     @ObservationIgnored private var pendingLoadSnapshot: SynthSnapshot? = nil
     @ObservationIgnored private var wasInterruptedWhilePlaying: Bool = false
     @ObservationIgnored private var lastNowPlayingSyncTime: Double = -.infinity
+    #if os(macOS)
+    @ObservationIgnored private var deviceSwitchToken: UInt64 = 0
+    #endif
 
     #if os(macOS)
     public convenience init(preset: Preset = PresetCatalog.builtInPresets[0]) {
@@ -372,7 +375,28 @@ public final class AudioEngineController {
 
     #if os(macOS)
     /// Selects the active macOS output device (`nil` uses the System Default output device).
+    /// While audio is playing, the output fades out before AUHAL is rebound and fades back in afterwards.
     public func selectOutputDevice(uid: String?) {
+        let normalizedUID = (uid?.isEmpty == false) ? uid : nil
+        deviceSwitchToken &+= 1
+        guard isPlaying, engineHolder.engine.isRunning, normalizedUID != macDeviceManager.selectedDeviceUID else {
+            performOutputDeviceSelection(uid: normalizedUID)
+            return
+        }
+
+        renderer.setPlaying(false)
+        let token = deviceSwitchToken
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.pauseFadeGracePeriod)
+            guard let self, self.deviceSwitchToken == token else { return }
+            self.performOutputDeviceSelection(uid: normalizedUID)
+            if self.isPlaying {
+                self.renderer.setPlaying(true)
+            }
+        }
+    }
+
+    private func performOutputDeviceSelection(uid: String?) {
         do {
             try macDeviceManager.selectDevice(uid: uid, for: engineHolder.engine)
             lastErrorMessage = nil
@@ -653,6 +677,7 @@ public final class AudioEngineController {
                 engineHolder.engine.pause()
             }
             flushPendingLoadSnapshotIfNeeded()
+            deactivateAudioSessionIfIdle()
         }
     }
 
@@ -666,8 +691,17 @@ public final class AudioEngineController {
                 self.engineHolder.engine.pause()
             }
             self.flushPendingLoadSnapshotIfNeeded()
+            self.deactivateAudioSessionIfIdle()
         }
         pauseEngineTaskBox.withLock { $0 = task }
+    }
+
+    /// Releases the iOS audio session once playback is fully stopped so interrupted apps (e.g. Music) can resume.
+    private func deactivateAudioSessionIfIdle() {
+        #if os(iOS)
+        guard !isPlaying, !engineHolder.engine.isRunning else { return }
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
     }
 
     private func flushPendingLoadSnapshotIfNeeded() {

@@ -111,6 +111,9 @@ public struct NoiseSnapshot: Sendable, Equatable {
 /// Complete session configuration snapshot passed to `SynthRenderer` (up to 10 voices).
 public struct SynthSnapshot: Sendable, Equatable {
     public static let maxVoices = 10
+    /// Curve points kept losslessly by the real-time renderer; longer curves are resampled.
+    /// Matches `PresetLimits.maxCurvePoints` so every valid preset plays exactly as edited.
+    public static let maxPointsPerCurve = 4_096
 
     public var durationSec: Double
     public var masterGain: Double
@@ -335,7 +338,7 @@ internal struct PODSnapshotSlot {
 /// Wait-free triple-buffered POD snapshot channel for real-time audio rendering.
 internal struct SnapshotChannel: ~Copyable {
     static let maxVoices = SynthSnapshot.maxVoices
-    static let maxPointsPerCurve = 512
+    static let maxPointsPerCurve = SynthSnapshot.maxPointsPerCurve
     private static let curvesPerSnapshot = maxVoices * 3 + 2
     private static let pointsCapacityPerSlot = curvesPerSnapshot * maxPointsPerCurve
     private static let totalSlots = 4 // 0..2 triple-buffer slots + 3 UI query slot

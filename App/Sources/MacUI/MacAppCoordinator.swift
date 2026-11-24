@@ -266,22 +266,36 @@ public final class MacAppCoordinator {
     }
 
     /// Validates, imports, and saves `.bwg` / `.waveforge` URLs from Finder (`onOpenURL`), `⌘O`, or drag-and-drop.
-    public func handleIncomingURLs(_ urls: [URL]) {
+    /// File I/O and parsing run off the main actor; the returned task completes once UI state is updated.
+    @discardableResult
+    public func handleIncomingURLs(_ urls: [URL]) -> Task<Void, Never> {
         handleIncomingURLs(urls, source: .external)
     }
 
     /// Validates, imports, and saves `.bwg` / `.waveforge` URLs with an explicit source window for modal routing.
-    public func handleIncomingURLs(_ urls: [URL], source: ImportSource) {
-        guard !urls.isEmpty else { return }
+    @discardableResult
+    public func handleIncomingURLs(_ urls: [URL], source: ImportSource) -> Task<Void, Never> {
+        guard !urls.isEmpty else { return Task {} }
+        let store = presetStore
+        return Task { @MainActor [weak self] in
+            let results = await PresetImportCoordinator.importFiles(at: urls, into: store)
+            self?.applyImportResults(results, urls: urls, source: source)
+        }
+    }
 
+    private func applyImportResults(
+        _ results: [Result<PresetImportOutcome, PresetImportError>],
+        urls: [URL],
+        source: ImportSource
+    ) {
         var outcomes: [PresetImportOutcome] = []
         var failures: [(url: URL, error: any Error)] = []
 
-        for url in urls {
-            do {
-                let outcome = try PresetImportCoordinator.importFile(at: url, into: presetStore)
+        for (url, result) in zip(urls, results) {
+            switch result {
+            case .success(let outcome):
                 outcomes.append(outcome)
-            } catch {
+            case .failure(let error):
                 failures.append((url, error))
             }
         }
@@ -338,7 +352,7 @@ public final class MacAppCoordinator {
     public func handleFileImporterResult(_ result: Result<[URL], any Error>, source: ImportSource = .player) {
         switch result {
         case .success(let urls):
-            handleIncomingURLs(urls, source: source)
+            _ = handleIncomingURLs(urls, source: source)
 
         case .failure(let error):
             if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {

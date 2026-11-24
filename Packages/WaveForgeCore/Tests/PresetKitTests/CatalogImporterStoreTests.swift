@@ -436,4 +436,8 @@ struct CatalogImporterStoreTests {
         let store = PresetStore(storageDirectory: dir)
         #expect(store.allPresets().count == 18)
     }
+
+    @Test func rendererKeepsEveryValidCurvePointLosslessly() {
+        #expect(SynthSnapshot.maxPointsPerCurve == PresetLimits.maxCurvePoints)
+    }
 }

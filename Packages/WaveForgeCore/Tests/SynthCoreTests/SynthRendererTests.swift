@@ -530,9 +530,13 @@ struct SynthRendererTests {
             }
         }
 
-        // Frame 0 must ramp smoothly up from near-zero (zero declick burst or old-timestamp burst).
-        #expect(abs(bL[0]) < 0.005)
-        #expect(abs(bR[0]) < 0.005)
+        // Frame 0 must continue smoothly from presetA's last emitted sample (no step to silence,
+        // no declick burst or old-timestamp burst), and the bridging residual must die out quickly.
+        #expect(abs(bL[0] - warmupL[warmupL.count - 1]) < 0.02)
+        #expect(abs(bR[0] - warmupR[warmupR.count - 1]) < 0.02)
+        for i in 1..<2_400 {
+            #expect(abs(bL[i] - bL[i - 1]) < 0.12)
+        }
         // Elapsed render time must start cleanly from 0.0 -> 0.5 s (not ~45.5 s or ~0.75 s).
         #expect(abs(renderer.currentTimeSeconds() - 0.5) < 1e-6)
 
@@ -554,8 +558,52 @@ struct SynthRendererTests {
                 renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: 1024)
             }
         }
-        #expect(abs(seekL[0]) < 0.005)
+        #expect(abs(seekL[0] - bL[bL.count - 1]) < 0.02)
         #expect(abs(renderer.currentTimeSeconds() - (10.0 + 1024.0 / 48_000.0)) < 1e-6)
+    }
+
+    @Test func loadAndImmediatePlayWhilePlayingNeverStepsToSilence() {
+        func voice(_ carrier: Double, _ volume: Double) -> VoiceSnapshot {
+            VoiceSnapshot(
+                id: UUID(), isEnabled: true, isMuted: false, isSolo: false,
+                mode: .monaural, waveform: .sine,
+                isochronicSoftness: 0.5, isochronicDutyCycle: 0.5, pan: 0,
+                carrierCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: carrier)], interpolation: .linear),
+                beatCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: 4)], interpolation: .linear),
+                volumeCurve: CompiledCurve(points: [CurvePoint(timeSec: 0, value: volume)], interpolation: .linear)
+            )
+        }
+        let snapA = SynthSnapshot(durationSec: 600, masterGain: 1.0, fadeInSec: 0, fadeOutSec: 0, noise: .disabled, voices: [voice(157, 0.9)])
+        let snapB = SynthSnapshot(durationSec: 600, masterGain: 1.0, fadeInSec: 5, fadeOutSec: 5, noise: .disabled, voices: [voice(220, 0.8)])
+        let n = 512
+        var l = [Float](repeating: 0, count: n)
+        var r = [Float](repeating: 0, count: n)
+
+        var worstJump: Float = 0
+        for warmupBlocks in 10..<60 {
+            let renderer = SynthRenderer(sampleRate: 48_000, snapshot: snapA)
+            renderer.setPlaying(true)
+            var last: Float = 0
+            l.withUnsafeMutableBufferPointer { lPtr in
+                r.withUnsafeMutableBufferPointer { rPtr in
+                    for _ in 0..<warmupBlocks {
+                        renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: n)
+                    }
+                    last = lPtr[n - 1]
+                    // Mirrors AudioEngineController.load(_:) followed immediately by play().
+                    renderer.setPlaying(false)
+                    renderer.loadSnapshot(snapB)
+                    renderer.setPlaying(true)
+                    renderer.render(intoLeft: lPtr.baseAddress!, intoRight: rPtr.baseAddress!, frameCount: n)
+                }
+            }
+            worstJump = max(worstJump, abs(l[0] - last))
+            for i in 1..<n {
+                worstJump = max(worstJump, abs(l[i] - l[i - 1]))
+            }
+        }
+        // A 157 Hz sine at 0.9 changes by at most ~0.019 per sample; a hard cut would jump by up to ~0.6.
+        #expect(worstJump < 0.05)
     }
 
     @Test func deepBreathSync301PointCurvePacksLosslesslyAndResamplingUsesLinear() {
@@ -626,9 +674,9 @@ struct SynthRendererTests {
             #expect(peakRMS / max(1e-6, troughRMS) > 1.55)
         }
 
-        // Verify >512-point smoothStep curve disables second-pass smoothStep when resampled.
+        // Verify a curve beyond maxPointsPerCurve disables second-pass smoothStep when resampled.
         var longPoints: [CurvePoint] = []
-        for i in 0...600 {
+        for i in 0...(SnapshotChannel.maxPointsPerCurve + 100) {
             longPoints.append(CurvePoint(timeSec: Double(i), value: Double(i)))
         }
         let longCurve = CompiledCurve(points: longPoints, interpolation: .smoothStep)

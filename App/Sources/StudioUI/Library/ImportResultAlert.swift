@@ -172,6 +172,25 @@ public enum PresetImportCoordinator: Sendable {
         throw PresetImportError.unsupportedFileType
     }
 
+    /// Imports `urls` in order on a background task so file I/O and parsing never block the main actor.
+    /// Each element reports either the saved outcome or the typed failure for the URL at the same index.
+    public static func importFiles(
+        at urls: [URL],
+        into presetStore: PresetStore
+    ) async -> [Result<PresetImportOutcome, PresetImportError>] {
+        await Task.detached(priority: .userInitiated) {
+            urls.map { url in
+                do {
+                    return .success(try importFile(at: url, into: presetStore))
+                } catch let importError as PresetImportError {
+                    return .failure(importError)
+                } catch {
+                    return .failure(.unreadableFile)
+                }
+            }
+        }.value
+    }
+
     private static func importBWGData(
         _ data: Data,
         fallbackName: String,

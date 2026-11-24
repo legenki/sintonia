@@ -130,6 +130,9 @@ struct AudioRuntimeTests {
         let outcome = PresetImportOutcome(preset: result.preset, report: result.report)
         let alert = ImportAlertContent.fromOutcome(outcome)
         #expect(alert != nil)
-        #expect(alert?.message.contains("1800") == true)
+        // Integer interpolation is grouped per region (e.g. "1.800" for en_IT), so compare against the
+        // same localized string instead of a hard-coded digit sequence.
+        let expectedNotice = String(localized: "Missing duration; defaulted to \(1800)s.")
+        #expect(alert?.message.contains(expectedNotice) == true)
     }
 }

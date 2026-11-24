@@ -308,7 +308,7 @@ public final class MacAudioDeviceManager {
                 domain: NSOSStatusErrorDomain,
                 code: Int(setStatus),
                 userInfo: [
-                    NSLocalizedDescriptionKey: "Failed to bind CoreAudio output device (OSStatus \(setStatus))."
+                    NSLocalizedDescriptionKey: String(localized: "Failed to bind CoreAudio output device (OSStatus \(setStatus)).")
                 ]
             )
         }
