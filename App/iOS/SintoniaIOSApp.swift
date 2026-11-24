@@ -117,6 +117,8 @@ struct SintoniaRootView: View {
                         dismissActiveSheet()
                     }
                 )
+                // On iPad, show the library as a page-sized sheet instead of a small form sheet.
+                .presentationSizing(.page)
 
             case .export:
                 ExportSheetView(
@@ -140,6 +142,8 @@ struct SintoniaRootView: View {
             StudioRackView(
                 engine: engine,
                 presetStore: presetStore,
+                // iPad gets the side-by-side rack + inspector/curve bay used on Mac; iPhone keeps its layout.
+                showsDualPaneWhenWide: UIDevice.current.userInterfaceIdiom == .pad,
                 onDirtyStateChanged: { dirty in
                     studioHasUnsavedChanges = dirty
                 },

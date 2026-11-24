@@ -1,6 +1,54 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ Voices": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Voices"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голосов: %@"
+          }
+        }
+      }
+    },
+    "%@m": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@m"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ мин"
+          }
+        }
+      }
+    },
+    "%@s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@s"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ с"
+          }
+        }
+      }
+    },
     "%lld Voices": {
       "localizations": {
         "en": {
@@ -723,6 +771,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Центр"
+          }
+        }
+      }
+    },
+    "Ch %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ch %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кан. %@"
           }
         }
       }
@@ -2858,6 +2922,22 @@
         }
       }
     },
+    "Sintonia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sintonia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sintonia"
+          }
+        }
+      }
+    },
     "Skip Back 30s": {
       "localizations": {
         "en": {
@@ -3378,6 +3458,22 @@
         }
       }
     },
+    "Tracked from Ch %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracked from Ch %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежение за кан. %@"
+          }
+        }
+      }
+    },
     "Tracked from Ch %lld": {
       "localizations": {
         "en": {
@@ -3839,22 +3935,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "WAV (24-бит PCM, 48 кГц)"
-          }
-        }
-      }
-    },
-    "Sintonia": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sintonia"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sintonia"
           }
         }
       }

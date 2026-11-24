@@ -26,6 +26,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Sintonia
+        ITSAppUsesNonExemptEncryption: false
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
@@ -92,6 +93,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.app
         DEVELOPMENT_TEAM: Y6A9LRQDH7
+        CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         IPHONEOS_DEPLOYMENT_TARGET: "27.2"
@@ -150,6 +152,7 @@ targets:
       path: App/Mac/Info.plist
       properties:
         CFBundleDisplayName: Sintonia
+        ITSAppUsesNonExemptEncryption: false
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.music
@@ -209,6 +212,8 @@ targets:
         PRODUCT_NAME: Sintonia
         PRODUCT_MODULE_NAME: SintoniaMac
         PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.mac
+        DEVELOPMENT_TEAM: Y6A9LRQDH7
+        CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         MACOSX_DEPLOYMENT_TARGET: "27.2"

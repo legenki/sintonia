@@ -17,6 +17,9 @@ public struct PlayerView<HeaderAccessory: View>: View {
     @State private var isShowingAboutSheet = false
     @State private var dismissedSpeakerNotice = false
     @State private var haptics = StudioControlHaptics()
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
 
     public init(
         engine: AudioEngineController,
@@ -88,7 +91,7 @@ public struct PlayerView<HeaderAccessory: View>: View {
                                 .transition(.move(edge: .top).combined(with: .opacity))
                         }
 
-                        oscilloscopeAndTimelineCard
+                        oscilloscopeAndTimelineCard(availableHeight: proxy.size.height)
 
                         smartControlsRack
 
@@ -429,8 +432,20 @@ public struct PlayerView<HeaderAccessory: View>: View {
 
     // MARK: - Oscilloscope & Mini Timeline
 
-    private var oscilloscopeAndTimelineCard: some View {
-        VStack(spacing: 12) {
+    /// Wide iPad layouts give the oscilloscope roughly half the screen instead of a phone-sized strip.
+    private func oscilloscopeHeightRange(availableHeight: CGFloat) -> (min: CGFloat, ideal: CGFloat, max: CGFloat) {
+        #if os(iOS)
+        if horizontalSizeClass == .regular {
+            let target = min(720, max(250, availableHeight * 0.46))
+            return (target, target, target)
+        }
+        #endif
+        return (168, 210, 250)
+    }
+
+    private func oscilloscopeAndTimelineCard(availableHeight: CGFloat) -> some View {
+        let height = oscilloscopeHeightRange(availableHeight: availableHeight)
+        return VStack(spacing: 12) {
             OscilloscopeView(
                 telemetryBuffer: engine.telemetryBuffer,
                 dominantBeatHz: engine.dominantBeatHz,
@@ -438,7 +453,7 @@ public struct PlayerView<HeaderAccessory: View>: View {
                 activeVoiceCount: activeVoiceCount,
                 isPlaying: engine.isPlaying
             )
-            .frame(minHeight: 168, idealHeight: 210, maxHeight: 250)
+            .frame(minHeight: height.min, idealHeight: height.ideal, maxHeight: height.max)
 
             MiniTimelineScrubber(engine: engine)
         }
