@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Dedicated macOS Preset Library window wrapping `LibraryView` with adaptive desktop columns,
-/// double-click auto-play, Studio template launch, and Finder `.bwg`/`.waveforge` drop import.
+/// double-click auto-play, Studio template launch, and Finder `.bwg`/`.sintonia` drop import.
 public struct MacLibraryWindowView: View {
     @Bindable private var coordinator: MacAppCoordinator
     @Environment(\.openWindow) private var openWindow

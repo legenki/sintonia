@@ -4,13 +4,13 @@ import PresetKit
 import SwiftUI
 import SynthCore
 import Testing
-import WaveForgeExport
-@testable import WaveForgeMac
+import SintoniaExport
+@testable import SintoniaMac
 
-@Suite("WaveForgeMac Runtime & Review Focus Tests", .serialized)
+@Suite("SintoniaMac Runtime & Review Focus Tests", .serialized)
 struct MacRuntimeTests {
     @Test func appBundleContainsPrivacyManifestWithRequiredDiskSpaceReason() throws {
-        let hostBundle = try #require(Bundle(identifier: "com.waveforge.mac"))
+        let hostBundle = try #require(Bundle(identifier: "com.sintonia.mac"))
         let privacyURL = try #require(
             hostBundle.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
         )
@@ -503,7 +503,7 @@ struct MacRuntimeTests {
         let coordinator = MacAppCoordinator(presetStore: store, engine: engine)
 
         let invalidTxtURL = tempDir.appendingPathComponent("notes.txt")
-        try "not a valid waveforge preset".write(to: invalidTxtURL, atomically: true, encoding: .utf8)
+        try "not a valid sintonia preset".write(to: invalidTxtURL, atomically: true, encoding: .utf8)
 
         let truncatedBWGURL = tempDir.appendingPathComponent("broken.bwg")
         try "BrainWave Generator File\n".write(to: truncatedBWGURL, atomically: true, encoding: .utf8)
@@ -540,6 +540,22 @@ struct MacRuntimeTests {
         #expect(coordinator.engine.currentPreset.name == "Legacy Rain Strobe")
     }
 
+    @Test func legacyWaveForgeExtensionStillImportsAfterRename() throws {
+        let (tempDir, cleanupDir) = try makeTempDirectory()
+        defer { cleanupDir() }
+        let store = PresetStore(storageDirectory: tempDir.appendingPathComponent("Presets", isDirectory: true))
+
+        var legacy = PresetCatalog.builtInPresets[3]
+        legacy.name = "Legacy WaveForge Preset"
+        let legacyURL = tempDir.appendingPathComponent("Legacy.waveforge")
+        try PresetCodec.encode(legacy).write(to: legacyURL)
+
+        let outcome = try PresetImportCoordinator.importFile(at: legacyURL, into: store)
+        #expect(outcome.preset.name == "Legacy WaveForge Preset")
+        #expect(!outcome.preset.isBuiltIn)
+        #expect(store.allPresets().contains { $0.id == outcome.preset.id })
+    }
+
     @MainActor
     @Test func reviewFocus5_stalePersistedUIDAndZeroAudioDevicesFallBackSafely() throws {
         let (defaults, cleanupDefaults) = try makeIsolatedDefaults()
@@ -571,7 +587,7 @@ struct MacRuntimeTests {
     }
 
     @Test func macBundleContainsPrivacyManifestE174_1AndRussianTranslations() throws {
-        let hostBundle = try #require(Bundle(identifier: "com.waveforge.mac"))
+        let hostBundle = try #require(Bundle(identifier: "com.sintonia.mac"))
         let privacyURL = try #require(
             hostBundle.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
         )
@@ -619,12 +635,12 @@ struct MacRuntimeTests {
             ("Export Audio…", "Экспортировать аудио…"),
             ("Increase Master Gain", "Увеличить общую громкость"),
             ("Decrease Master Gain", "Уменьшить общую громкость"),
-            ("Quit WaveForge", "Завершить WaveForge"),
-            ("Drop .bwg or .waveforge to Import", "Перетащите .bwg или .waveforge для импорта"),
+            ("Quit Sintonia", "Завершить Sintonia"),
+            ("Drop .bwg or .sintonia to Import", "Перетащите .bwg или .sintonia для импорта"),
             ("Save As…", "Сохранить как…"),
-            ("Save .waveforge…", "Сохранить .waveforge…"),
+            ("Save .sintonia…", "Сохранить .sintonia…"),
             ("You have unsaved studio edits. Save before switching presets?", "В студии есть несохранённые изменения. Сохранить перед сменой пресета?"),
-            ("About WaveForge", "О WaveForge"),
+            ("About Sintonia", "О Sintonia"),
             ("Studio Rack", "Студийная стойка"),
             ("Delete Point", "Удалить точку"),
             ("Skip Back 30s", "Назад на 30 с"),
@@ -647,7 +663,7 @@ struct MacRuntimeTests {
 
     private func makeTempDirectory() throws -> (URL, () -> Void) {
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("WaveForgeMacTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("SintoniaMacTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return (dir, {
             try? FileManager.default.removeItem(at: dir)
@@ -655,7 +671,7 @@ struct MacRuntimeTests {
     }
 
     private func makeIsolatedDefaults() throws -> (UserDefaults, () -> Void) {
-        let suiteName = "com.waveforge.mac.tests.\(UUID().uuidString)"
+        let suiteName = "com.sintonia.mac.tests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         return (defaults, {

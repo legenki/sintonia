@@ -2,7 +2,7 @@ import AVFoundation
 import Testing
 import PresetKit
 import SynthCore
-@testable import WaveForge
+@testable import Sintonia
 
 @Suite("AudioRuntime Policy and Exporter", .serialized)
 struct AudioRuntimeTests {
@@ -59,8 +59,8 @@ struct AudioRuntimeTests {
             // Expected
         }
         let after = Set((try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path)) ?? [])
-        let leftoverWaveForgeFiles = after.subtracting(before).filter { $0.contains("WaveForge-") }
-        #expect(leftoverWaveForgeFiles.isEmpty)
+        let leftoverSintoniaFiles = after.subtracting(before).filter { $0.contains("Sintonia-") }
+        #expect(leftoverSintoniaFiles.isEmpty)
     }
 
     @MainActor

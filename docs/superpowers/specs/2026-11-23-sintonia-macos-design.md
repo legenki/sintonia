@@ -1,15 +1,15 @@
-# Спецификация дизайна WaveForge (macOS 27)
+# Спецификация дизайна Sintonia (macOS 27)
 
 **Дата:** 2026-11-23  
 **Статус:** Согласовано (обновлён код E174.1)  
-**Базовая версия:** [Спецификация WaveForge iOS 27](file:///Users/andy/.gemini/antigravity/scratch/WaveForge/docs/superpowers/specs/2026-11-22-waveforge-ios-design.md)  
-**Рабочее название проекта:** WaveForge  
+**Базовая версия:** [Спецификация Sintonia iOS 27](file:///Users/andy/.gemini/antigravity/scratch/Sintonia/docs/superpowers/specs/2026-11-22-sintonia-ios-design.md)  
+**Рабочее название проекта:** Sintonia  
 
 ---
 
 ## 1. Обзор и цель проекта
 
-**WaveForge для macOS 27** — нативное настольное приложение для **Mac App Store**, построенное поверх общего DSP-ядра и каталога пресетов iPhone-версии (`WaveForgeCore`), воссоздающее все синтезаторные возможности классического **BrainWave Generator** (`bwgen.com`) в визуальном языке **macOS 27 (Liquid Glass)** с тактильными студийными контролами в традициях **GarageBand**.
+**Sintonia для macOS 27** — нативное настольное приложение для **Mac App Store**, построенное поверх общего DSP-ядра и каталога пресетов iPhone-версии (`SintoniaCore`), воссоздающее все синтезаторные возможности классического **BrainWave Generator** (`bwgen.com`) в визуальном языке **macOS 27 (Liquid Glass)** с тактильными студийными контролами в традициях **GarageBand**.
 
 ### Ключевые задачи продукта
 - **Гибридная настольная эргономика («компактный плеер + полноценные рабочие окна»):**
@@ -18,10 +18,10 @@
 - **Нативная интеграция с macOS 27:**
   - Иконка и мини-пульт в системном **Menu Bar** (`MenuBarExtra`) для мгновенного `Play/Pause`, контроля текущего ритма в Гц, таймера, переключения пресетов и выбора аудиовыхода.
   - Системное меню macOS с горячими клавишами (`Space`, `⌘1`, `⌘L`, `⌘2`, `⌘E`, `⌘O`, `⌘N`, `⌘←`/`⌘→`, `⌘↑`/`⌘↓`).
-  - **Drag-and-drop** файлов `.bwg` и `.waveforge` прямо в окна приложения и открытие двойным кликом из **Finder**.
+  - **Drag-and-drop** файлов `.bwg` и `.sintonia` прямо в окна приложения и открытие двойным кликом из **Finder**.
   - **Выбор конкретного аудиоустройства вывода CoreAudio** прямо внутри приложения + авто-пауза бинауральных программ при отключении наушников.
 - **100% оффлайн и готовность к Mac App Store:** локальный синтез в реальном времени без аккаунтов, сети, аналитики и рекламы; полная локализация **EN + RU**; App Sandbox entitlements; `PrivacyInfo.xcprivacy`; не-медицинский wellness-дисклеймер по App Store Guideline 1.4.1.
-- **Обратная совместимость с iOS-версией:** существующий iOS-таргет `WaveForge` (`WaveForge` + `WaveForgeTests`) остаётся полностью работоспособным, компилируется под iOS 27.2 без предупреждений (`SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`) и без деградации iOS-поведения.
+- **Обратная совместимость с iOS-версией:** существующий iOS-таргет `Sintonia` (`Sintonia` + `SintoniaTests`) остаётся полностью работоспособным, компилируется под iOS 27.2 без предупреждений (`SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`) и без деградации iOS-поведения.
 
 ### Целевая платформа и ограничения
 - **ОС и инструментарий:** **macOS 27.2+** (`Xcode 27.2`), **Swift 6** (`SWIFT_STRICT_CONCURRENCY = complete`), **SwiftUI** + **AVFoundation** + **CoreAudio HAL** + **MediaPlayer**, ноль сторонних зависимостей.
@@ -38,34 +38,34 @@
 
 ## 2. Архитектура проекта и таргетов (`project.yml`)
 
-Выбран **Вариант A — два независимых нативных таргета приложений в одном проекте** (`WaveForge` для iOS 27.2 и `WaveForgeMac` для macOS 27.2) с общим Swift-пакетом `WaveForgeCore`, общим аудио-контроллером, общими кроссплатформенными компонентами UI и общей локализацией.
+Выбран **Вариант A — два независимых нативных таргета приложений в одном проекте** (`Sintonia` для iOS 27.2 и `SintoniaMac` для macOS 27.2) с общим Swift-пакетом `SintoniaCore`, общим аудио-контроллером, общими кроссплатформенными компонентами UI и общей локализацией.
 
 ### Матрица таргетов
 | Таргет | Тип | Платформа | Bundle ID | Назначение |
 |---|---|---|---|---|
-| `WaveForge` | `application` | iOS `27.2` | `com.waveforge.app` | Существующее приложение iOS 27 |
-| `WaveForgeTests` | `bundle.unit-test` | iOS `27.2` | `com.waveforge.tests` | iOS-тесты рантайма |
-| `WaveForgeMac` | `application` | macOS `27.2` | `com.waveforge.mac` | Нативное macOS 27 приложение |
-| `WaveForgeMacTests` | `bundle.unit-test` | macOS `27.2` | `com.waveforge.mac.tests` | Нативные тесты macOS-рантайма (выполняются прямо на хосте macOS) |
+| `Sintonia` | `application` | iOS `27.2` | `com.sintonia.app` | Существующее приложение iOS 27 |
+| `SintoniaTests` | `bundle.unit-test` | iOS `27.2` | `com.sintonia.tests` | iOS-тесты рантайма |
+| `SintoniaMac` | `application` | macOS `27.2` | `com.sintonia.mac` | Нативное macOS 27 приложение |
+| `SintoniaMacTests` | `bundle.unit-test` | macOS `27.2` | `com.sintonia.mac.tests` | Нативные тесты macOS-рантайма (выполняются прямо на хосте macOS) |
 
 ### Структура каталогов
 ```text
-WaveForge/
-├── project.yml                                  # XcodeGen: WaveForge (iOS) + WaveForgeMac (macOS)
-├── Packages/WaveForgeCore/                      # Платформонезависимое ядро (iOS 18+ / macOS 15+)
+Sintonia/
+├── project.yml                                  # XcodeGen: Sintonia (iOS) + SintoniaMac (macOS)
+├── Packages/SintoniaCore/                      # Платформонезависимое ядро (iOS 18+ / macOS 15+)
 │   ├── Sources/
 │   │   ├── SynthCore/                           # Lock-free real-time DSP-движок
 │   │   ├── PresetKit/                           # Модели, 18 пресетов, BWGImporter, PresetStore
-│   │   └── WaveForgeExport/                     # SessionExporter (WAV/M4A) + AudioRoutePolicy (+ CoreAudio полиси)
-│   └── Tests/                                   # SynthCoreTests, PresetKitTests, WaveForgeExportTests
+│   │   └── SintoniaExport/                     # SessionExporter (WAV/M4A) + AudioRoutePolicy (+ CoreAudio полиси)
+│   └── Tests/                                   # SynthCoreTests, PresetKitTests, SintoniaExportTests
 └── App/
     ├── Info.plist                               # iOS Info.plist (управляется project.yml)
     ├── iOS/
-    │   └── WaveForgeIOSApp.swift                # @main + WaveForgeRootView только для iOS
+    │   └── SintoniaIOSApp.swift                # @main + SintoniaRootView только для iOS
     ├── Mac/
     │   ├── Info.plist                           # macOS Info.plist (Finder UTType, категория Music)
-    │   ├── WaveForgeMac.entitlements            # App Sandbox + user-selected files read-write
-    │   └── WaveForgeMacApp.swift                # @main + сцены Window("player"/"library"/"studio") + MenuBarExtra + Commands
+    │   ├── SintoniaMac.entitlements            # App Sandbox + user-selected files read-write
+    │   └── SintoniaMacApp.swift                # @main + сцены Window("player"/"library"/"studio") + MenuBarExtra + Commands
     ├── Sources/
     │   ├── AudioRuntime/                        # Общий аудио-рантайм
     │   │   ├── AudioEngineController.swift      # Условная интеграция AVAudioSession (iOS) / MacAudioDeviceManager (macOS)
@@ -76,9 +76,9 @@ WaveForge/
     │   │   ├── Player/                          # PlayerView, MiniTimelineScrubber, ExportSheetView, AboutSheetView
     │   │   ├── Studio/                          # StudioRackView (с dual-pane macOS раскладкой), Voice/Noise инспекторы, CurveEditor
     │   │   └── Library/                         # LibraryView, PresetSparklineView, ImportResultAlert
-    │   └── MacUI/                               # Эксклюзивный desktop-UI только для WaveForgeMac
+    │   └── MacUI/                               # Эксклюзивный desktop-UI только для SintoniaMac
     │       ├── MacAppCoordinator.swift          # Общее состояние окон, импорта, алертов и несохранённого черновика Студии
-    │       ├── MacPlayerWindowView.swift        # Компактное окно Плеера + выбор аудиовыхода + drop `.bwg`/`.waveforge`
+    │       ├── MacPlayerWindowView.swift        # Компактное окно Плеера + выбор аудиовыхода + drop `.bwg`/`.sintonia`
     │       ├── MacLibraryWindowView.swift       # Полноценное окно Библиотеки + двойной клик + drop + экспорт
     │       ├── MacStudioWindowView.swift        # Полноценное окно Студии/Редактора кривых + защита черновика
     │       ├── MacMenuBarView.swift             # Окно MenuBarExtra + иконка/Hz в строке меню
@@ -90,38 +90,38 @@ WaveForge/
     │   └── Assets.xcassets                      # Общие ассеты и иконка приложения (macOS + iOS слоты)
     └── Tests/
         ├── AudioRuntimeTests/                   # Тесты iOS-таргета
-        └── MacRuntimeTests/                     # Нативные тесты WaveForgeMacTests (CoreAudio, координатор, импорт, локализация)
+        └── MacRuntimeTests/                     # Нативные тесты SintoniaMacTests (CoreAudio, координатор, импорт, локализация)
 ```
 
 ---
 
 ## 3. Mac App Store, App Sandbox, ассоциации Finder и приватность
 
-### App Sandbox и права (`App/Mac/WaveForgeMac.entitlements`)
+### App Sandbox и права (`App/Mac/SintoniaMac.entitlements`)
 - `com.apple.security.app-sandbox = true` — обязательное требование Mac App Store.
 - `com.apple.security.files.user-selected.read-write = true` — доступ к пользовательским файлам через стандартный диалог открытия (`.fileImporter` / `NSOpenPanel`), сохранения (`.fileExporter` / `NSSavePanel`), drag-and-drop и открытие файлов из Finder; доступ к аудиовыводу предоставляется системой без сетевых и микрофонных разрешений (`audio-input` не запрашивается, так как синтезатор только воспроизводит звук).
 
 ### Манифест приложения (`App/Mac/Info.plist` через `project.yml`)
-Все ключи задаются в `targets.WaveForgeMac.info.properties` в `project.yml`, чтобы `xcodegen generate` оставался полностью идемпотентным:
-- `CFBundleDisplayName`: `WaveForge`
+Все ключи задаются в `targets.SintoniaMac.info.properties` в `project.yml`, чтобы `xcodegen generate` оставался полностью идемпотентным:
+- `CFBundleDisplayName`: `Sintonia`
 - `CFBundleShortVersionString`: `$(MARKETING_VERSION)` (`1.0.0`)
 - `CFBundleVersion`: `$(CURRENT_PROJECT_VERSION)` (`1`)
 - `LSApplicationCategoryType`: `public.app-category.music`
 - `LSMinimumSystemVersion`: `$(MACOSX_DEPLOYMENT_TARGET)` (`27.2`)
-- `CFBundleDocumentTypes`, `UTExportedTypeDeclarations` (`com.waveforge.preset` / `.waveforge`), `UTImportedTypeDeclarations` (`com.noromaa.bwg` / `.bwg` c соответствием `public.data`, `public.content`) — двойной клик по файлу `.bwg` или `.waveforge` в **Finder** и перетаскивание на иконку в **Dock** открывают файл в WaveForge.
+- `CFBundleDocumentTypes`, `UTExportedTypeDeclarations` (`com.sintonia.preset` / `.sintonia`), `UTImportedTypeDeclarations` (`com.noromaa.bwg` / `.bwg` c соответствием `public.data`, `public.content`) — двойной клик по файлу `.bwg` или `.sintonia` в **Finder** и перетаскивание на иконку в **Dock** открывают файл в Sintonia.
 
 ### Контейнер хранения и приватность
-- Пользовательские пресеты хранятся в песочнице по стандартному пути `FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first/WaveForge/Presets` через существующий `PresetStore`.
-- Общий `App/Resources/PrivacyInfo.xcprivacy` (`NSPrivacyTracking = false`, `NSPrivacyAccessedAPICategoryDiskSpace` с причиной `E174.1` — проверка наличия достаточного свободного места перед записью экспортируемых аудиофайлов; в ходе реализации обновляется с прежнего `85F4.1` на `E174.1`) автоматически копируется в `WaveForgeMac.app/Contents/Resources/PrivacyInfo.xcprivacy`.
-- Экран **«О WaveForge»** (`AboutSheetView`) с дисклеймером App Store Guideline 1.4.1 (non-medical wellness tool) доступен через стандартный пункт главного меню **`WaveForge → О WaveForge`** и кнопку информации в окне Плеера.
+- Пользовательские пресеты хранятся в песочнице по стандартному пути `FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first/Sintonia/Presets` через существующий `PresetStore`.
+- Общий `App/Resources/PrivacyInfo.xcprivacy` (`NSPrivacyTracking = false`, `NSPrivacyAccessedAPICategoryDiskSpace` с причиной `E174.1` — проверка наличия достаточного свободного места перед записью экспортируемых аудиофайлов; в ходе реализации обновляется с прежнего `85F4.1` на `E174.1`) автоматически копируется в `SintoniaMac.app/Contents/Resources/PrivacyInfo.xcprivacy`.
+- Экран **«О Sintonia»** (`AboutSheetView`) с дисклеймером App Store Guideline 1.4.1 (non-medical wellness tool) доступен через стандартный пункт главного меню **`Sintonia → О Sintonia`** и кнопку информации в окне Плеера.
 
 ---
 
 ## 4. Аудио-рантайм macOS: CoreAudio HAL, выбор устройства и авто-пауза
 
-На macOS отсутствует `AVAudioSession`, поэтому маршрутизацией и мониторингом аудиооборудования управляет кроссплатформенный слой внутри `WaveForgeExport` + `AudioRuntime`.
+На macOS отсутствует `AVAudioSession`, поэтому маршрутизацией и мониторингом аудиооборудования управляет кроссплатформенный слой внутри `SintoniaExport` + `AudioRuntime`.
 
-### Чистая политика маршрутов в `WaveForgeExport/AudioRoutePolicy.swift`
+### Чистая политика маршрутов в `SintoniaExport/AudioRoutePolicy.swift`
 Чтобы логика выбора устройства и авто-паузы покрывалась быстрыми юнит-тестами через `swift test`, добавляются чистые типы и функции без импорта CoreAudio:
 - `public enum CoreAudioTransportKind: UInt32, Sendable, Equatable` — транспортные типы (`builtIn`, `bluetooth`, `bluetoothLE`, `usb`, `airPlay`, `displayPort`, `hdmi`, `virtual`, `aggregate`, `other`) с маппингом на `AudioOutputRoute` (`.headphones`, `.speaker`, `.other`) с учётом флага подключения проводного джека (`hasWiredHeadphonesConnected`) и эвристик для встроенного выхода.
 - `public enum AudioDeviceSelectionPolicy` — детерминированный выбор активного устройства по `selectedDeviceUID`:
@@ -140,7 +140,7 @@ WaveForge/
 - **Перечисление устройств:** через `CoreAudio` (`AudioObjectGetPropertyData`) читает `kAudioHardwarePropertyDevices`, фильтрует устройства с выходными потоками (`kAudioDevicePropertyStreamConfiguration` в `kAudioDevicePropertyScopeOutput` с `mNumberChannels > 0`), извлекает `kAudioDevicePropertyDeviceUID`, `kAudioObjectPropertyName`, `kAudioDevicePropertyTransportType`, а для встроенных устройств дополнительно проверяет `kAudioDevicePropertyDataSource` (`'hdpn'` / `'ispk'`) и `kAudioDevicePropertyJackIsConnected` для определения проводных наушников vs встроенных динамиков.
 - **Привязка к `AVAudioEngine`:**
   - Для `selectedDeviceUID == nil` либо явного выбора устройства вызывает `AudioUnitSetProperty(outputUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &deviceID, size)` на `engine.outputNode.audioUnit`.
-  - Сохраняет выбор пользователя в `UserDefaults` под ключом `waveforge.mac.selectedOutputDeviceUID`.
+  - Сохраняет выбор пользователя в `UserDefaults` под ключом `sintonia.mac.selectedOutputDeviceUID`.
   - При смене устройства во время воспроизведения мягко обновляет выходной `AudioDeviceID` (с кратким переподключением графа / перезапуском `engine` при смене аппаратной конфигурации) и немедленно пересчитывает `outputRoute`.
 - **Слушатели реального времени (`AudioObjectAddPropertyListenerBlock`):**
   - Подписывается на `kAudioHardwarePropertyDevices` и `kAudioHardwarePropertyDefaultOutputDevice` (на `kAudioObjectSystemObject`), а также на `kAudioDevicePropertyDataSource` / `kAudioDevicePropertyJackIsConnected` на активном встроенном устройстве.
@@ -159,27 +159,27 @@ WaveForge/
 
 ### Единый координатор `MacAppCoordinator` (`App/Sources/MacUI/MacAppCoordinator.swift`)
 `@MainActor @Observable final class MacAppCoordinator`:
-- Владеет единственным экземпляром `PresetStore` (`Application Support/WaveForge/Presets`) и `AudioEngineController` (стартует с `Deep Focus`).
+- Владеет единственным экземпляром `PresetStore` (`Application Support/Sintonia/Presets`) и `AudioEngineController` (стартует с `Deep Focus`).
 - Управляет общим состоянием между всеми окнами и `MenuBarExtra`:
   - `presetsRevision: Int` — триггер обновления списка пресетов во всех окнах и меню-баре.
   - `activePlayerSheet: PlayerModalSheet?` (`.export` | `.about`) — листы на окне Плеера.
-  - `importAlert: ImportAlertContent?`, `importToastPresetName: String?` — результат системного/перетащенного импорта `.bwg` / `.waveforge`.
+  - `importAlert: ImportAlertContent?`, `importToastPresetName: String?` — результат системного/перетащенного импорта `.bwg` / `.sintonia`.
   - **Защита черновика Студии:** `studioHasUnsavedChanges: Bool`, `studioLoadTrigger: UUID` (или передача запроса смены пресета `pendingPresetSelection: PendingPresetAction?` с диалогом *«Сохранить / Сбросить / Остаться»*, когда пользователь меняет пресет из Библиотеки/Меню/Finder при несохранённых правках в открытой Студии).
-  - **Единый вход импорта `handleIncomingURLs(_ urls: [URL])`:** использует существующий `PresetImportCoordinator.importFile(at:into:)` (с балансированным `startAccessingSecurityScopedResource()`/`stopAccessingSecurityScopedResource()`), поддерживает `.bwg` и `.waveforge`, сохраняет в `PresetStore`, загружает пресет в `engine`, обновляет `presetsRevision` и показывает `ImportResultAlert` или `ImportConfirmationToast`.
+  - **Единый вход импорта `handleIncomingURLs(_ urls: [URL])`:** использует существующий `PresetImportCoordinator.importFile(at:into:)` (с балансированным `startAccessingSecurityScopedResource()`/`stopAccessingSecurityScopedResource()`), поддерживает `.bwg` и `.sintonia`, сохраняет в `PresetStore`, загружает пресет в `engine`, обновляет `presetsRevision` и показывает `ImportResultAlert` или `ImportConfirmationToast`.
 
-### Именованные окна (`Window(id:)` синглтоны в `WaveForgeMacApp.swift`)
-1. **Главное окно — Плеер (`Window(Text("WaveForge"), id: "player")`):**
+### Именованные окна (`Window(id:)` синглтоны в `SintoniaMacApp.swift`)
+1. **Главное окно — Плеер (`Window(Text("Sintonia"), id: "player")`):**
    - Размер по умолчанию: `430 × 700 pt`, минимальный: `380 × 620 pt`, максимальная ширина: `540 pt` (компактная вертикальная форма, не мешает другим окнам на экране).
    - Использует существующий `PlayerView` с адаптированной шапкой: компактный **селектор аудиоустройства** (`MacOutputDeviceMenu`) рядом со статусом наушников, а кнопки «Библиотека» и «Студия» вызывают `openWindow(id: "library")` / `openWindow(id: "studio")`.
-   - Экспорт и «О WaveForge» открываются как нативные macOS-sheets прямо на окне Плеера.
-   - На окне Плеера включён `.onDrop(of: [.fileURL], isTargeted: ...)` с аккуратной подсветкой Liquid Glass при наведении `.bwg` / `.waveforge` файлов.
+   - Экспорт и «О Sintonia» открываются как нативные macOS-sheets прямо на окне Плеера.
+   - На окне Плеера включён `.onDrop(of: [.fileURL], isTargeted: ...)` с аккуратной подсветкой Liquid Glass при наведении `.bwg` / `.sintonia` файлов.
    - Настроена `.handlesExternalEvents(matching: ["*"])` и `.onOpenURL`, чтобы открытие файлов из Finder / клик по иконке в Dock не плодили дубликаты окон Плеера.
 
 2. **Окно Библиотеки (`Window(Text("Library"), id: "library")`):**
    - Размер по умолчанию: `780 × 640 pt`, минимальный: `560 × 460 pt`.
    - Адаптивная 2-колоночная сетка карточек на широком окне (переходит в 1 колонку при ширине `< 640 pt`), поле поиска в тулбаре macOS, горизонтальные чипы категорий и кнопка импорта / `+ Новый пресет`.
-   - **Действия карточки:** одинарный клик — загрузка пресета в Плеер; двойной клик — загрузка и немедленный запуск воспроизведения; контекстное меню и кнопка опций — **Дублировать**, **Сохранить `.waveforge`…** (нативный `.fileExporter` с предзаполненным именем + `ShareLink`), **Удалить** (только пользовательские).
-   - Поддерживает перетаскивание файлов `.bwg` / `.waveforge` прямо в окно Библиотеки (`.onDrop`).
+   - **Действия карточки:** одинарный клик — загрузка пресета в Плеер; двойной клик — загрузка и немедленный запуск воспроизведения; контекстное меню и кнопка опций — **Дублировать**, **Сохранить `.sintonia`…** (нативный `.fileExporter` с предзаполненным именем + `ShareLink`), **Удалить** (только пользовательские).
+   - Поддерживает перетаскивание файлов `.bwg` / `.sintonia` прямо в окно Библиотеки (`.onDrop`).
 
 3. **Окно Студии и Редактора кривых (`Window(Text("Studio Rack"), id: "studio")`):**
    - Размер по умолчанию: `1160 × 740 pt`, минимальный: `860 × 600 pt`.
@@ -196,13 +196,13 @@ WaveForge/
   - Быстрый слайдер мастер-громкости (`Master`).
   - Меню быстрого выбора пресета (сначала недавние / популярные или разбивка по категориям).
   - Компактное меню переключения аудиоустройства вывода CoreAudio.
-  - Кнопки **Открыть Плеер**, **Библиотека**, **Студия** (вызывают `NSApp.activate(ignoringOtherApps: true)` и `openWindow(id:)`) и **Завершить WaveForge**.
+  - Кнопки **Открыть Плеер**, **Библиотека**, **Студия** (вызывают `NSApp.activate(ignoringOtherApps: true)` и `openWindow(id:)`) и **Завершить Sintonia**.
 
 ### Системное меню macOS (`Commands`) и шорткаты
-- **App menu (`WaveForge`):** `О WaveForge` → открывает Плеер (при необходимости) и лист `AboutSheetView`.
+- **App menu (`Sintonia`):** `О Sintonia` → открывает Плеер (при необходимости) и лист `AboutSheetView`.
 - **Файл (`File`):**
   - `⌘N` **Новый пресет** — создаёт шаблон и открывает окно Студии;
-  - `⌘O` **Импортировать пресет…** — открывает системный `NSOpenPanel` / `.fileImporter` для `.bwg` и `.waveforge`;
+  - `⌘O` **Импортировать пресет…** — открывает системный `NSOpenPanel` / `.fileImporter` для `.bwg` и `.sintonia`;
   - `⌘E` **Экспортировать аудио…** — открывает `ExportSheetView` на окне Плеера.
 - **Воспроизведение (`Playback`):**
   - `Space` **Воспроизведение / Пауза** *(безопасно через `@FocusedValue(\.isTextInputFocused)` отключается / не перехватывается, когда фокус находится в поиске или редактировании имени/комментария пресета)*;
@@ -225,11 +225,11 @@ WaveForge/
 2. **Устранение прямых `import UIKit` в общих файлах:**
    - В `PlayerView.swift`, `MiniTimelineScrubber.swift`, `OscilloscopeView.swift`, `HardwarePickers.swift`, `StudioRackView.swift` локальные `UIImpactFeedbackGenerator` заменяются на `StudioControlHaptics` (или `PlatformHaptics`).
 3. **Изоляция iOS-only модификаторов SwiftUI (`PlatformViewModifiers.swift`):**
-   - `.wfInlineNavigationBarDark()`, `.wfAlwaysVisibleSearchBar()` — на iOS применяют `.navigationBarTitleDisplayMode(.inline)`, `.toolbarColorScheme(.dark, for: .navigationBar)` и `.navigationBarDrawer(displayMode: .always)`, на macOS являются чистым no-op / нативным тулбаром. Логика `@Environment(\.verticalSizeClass)` и `.fullScreenCover` в `StudioRackView` / `CurveEditorView` / `WaveForgeIOSApp` аккуратно разделена платформенными директивами.
+   - `.wfInlineNavigationBarDark()`, `.wfAlwaysVisibleSearchBar()` — на iOS применяют `.navigationBarTitleDisplayMode(.inline)`, `.toolbarColorScheme(.dark, for: .navigationBar)` и `.navigationBarDrawer(displayMode: .always)`, на macOS являются чистым no-op / нативным тулбаром. Логика `@Environment(\.verticalSizeClass)` и `.fullScreenCover` в `StudioRackView` / `CurveEditorView` / `SintoniaIOSApp` аккуратно разделена платформенными директивами.
 4. **Эргономика мыши и трекпада:**
    - В `StudioKnob` и `StudioFader` добавляется hover-подсветка и поддержка клавиш-модификаторов (`Option` / `Shift`) для точной подстройки `0.2×` наряду с удержанием, а также двойной клик для сброса к значению по умолчанию.
    - В `ExportSheetView` на macOS рядом с `ShareLink` добавляется кнопка **«Сохранить как…»** (`.fileExporter` с подготовленным `ExportAudioFileDocument` для `.wav` и `.m4a`).
-   - В `LibraryView` для каждого пресета на macOS доступен прямой экспорт `.waveforge` через `.fileExporter` («Сохранить `.waveforge`…») в дополнение к `ShareLink`.
+   - В `LibraryView` для каждого пресета на macOS доступен прямой экспорт `.sintonia` через `.fileExporter` («Сохранить `.sintonia`…») в дополнение к `ShareLink`.
 
 ### Краевые случаи и локализация
 - **Горячее отключение наушников / смена устройства:** если активное выбранное устройство исчезло во время бинаурального воспроизведения, воспроизведение ставится на паузу, показывается баннер «Наушники отключены», а выбор мягко сбрасывается на системный выход с синхронизацией `AudioEngineController.outputRoute`.
@@ -240,15 +240,15 @@ WaveForge/
 
 ## 7. Стратегия тестирования и верификации
 
-1. **Модульные тесты ядра `WaveForgeCore` (`swift test --disable-sandbox`):**
-   - Сохранение всех 47 существующих тестов (`SynthCoreTests`, `PresetKitTests`, `WaveForgeExportTests`).
-   - Новые тесты в `WaveForgeExportTests`: классификация `CoreAudioTransportKind` (проводные наушники со встроенным джеком vs динамики, Bluetooth A2DP/LE, USB-ЦАП, AirPlay, DisplayPort), резолвер `AudioDeviceSelectionPolicy` (сохранённый UID, fallback при отключении) и `shouldAutoPauseOnMacRouteTransition`.
-2. **Нативные тесты macOS-приложения `WaveForgeMacTests` (`xcodebuild test` на macOS 27.2):**
-   - В отличие от iOS Simulator (заблокированного `CoreSimulatorService` в песочнице), таргет `WaveForgeMacTests` исполняется **нативно на хосте macOS**:
+1. **Модульные тесты ядра `SintoniaCore` (`swift test --disable-sandbox`):**
+   - Сохранение всех 47 существующих тестов (`SynthCoreTests`, `PresetKitTests`, `SintoniaExportTests`).
+   - Новые тесты в `SintoniaExportTests`: классификация `CoreAudioTransportKind` (проводные наушники со встроенным джеком vs динамики, Bluetooth A2DP/LE, USB-ЦАП, AirPlay, DisplayPort), резолвер `AudioDeviceSelectionPolicy` (сохранённый UID, fallback при отключении) и `shouldAutoPauseOnMacRouteTransition`.
+2. **Нативные тесты macOS-приложения `SintoniaMacTests` (`xcodebuild test` на macOS 27.2):**
+   - В отличие от iOS Simulator (заблокированного `CoreSimulatorService` в песочнице), таргет `SintoniaMacTests` исполняется **нативно на хосте macOS**:
      - жизненный цикл `AudioEngineController` на macOS и синхронизация `NowPlaying` / `LiveOverrides`;
      - работа `MacAudioDeviceManager` (перечисление выходных устройств без сбоев даже при пустом/виртуальном окружении, сохранение/откат UID);
-     - `MacAppCoordinator`: импорт `.bwg` и `.waveforge` (включая `ImportReport` и отклонённые некорректные файлы), обновление `presetsRevision`, защита несохранённого черновика Студии;
+     - `MacAppCoordinator`: импорт `.bwg` и `.sintonia` (включая `ImportReport` и отклонённые некорректные файлы), обновление `presetsRevision`, защита несохранённого черновика Студии;
      - проверка наличия ключей EN и RU для новых macOS-строк.
 3. **Двойная строгая компиляция (`SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`):**
-   - Сборка `WaveForgeMac` и прогон `WaveForgeMacTests` под `macosx27.2` (с проверкой `PrivacyInfo.xcprivacy` и `WaveForgeMac.entitlements` в бандле `.app`).
-   - Контрольная сборка `WaveForge` + `WaveForgeTests` под `iphonesimulator27.2` для подтверждения отсутствия регрессий в iPhone-версии.
+   - Сборка `SintoniaMac` и прогон `SintoniaMacTests` под `macosx27.2` (с проверкой `PrivacyInfo.xcprivacy` и `SintoniaMac.entitlements` в бандле `.app`).
+   - Контрольная сборка `Sintonia` + `SintoniaTests` под `iphonesimulator27.2` для подтверждения отсутствия регрессий в iPhone-версии.

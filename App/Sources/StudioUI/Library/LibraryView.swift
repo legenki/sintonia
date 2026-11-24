@@ -3,10 +3,10 @@ import PresetKit
 import SwiftUI
 import SynthCore
 import UniformTypeIdentifiers
-import WaveForgeExport
+import SintoniaExport
 
 /// Screen 3: Searchable preset library with category filter chips, brainwave sparklines,
-/// `+ New Preset` template creation, `.bwg` / `.waveforge` file import, and duplicate/export/delete actions.
+/// `+ New Preset` template creation, `.bwg` / `.sintonia` file import, and duplicate/export/delete actions.
 public struct LibraryView: View {
     private let engine: AudioEngineController
     private let presetStore: PresetStore
@@ -30,7 +30,7 @@ public struct LibraryView: View {
     @State private var searchText: String = ""
     @State private var isShowingFileImporter: Bool = false
     #if os(macOS)
-    @State private var presetDocumentToExport: WaveForgePresetFileDocument? = nil
+    @State private var presetDocumentToExport: SintoniaPresetFileDocument? = nil
     @State private var presetExportFilename: String = ""
     @State private var isShowingPresetExporter: Bool = false
     @State private var saveErrorMessage: String? = nil
@@ -154,7 +154,7 @@ public struct LibraryView: View {
         }
         .fileImporter(
             isPresented: $isShowingFileImporter,
-            allowedContentTypes: [.waveForgePreset, .brainWaveGenerator],
+            allowedContentTypes: [.sintoniaPreset, .legacyWaveForgePreset, .brainWaveGenerator],
             allowsMultipleSelection: false
         ) { result in
             handleFileImporterResult(result)
@@ -163,7 +163,7 @@ public struct LibraryView: View {
         .fileExporter(
             isPresented: $isShowingPresetExporter,
             document: presetDocumentToExport,
-            contentType: .waveForgePreset,
+            contentType: .sintoniaPreset,
             defaultFilename: presetExportFilename
         ) { result in
             presetDocumentToExport = nil
@@ -393,20 +393,20 @@ public struct LibraryView: View {
 
         #if os(macOS)
         Button {
-            exportPresetAsWaveForge(preset)
+            exportPresetAsSintonia(preset)
         } label: {
-            Label("Save .waveforge…", systemImage: "arrow.down.doc")
+            Label("Save .sintonia…", systemImage: "arrow.down.doc")
         }
         #endif
 
         ShareLink(
-            item: WaveForgePresetDocument(preset: preset),
+            item: SintoniaPresetDocument(preset: preset),
             preview: SharePreview(
                 preset.name,
                 image: Image(systemName: "waveform.path.ecg")
             )
         ) {
-            Label("Export .waveforge", systemImage: "square.and.arrow.up")
+            Label("Export .sintonia", systemImage: "square.and.arrow.up")
         }
 
         if !preset.isBuiltIn {
@@ -434,7 +434,7 @@ public struct LibraryView: View {
 
             Text(
                 isCustomEmpty
-                    ? "Create a new preset in Studio or import a .bwg / .waveforge file."
+                    ? "Create a new preset in Studio or import a .bwg / .sintonia file."
                     : "Try a different search term or category filter."
             )
             .font(.subheadline)
@@ -532,9 +532,9 @@ public struct LibraryView: View {
     }
 
     #if os(macOS)
-    private func exportPresetAsWaveForge(_ preset: Preset) {
-        presetExportFilename = WaveForgePresetDocument.sanitizedFileName(for: preset.name)
-        presetDocumentToExport = WaveForgePresetFileDocument(preset: preset)
+    private func exportPresetAsSintonia(_ preset: Preset) {
+        presetExportFilename = SintoniaPresetDocument.sanitizedFileName(for: preset.name)
+        presetDocumentToExport = SintoniaPresetFileDocument(preset: preset)
         isShowingPresetExporter = true
     }
     #endif
@@ -944,8 +944,8 @@ private struct PresetLibraryCard<MenuItems: View>: View {
 }
 
 #if os(macOS)
-private struct WaveForgePresetFileDocument: FileDocument, Sendable {
-    static var readableContentTypes: [UTType] { [.waveForgePreset] }
+private struct SintoniaPresetFileDocument: FileDocument, Sendable {
+    static var readableContentTypes: [UTType] { [.sintoniaPreset] }
 
     let preset: Preset
 

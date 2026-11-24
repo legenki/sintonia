@@ -5,18 +5,19 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>WaveForge</string>
+	<string>Sintonia</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>WaveForge Preset</string>
+			<string>Sintonia Preset</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
+				<string>com.sintonia.preset</string>
 				<string>com.waveforge.preset</string>
 			</array>
 		</dict>
@@ -84,7 +85,32 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>WaveForge Preset</string>
+			<string>Sintonia Preset</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.sintonia.preset</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>sintonia</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/vnd.sintonia.preset+json</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>WaveForge Preset (legacy)</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.waveforge.preset</string>
 			<key>UTTypeTagSpecification</key>
@@ -99,9 +125,6 @@
 				</array>
 			</dict>
 		</dict>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

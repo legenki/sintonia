@@ -10,7 +10,7 @@ public enum BWGImportError: Error, Equatable, Sendable {
     case noValidVoices
 }
 
-/// Legacy BrainWave Generator features omitted from WaveForge v1 synthesis.
+/// Legacy BrainWave Generator features omitted from Sintonia v1 synthesis.
 public enum SkippedLegacyFeature: String, Equatable, Sendable {
     case externalWavBackground
     case visualStimulation
@@ -74,7 +74,7 @@ public enum ImportWarning: Equatable, Sendable {
         case let .unrecognizedWaveform(voiceNumber, rawValue):
             return "Voice \(voiceNumber): unrecognized waveform '\(rawValue)'; defaulted to sine."
         case let .skippedExcessVoice(voiceNumber, maxVoices):
-            return "Skipped Voice \(voiceNumber): WaveForge supports at most \(maxVoices) voices."
+            return "Skipped Voice \(voiceNumber): Sintonia supports at most \(maxVoices) voices."
         case let .skippedInvalidVoice(voiceNumber):
             return "Skipped Voice \(voiceNumber): no finite carrier or beat parameters."
         case let .ignoredInvalidTrackingRule(voiceNumber):

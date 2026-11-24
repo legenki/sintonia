@@ -17,7 +17,7 @@ public extension Color {
     }
 }
 
-/// GarageBand hardware & iOS 27 Liquid Glass visual design system for WaveForge.
+/// GarageBand hardware & iOS 27 Liquid Glass visual design system for Sintonia.
 public enum StudioTheme: Sendable {
     // MARK: - Core Studio Palette
 
@@ -263,7 +263,7 @@ public extension BrainwaveBand {
 // MARK: - iOS 27 Liquid Glass & Hardware Surface Helpers
 
 public extension View {
-    /// Applies an iOS 27 Liquid Glass rounded panel effect tuned for WaveForge's dark studio rack.
+    /// Applies an iOS 27 Liquid Glass rounded panel effect tuned for Sintonia's dark studio rack.
     func studioGlassSurface(
         cornerRadius: CGFloat = 18,
         tint: Color? = nil,

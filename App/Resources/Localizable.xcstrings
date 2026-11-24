@@ -148,18 +148,18 @@
         }
       }
     },
-    "About WaveForge": {
+    "About Sintonia": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About WaveForge"
+            "value": "About Sintonia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "О WaveForge"
+            "value": "О Sintonia"
           }
         }
       }
@@ -426,13 +426,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge imports classic BrainWave Generator (.bwg) text presets locally. External WAV backgrounds and visual strobe flags are safely skipped with a report."
+            "value": "Sintonia imports classic BrainWave Generator (.bwg) text presets locally. External WAV backgrounds and visual strobe flags are safely skipped with a report."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge локально импортирует классические текстовые пресеты BrainWave Generator (.bwg). Внешние WAV-фоны и флаги визуальной стимуляции безопасно пропускаются с отчётом."
+            "value": "Sintonia локально импортирует классические текстовые пресеты BrainWave Generator (.bwg). Внешние WAV-фоны и флаги визуальной стимуляции безопасно пропускаются с отчётом."
           }
         }
       }
@@ -823,18 +823,18 @@
         }
       }
     },
-    "Create a new preset in Studio or import a .bwg / .waveforge file.": {
+    "Create a new preset in Studio or import a .bwg / .sintonia file.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a new preset in Studio or import a .bwg / .waveforge file."
+            "value": "Create a new preset in Studio or import a .bwg / .sintonia file."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Создайте новый пресет в Студии или импортируйте файл .bwg / .waveforge."
+            "value": "Создайте новый пресет в Студии или импортируйте файл .bwg / .sintonia."
           }
         }
       }
@@ -1031,18 +1031,18 @@
         }
       }
     },
-    "Drop .bwg or .waveforge to Import": {
+    "Drop .bwg or .sintonia to Import": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drop .bwg or .waveforge to Import"
+            "value": "Drop .bwg or .sintonia to Import"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Перетащите .bwg или .waveforge для импорта"
+            "value": "Перетащите .bwg или .sintonia для импорта"
           }
         }
       }
@@ -1175,18 +1175,18 @@
         }
       }
     },
-    "Export .waveforge": {
+    "Export .sintonia": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export .waveforge"
+            "value": "Export .sintonia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Экспорт .waveforge"
+            "value": "Экспорт .sintonia"
           }
         }
       }
@@ -2191,13 +2191,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All audio is synthesized in real time on your device. WaveForge contains no analytics, accounts, ads, or network requests."
+            "value": "All audio is synthesized in real time on your device. Sintonia contains no analytics, accounts, ads, or network requests."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Весь звук синтезируется в реальном времени на вашем устройстве. В WaveForge нет аналитики, аккаунтов, рекламы и сетевых запросов."
+            "value": "Весь звук синтезируется в реальном времени на вашем устройстве. В Sintonia нет аналитики, аккаунтов, рекламы и сетевых запросов."
           }
         }
       }
@@ -2506,18 +2506,18 @@
         }
       }
     },
-    "Quit WaveForge": {
+    "Quit Sintonia": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quit WaveForge"
+            "value": "Quit Sintonia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Завершить WaveForge"
+            "value": "Завершить Sintonia"
           }
         }
       }
@@ -2682,18 +2682,18 @@
         }
       }
     },
-    "Save .waveforge…": {
+    "Save .sintonia…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save .waveforge…"
+            "value": "Save .sintonia…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сохранить .waveforge…"
+            "value": "Сохранить .sintonia…"
           }
         }
       }
@@ -2890,18 +2890,18 @@
         }
       }
     },
-    "Skipped Voice %lld: WaveForge supports at most %lld voices.": {
+    "Skipped Voice %lld: Sintonia supports at most %lld voices.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped Voice %lld: WaveForge supports at most %lld voices."
+            "value": "Skipped Voice %lld: Sintonia supports at most %lld voices."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Голос %lld пропущен: WaveForge поддерживает не более %lld голосов."
+            "value": "Голос %lld пропущен: Sintonia поддерживает не более %lld голосов."
           }
         }
       }
@@ -3523,34 +3523,34 @@
         }
       }
     },
-    "Unsupported .waveforge schema version (%lld).": {
+    "Unsupported .sintonia schema version (%lld).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unsupported .waveforge schema version (%lld)."
+            "value": "Unsupported .sintonia schema version (%lld)."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Неподдерживаемая версия формата .waveforge (%lld)."
+            "value": "Неподдерживаемая версия формата .sintonia (%lld)."
           }
         }
       }
     },
-    "Unsupported file format. Please choose a .bwg or .waveforge file.": {
+    "Unsupported file format. Please choose a .bwg or .sintonia file.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unsupported file format. Please choose a .bwg or .waveforge file."
+            "value": "Unsupported file format. Please choose a .bwg or .sintonia file."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Неподдерживаемый формат файла. Выберите файл .bwg или .waveforge."
+            "value": "Неподдерживаемый формат файла. Выберите файл .bwg или .sintonia."
           }
         }
       }
@@ -3843,18 +3843,18 @@
         }
       }
     },
-    "WaveForge": {
+    "Sintonia": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge"
+            "value": "Sintonia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge"
+            "value": "Sintonia"
           }
         }
       }
@@ -3880,13 +3880,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge is a general-purpose acoustic synthesizer intended solely for relaxation, focus, and personal listening comfort. It is not a medical device and is not intended to diagnose, treat, cure, or prevent any disease or health condition. Consult a physician before use if you are prone to seizures, epilepsy, or have a cardiac pacemaker or other implanted medical device. Keep headphone volume at a safe, comfortable level and avoid using relaxation sessions while driving or operating machinery."
+            "value": "Sintonia is a general-purpose acoustic synthesizer intended solely for relaxation, focus, and personal listening comfort. It is not a medical device and is not intended to diagnose, treat, cure, or prevent any disease or health condition. Consult a physician before use if you are prone to seizures, epilepsy, or have a cardiac pacemaker or other implanted medical device. Keep headphone volume at a safe, comfortable level and avoid using relaxation sessions while driving or operating machinery."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "WaveForge — это акустический синтезатор общего назначения, предназначенный исключительно для релаксации, концентрации и личного комфорта. Приложение не является медицинским изделием и не предназначено для диагностики, лечения или профилактики каких-либо заболеваний. Проконсультируйтесь с врачом перед использованием при склонности к судорогам, эпилепсии или при наличии кардиостимулятора и других имплантируемых медицинских устройств. Поддерживайте безопасную комфортную громкость в наушниках и не используйте сессии релаксации за рулём или при работе с механизмами."
+            "value": "Sintonia — это акустический синтезатор общего назначения, предназначенный исключительно для релаксации, концентрации и личного комфорта. Приложение не является медицинским изделием и не предназначено для диагностики, лечения или профилактики каких-либо заболеваний. Проконсультируйтесь с врачом перед использованием при склонности к судорогам, эпилепсии или при наличии кардиостимулятора и других имплантируемых медицинских устройств. Поддерживайте безопасную комфортную громкость в наушниках и не используйте сессии релаксации за рулём или при работе с механизмами."
           }
         }
       }

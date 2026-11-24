@@ -1,19 +1,19 @@
-name: WaveForge
+name: Sintonia
 options:
-  bundleIdPrefix: com.waveforge
+  bundleIdPrefix: com.sintonia
   deploymentTarget:
     iOS: "27.2"
     macOS: "27.2"
   createIntermediateGroups: true
 packages:
-  WaveForgeCore:
-    path: Packages/WaveForgeCore
+  SintoniaCore:
+    path: Packages/SintoniaCore
 settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
 targets:
-  WaveForge:
+  Sintonia:
     type: application
     platform: iOS
     deploymentTarget: "27.2"
@@ -25,7 +25,7 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: WaveForge
+        CFBundleDisplayName: Sintonia
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
@@ -45,10 +45,11 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         CFBundleDocumentTypes:
-          - CFBundleTypeName: WaveForge Preset
+          - CFBundleTypeName: Sintonia Preset
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
+              - com.sintonia.preset
               - com.waveforge.preset
           - CFBundleTypeName: BrainWave Generator Preset
             CFBundleTypeRole: Viewer
@@ -56,8 +57,19 @@ targets:
             LSItemContentTypes:
               - com.noromaa.bwg
         UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.sintonia.preset
+            UTTypeDescription: Sintonia Preset
+            UTTypeConformsTo:
+              - public.json
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - sintonia
+              public.mime-type:
+                - application/vnd.sintonia.preset+json
+        UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.waveforge.preset
-            UTTypeDescription: WaveForge Preset
+            UTTypeDescription: WaveForge Preset (legacy)
             UTTypeConformsTo:
               - public.json
               - public.data
@@ -66,7 +78,6 @@ targets:
                 - waveforge
               public.mime-type:
                 - application/vnd.waveforge.preset+json
-        UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.noromaa.bwg
             UTTypeDescription: BrainWave Generator Preset
             UTTypeConformsTo:
@@ -79,7 +90,7 @@ targets:
                 - application/x-bwg
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.app
         DEVELOPMENT_TEAM: Y6A9LRQDH7
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
@@ -92,16 +103,16 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     dependencies:
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: SynthCore
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: PresetKit
-      - package: WaveForgeCore
-        product: WaveForgeExport
+      - package: SintoniaCore
+        product: SintoniaExport
     scheme:
       testTargets:
-        - WaveForgeTests
-  WaveForgeTests:
+        - SintoniaTests
+  SintoniaTests:
     type: bundle.unit-test
     platform: iOS
     deploymentTarget: "27.2"
@@ -109,20 +120,20 @@ targets:
       - path: App/Tests/AudioRuntimeTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.tests
         IPHONEOS_DEPLOYMENT_TARGET: "27.2"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
     dependencies:
-      - target: WaveForge
-      - package: WaveForgeCore
+      - target: Sintonia
+      - package: SintoniaCore
         product: SynthCore
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: PresetKit
-      - package: WaveForgeCore
-        product: WaveForgeExport
-  WaveForgeMac:
+      - package: SintoniaCore
+        product: SintoniaExport
+  SintoniaMac:
     type: application
     platform: macOS
     deploymentTarget: "27.2"
@@ -132,23 +143,24 @@ targets:
       - path: App/Sources/MacUI
       - path: App/Mac
         excludes:
-          - WaveForgeMac.entitlements
+          - SintoniaMac.entitlements
           - Info.plist
       - path: App/Resources
     info:
       path: App/Mac/Info.plist
       properties:
-        CFBundleDisplayName: WaveForge
+        CFBundleDisplayName: Sintonia
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.music
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         NSHighResolutionCapable: true
         CFBundleDocumentTypes:
-          - CFBundleTypeName: WaveForge Preset
+          - CFBundleTypeName: Sintonia Preset
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
+              - com.sintonia.preset
               - com.waveforge.preset
           - CFBundleTypeName: BrainWave Generator Preset
             CFBundleTypeRole: Viewer
@@ -156,8 +168,19 @@ targets:
             LSItemContentTypes:
               - com.noromaa.bwg
         UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.sintonia.preset
+            UTTypeDescription: Sintonia Preset
+            UTTypeConformsTo:
+              - public.json
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - sintonia
+              public.mime-type:
+                - application/vnd.sintonia.preset+json
+        UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.waveforge.preset
-            UTTypeDescription: WaveForge Preset
+            UTTypeDescription: WaveForge Preset (legacy)
             UTTypeConformsTo:
               - public.json
               - public.data
@@ -166,7 +189,6 @@ targets:
                 - waveforge
               public.mime-type:
                 - application/vnd.waveforge.preset+json
-        UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.noromaa.bwg
             UTTypeDescription: BrainWave Generator Preset
             UTTypeConformsTo:
@@ -178,37 +200,37 @@ targets:
               public.mime-type:
                 - application/x-bwg
     entitlements:
-      path: App/Mac/WaveForgeMac.entitlements
+      path: App/Mac/SintoniaMac.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
     settings:
       base:
-        PRODUCT_NAME: WaveForge
-        PRODUCT_MODULE_NAME: WaveForgeMac
-        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.mac
+        PRODUCT_NAME: Sintonia
+        PRODUCT_MODULE_NAME: SintoniaMac
+        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.mac
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         MACOSX_DEPLOYMENT_TARGET: "27.2"
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: App/Mac/Info.plist
-        CODE_SIGN_ENTITLEMENTS: App/Mac/WaveForgeMac.entitlements
+        CODE_SIGN_ENTITLEMENTS: App/Mac/SintoniaMac.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         ENABLE_HARDENED_RUNTIME: YES
     dependencies:
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: SynthCore
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: PresetKit
-      - package: WaveForgeCore
-        product: WaveForgeExport
+      - package: SintoniaCore
+        product: SintoniaExport
     scheme:
       testTargets:
-        - WaveForgeMacTests
-  WaveForgeMacTests:
+        - SintoniaMacTests
+  SintoniaMacTests:
     type: bundle.unit-test
     platform: macOS
     deploymentTarget: "27.2"
@@ -216,17 +238,17 @@ targets:
       - path: App/Tests/MacRuntimeTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.waveforge.mac.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.mac.tests
         MACOSX_DEPLOYMENT_TARGET: "27.2"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/WaveForge.app/Contents/MacOS/WaveForge"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Contents/MacOS/Sintonia"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
     dependencies:
-      - target: WaveForgeMac
-      - package: WaveForgeCore
+      - target: SintoniaMac
+      - package: SintoniaCore
         product: SynthCore
-      - package: WaveForgeCore
+      - package: SintoniaCore
         product: PresetKit
-      - package: WaveForgeCore
-        product: WaveForgeExport
+      - package: SintoniaCore
+        product: SintoniaExport

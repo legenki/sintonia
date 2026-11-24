@@ -151,7 +151,7 @@ public struct Voice: Codable, Sendable, Equatable, Identifiable {
     }
 }
 
-/// Complete declarative WaveForge entrainment session preset.
+/// Complete declarative Sintonia entrainment session preset.
 public struct Preset: Codable, Sendable, Equatable, Identifiable {
     public var id: UUID
     public var name: String

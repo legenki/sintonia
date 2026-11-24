@@ -1,14 +1,14 @@
-# WaveForge iOS 27 Implementation Plan
+# Sintonia iOS 27 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build WaveForge — an App Store–ready native iOS 27 BrainWave Generator synthesizer with 10-voice real-time DSP, GarageBand-inspired tactile UI, 18 built-in 30–45 min presets, `.bwg` import, curve editor, and bit-identical WAV/M4A offline export.
+**Goal:** Build Sintonia — an App Store–ready native iOS 27 BrainWave Generator synthesizer with 10-voice real-time DSP, GarageBand-inspired tactile UI, 18 built-in 30–45 min presets, `.bwg` import, curve editor, and bit-identical WAV/M4A offline export.
 
-**Architecture:** Four isolated modules: platform-independent `SynthCore` (lock-free real-time DSP) and `PresetKit` (models, validator, 18 presets, `.bwg` importer, store) in local Swift Package `Packages/WaveForgeCore`, linked by an XcodeGen-generated iOS 27.2 app containing `AudioRuntime` (`AVAudioEngine`, `AVAudioSession`, `NowPlaying`, `SessionExporter`) and `StudioUI` (SwiftUI Liquid Glass + GarageBand tactile controls).
+**Architecture:** Four isolated modules: platform-independent `SynthCore` (lock-free real-time DSP) and `PresetKit` (models, validator, 18 presets, `.bwg` importer, store) in local Swift Package `Packages/SintoniaCore`, linked by an XcodeGen-generated iOS 27.2 app containing `AudioRuntime` (`AVAudioEngine`, `AVAudioSession`, `NowPlaying`, `SessionExporter`) and `StudioUI` (SwiftUI Liquid Glass + GarageBand tactile controls).
 
 **Tech Stack:** Swift 6.4 (Swift 6 language mode), SwiftUI (iOS 27.2 SDK / Liquid Glass), AVFoundation / Core Audio (`AVAudioEngine`, `AVAudioSourceNode`, `AVAudioFile`), MediaPlayer, Swift Testing (`Testing`), XcodeGen 2.48. Zero external third-party packages.
 
-**Spec:** `docs/superpowers/specs/2026-11-22-waveforge-ios-design.md`
+**Spec:** `docs/superpowers/specs/2026-11-22-sintonia-ios-design.md`
 
 ---
 
@@ -36,22 +36,22 @@
 
 ## File Map
 
-- `Packages/WaveForgeCore/Package.swift` — SwiftPM manifest for `SynthCore`, `PresetKit`, `SynthCoreTests`, `PresetKitTests`.
-- `Packages/WaveForgeCore/Sources/SynthCore/SynthTypes.swift` — `EntrainmentMode`, `Waveform`, `CurveInterpolation`, `CurvePoint`, `CompiledCurve`.
-- `Packages/WaveForgeCore/Sources/SynthCore/Waveforms.swift` — 5 BWGen waveforms (`WaveformOscillator`) + `IsochronicEnvelope`.
-- `Packages/WaveForgeCore/Sources/SynthCore/StereoNoiseGenerator.swift` — `Xoshiro256StarStar`, `StereoNoiseGenerator` (`white → pink → brown`).
-- `Packages/WaveForgeCore/Sources/SynthCore/SynthSnapshot.swift` — `BrainwaveBand`, `VoiceSnapshot`, `NoiseSnapshot`, `SynthSnapshot`, `LiveOverrides`, lock-free triple-buffered `SnapshotChannel`.
-- `Packages/WaveForgeCore/Sources/SynthCore/TelemetryRingBuffer.swift` — Lock-free SPSC 1024-frame stereo ring buffer + RMS/peak snapshot.
-- `Packages/WaveForgeCore/Sources/SynthCore/SynthRenderer.swift` — Real-time safe multi-voice + noise DSP renderer and soft-knee limiter.
-- `Packages/WaveForgeCore/Sources/PresetKit/PresetModels.swift` — `Preset`, `PresetCategory`, `OutputHint`, `NoiseLayer`, `Voice`, `VoiceTrackingRule`, `TrackedParameter`, `EnvelopeCurve`.
-- `Packages/WaveForgeCore/Sources/PresetKit/PresetValidator.swift` — Range, voice count, and acyclic tracking validation (`PresetValidator`).
-- `Packages/WaveForgeCore/Sources/PresetKit/SnapshotCompiler.swift` — Resolves tracking rules and compiles `Preset` into `SynthSnapshot`.
-- `Packages/WaveForgeCore/Sources/PresetKit/PresetCodec.swift` — Versioned `.waveforge` JSON encoder/decoder.
-- `Packages/WaveForgeCore/Sources/PresetKit/PresetCatalog.swift` — 18 original 30–45 min built-in presets across 5 categories.
-- `Packages/WaveForgeCore/Sources/PresetKit/BWGImporter.swift` — `.bwg` parser with `ImportReport` and `BWGImportError`.
-- `Packages/WaveForgeCore/Sources/PresetKit/PresetStore.swift` — Disk persistence for custom presets and fork-on-edit for built-ins.
-- `project.yml` — XcodeGen specification generating `WaveForge.xcodeproj`.
-- `App/Info.plist` — Background audio mode, portrait/landscape orientations, `.bwg`/`.waveforge` UTI registrations.
+- `Packages/SintoniaCore/Package.swift` — SwiftPM manifest for `SynthCore`, `PresetKit`, `SynthCoreTests`, `PresetKitTests`.
+- `Packages/SintoniaCore/Sources/SynthCore/SynthTypes.swift` — `EntrainmentMode`, `Waveform`, `CurveInterpolation`, `CurvePoint`, `CompiledCurve`.
+- `Packages/SintoniaCore/Sources/SynthCore/Waveforms.swift` — 5 BWGen waveforms (`WaveformOscillator`) + `IsochronicEnvelope`.
+- `Packages/SintoniaCore/Sources/SynthCore/StereoNoiseGenerator.swift` — `Xoshiro256StarStar`, `StereoNoiseGenerator` (`white → pink → brown`).
+- `Packages/SintoniaCore/Sources/SynthCore/SynthSnapshot.swift` — `BrainwaveBand`, `VoiceSnapshot`, `NoiseSnapshot`, `SynthSnapshot`, `LiveOverrides`, lock-free triple-buffered `SnapshotChannel`.
+- `Packages/SintoniaCore/Sources/SynthCore/TelemetryRingBuffer.swift` — Lock-free SPSC 1024-frame stereo ring buffer + RMS/peak snapshot.
+- `Packages/SintoniaCore/Sources/SynthCore/SynthRenderer.swift` — Real-time safe multi-voice + noise DSP renderer and soft-knee limiter.
+- `Packages/SintoniaCore/Sources/PresetKit/PresetModels.swift` — `Preset`, `PresetCategory`, `OutputHint`, `NoiseLayer`, `Voice`, `VoiceTrackingRule`, `TrackedParameter`, `EnvelopeCurve`.
+- `Packages/SintoniaCore/Sources/PresetKit/PresetValidator.swift` — Range, voice count, and acyclic tracking validation (`PresetValidator`).
+- `Packages/SintoniaCore/Sources/PresetKit/SnapshotCompiler.swift` — Resolves tracking rules and compiles `Preset` into `SynthSnapshot`.
+- `Packages/SintoniaCore/Sources/PresetKit/PresetCodec.swift` — Versioned `.sintonia` JSON encoder/decoder.
+- `Packages/SintoniaCore/Sources/PresetKit/PresetCatalog.swift` — 18 original 30–45 min built-in presets across 5 categories.
+- `Packages/SintoniaCore/Sources/PresetKit/BWGImporter.swift` — `.bwg` parser with `ImportReport` and `BWGImportError`.
+- `Packages/SintoniaCore/Sources/PresetKit/PresetStore.swift` — Disk persistence for custom presets and fork-on-edit for built-ins.
+- `project.yml` — XcodeGen specification generating `Sintonia.xcodeproj`.
+- `App/Info.plist` — Background audio mode, portrait/landscape orientations, `.bwg`/`.sintonia` UTI registrations.
 - `App/Resources/Localizable.xcstrings` — Full EN + RU string catalog.
 - `App/Resources/Assets.xcassets/...` — App icon placeholder set and theme asset catalog.
 - `App/Sources/AudioRuntime/AudioRoutePolicy.swift` — Pure route-change decision policy.
@@ -61,18 +61,18 @@
 - `App/Sources/StudioUI/Player/*.swift` — `PlayerView`, `MiniTimelineScrubber`, `ExportSheetView`, `AboutSheetView`.
 - `App/Sources/StudioUI/Studio/*.swift` — `StudioRackView`, `VoiceInspectorView`, `NoiseInspectorView`, `CurveEditorCanvas`, `CurveEditorView`.
 - `App/Sources/StudioUI/Library/*.swift` — `LibraryView`, `PresetSparklineView`, `ImportResultAlert`.
-- `App/Sources/StudioUI/WaveForgeApp.swift` — `@main` entry point, dependency wiring, `.onOpenURL` import handling.
+- `App/Sources/StudioUI/SintoniaApp.swift` — `@main` entry point, dependency wiring, `.onOpenURL` import handling.
 
 ---
 
-### Task 1: `WaveForgeCore` Package + `SynthCore` Curves, Waveforms & Stereo Noise
+### Task 1: `SintoniaCore` Package + `SynthCore` Curves, Waveforms & Stereo Noise
 
 **Files:**
-- Create: `Packages/WaveForgeCore/Package.swift`
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/SynthTypes.swift`
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/Waveforms.swift`
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/StereoNoiseGenerator.swift`
-- Test: `Packages/WaveForgeCore/Tests/SynthCoreTests/CurveWaveformNoiseTests.swift`
+- Create: `Packages/SintoniaCore/Package.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/SynthTypes.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/Waveforms.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/StereoNoiseGenerator.swift`
+- Test: `Packages/SintoniaCore/Tests/SynthCoreTests/CurveWaveformNoiseTests.swift`
 
 **Interfaces:**
 - Consumes: `Foundation`, `Darwin`
@@ -87,9 +87,9 @@
   - `public struct Xoshiro256StarStar: Sendable` (`init(seed: UInt64)`, `mutating func nextUnitDouble() -> Double`)
   - `public struct StereoNoiseGenerator: Sendable` (`init(leftSeed: UInt64, rightSeed: UInt64)`, `mutating func nextSample(smoothness: Double) -> (left: Double, right: Double)`)
 
-- [ ] **Step 1: Scaffold `Packages/WaveForgeCore/Package.swift` and write failing `SynthCoreTests`**
+- [ ] **Step 1: Scaffold `Packages/SintoniaCore/Package.swift` and write failing `SynthCoreTests`**
 
-Create `Packages/WaveForgeCore/Package.swift` (`// swift-tools-version: 6.2`, platforms `[.iOS(.v18), .macOS(.v15)]`, targets `SynthCore`, `PresetKit`, `SynthCoreTests`, `PresetKitTests`, Swift 6 strict concurrency). Add `Tests/SynthCoreTests/CurveWaveformNoiseTests.swift`:
+Create `Packages/SintoniaCore/Package.swift` (`// swift-tools-version: 6.2`, platforms `[.iOS(.v18), .macOS(.v15)]`, targets `SynthCore`, `PresetKit`, `SynthCoreTests`, `PresetKitTests`, Swift 6 strict concurrency). Add `Tests/SynthCoreTests/CurveWaveformNoiseTests.swift`:
 
 ```swift
 import Testing
@@ -196,7 +196,7 @@ struct CurveWaveformNoiseTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter CurveWaveformNoiseTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter CurveWaveformNoiseTests`
 Expected: FAIL because `SynthTypes.swift`, `Waveforms.swift`, and `StereoNoiseGenerator.swift` do not exist.
 
 - [ ] **Step 3: Implement `SynthTypes.swift`, `Waveforms.swift`, and `StereoNoiseGenerator.swift`**
@@ -207,14 +207,14 @@ Expected: FAIL because `SynthTypes.swift`, `Waveforms.swift`, and `StereoNoiseGe
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter CurveWaveformNoiseTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter CurveWaveformNoiseTests`
 Expected: PASS (all 5 tests pass).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add Packages/WaveForgeCore
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCore): add curves, 5 BWGen waveforms, isochronic envelope, and stereo colored noise"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add Packages/SintoniaCore
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(SynthCore): add curves, 5 BWGen waveforms, isochronic envelope, and stereo colored noise"
 ```
 
 ---
@@ -222,10 +222,10 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCo
 ### Task 2: `SynthCore` Multi-Voice `SynthRenderer`, Lock-Free `SynthSnapshot` & `TelemetryRingBuffer`
 
 **Files:**
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/SynthSnapshot.swift`
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/TelemetryRingBuffer.swift`
-- Create: `Packages/WaveForgeCore/Sources/SynthCore/SynthRenderer.swift`
-- Test: `Packages/WaveForgeCore/Tests/SynthCoreTests/SynthRendererTests.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/SynthSnapshot.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/TelemetryRingBuffer.swift`
+- Create: `Packages/SintoniaCore/Sources/SynthCore/SynthRenderer.swift`
+- Test: `Packages/SintoniaCore/Tests/SynthCoreTests/SynthRendererTests.swift`
 
 **Interfaces:**
 - Consumes: `SynthTypes.swift`, `Waveforms.swift`, `StereoNoiseGenerator.swift`, `Synchronization` (`Atomic`)
@@ -241,7 +241,7 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCo
 
 - [ ] **Step 1: Write failing `SynthRendererTests`**
 
-Create `Packages/WaveForgeCore/Tests/SynthCoreTests/SynthRendererTests.swift`:
+Create `Packages/SintoniaCore/Tests/SynthCoreTests/SynthRendererTests.swift`:
 
 ```swift
 import Foundation
@@ -448,7 +448,7 @@ struct SynthRendererTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter SynthRendererTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter SynthRendererTests`
 Expected: FAIL because `SynthSnapshot`, `TelemetryRingBuffer`, and `SynthRenderer` do not exist.
 
 - [ ] **Step 3: Implement `SynthSnapshot.swift`, `TelemetryRingBuffer.swift`, and `SynthRenderer.swift`**
@@ -459,14 +459,14 @@ Expected: FAIL because `SynthSnapshot`, `TelemetryRingBuffer`, and `SynthRendere
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter SynthRendererTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter SynthRendererTests`
 Expected: PASS (all 6 tests pass).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add Packages/WaveForgeCore
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCore): implement lock-free SynthRenderer, snapshots, limiter, and telemetry"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add Packages/SintoniaCore
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(SynthCore): implement lock-free SynthRenderer, snapshots, limiter, and telemetry"
 ```
 
 ---
@@ -474,11 +474,11 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCo
 ### Task 3: `PresetKit` Canonical Model, Validator, `SnapshotCompiler` & JSON Codec
 
 **Files:**
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/PresetModels.swift`
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/PresetValidator.swift`
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/SnapshotCompiler.swift`
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/PresetCodec.swift`
-- Test: `Packages/WaveForgeCore/Tests/PresetKitTests/PresetModelTests.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/PresetModels.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/PresetValidator.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/SnapshotCompiler.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/PresetCodec.swift`
+- Test: `Packages/SintoniaCore/Tests/PresetKitTests/PresetModelTests.swift`
 
 **Interfaces:**
 - Consumes: `SynthCore` (`EntrainmentMode`, `Waveform`, `CurveInterpolation`, `CurvePoint`, `CompiledCurve`, `VoiceSnapshot`, `NoiseSnapshot`, `SynthSnapshot`)
@@ -498,7 +498,7 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(SynthCo
 
 - [ ] **Step 1: Write failing `PresetModelTests`**
 
-Create `Packages/WaveForgeCore/Tests/PresetKitTests/PresetModelTests.swift`:
+Create `Packages/SintoniaCore/Tests/PresetKitTests/PresetModelTests.swift`:
 
 ```swift
 import Foundation
@@ -587,7 +587,7 @@ struct PresetModelTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter PresetModelTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter PresetModelTests`
 Expected: FAIL because `PresetKit` files do not exist.
 
 - [ ] **Step 3: Implement `PresetModels.swift`, `PresetValidator.swift`, `SnapshotCompiler.swift`, and `PresetCodec.swift`**
@@ -599,14 +599,14 @@ Expected: FAIL because `PresetKit` files do not exist.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter PresetModelTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter PresetModelTests`
 Expected: PASS (all 4 tests pass).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add Packages/WaveForgeCore
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(PresetKit): add canonical models, validator, tracking compiler, and JSON codec"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add Packages/SintoniaCore
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(PresetKit): add canonical models, validator, tracking compiler, and JSON codec"
 ```
 
 ---
@@ -614,10 +614,10 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(PresetK
 ### Task 4: `PresetKit` 18 Built-In Presets, `BWGImporter` (`.bwg` Parser) & `PresetStore`
 
 **Files:**
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/PresetCatalog.swift`
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/BWGImporter.swift`
-- Create: `Packages/WaveForgeCore/Sources/PresetKit/PresetStore.swift`
-- Test: `Packages/WaveForgeCore/Tests/PresetKitTests/CatalogImporterStoreTests.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/PresetCatalog.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/BWGImporter.swift`
+- Create: `Packages/SintoniaCore/Sources/PresetKit/PresetStore.swift`
+- Test: `Packages/SintoniaCore/Tests/PresetKitTests/CatalogImporterStoreTests.swift`
 
 **Interfaces:**
 - Consumes: `PresetModels.swift`, `PresetValidator.swift`, `SnapshotCompiler.swift`, `PresetCodec.swift`, `SynthRenderer`
@@ -632,7 +632,7 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(PresetK
 
 - [ ] **Step 1: Write failing `CatalogImporterStoreTests`**
 
-Create `Packages/WaveForgeCore/Tests/PresetKitTests/CatalogImporterStoreTests.swift`:
+Create `Packages/SintoniaCore/Tests/PresetKitTests/CatalogImporterStoreTests.swift`:
 
 ```swift
 import Foundation
@@ -717,7 +717,7 @@ struct CatalogImporterStoreTests {
     }
 
     @Test func presetStoreForksBuiltInOnEditLeavingBuiltInImmutable() throws {
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStore-\(UUID().uuidString)")
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SintoniaStore-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }
         let store = PresetStore(storageDirectory: dir)
         var builtIn = PresetCatalog.builtInPresets[0]
@@ -737,25 +737,25 @@ struct CatalogImporterStoreTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `swift test --package-path Packages/WaveForgeCore --filter CatalogImporterStoreTests`
+Run: `swift test --package-path Packages/SintoniaCore --filter CatalogImporterStoreTests`
 Expected: FAIL because `PresetCatalog`, `BWGImporter`, and `PresetStore` do not exist.
 
 - [ ] **Step 3: Implement `PresetCatalog.swift`, `BWGImporter.swift`, and `PresetStore.swift`**
 
 - `PresetCatalog.swift`: author all 18 presets from Spec Section 6 (deterministic UUIDs, accurate durations `1800...2700`, categories `.focus`, `.relax`, `.sleep`, `.meditation`, `.study`, `.creative`, multi-phase curves, tracking rules on `Study Anchor`, `Schumann Earth 7.83 Hz`, `Memory Retention`, noise smoothness curves).
 - `BWGImporter.swift`: validate non-empty data and `"BrainWave Generator File"` ASCII prefix; support both structured key-value / INI-style `.bwg` text blocks AND resilient heuristic extraction of voice/segment tokens in legacy binary `.bwg` payloads (extracting embedded ASCII parameter runs, duration, voices 1...10, waveforms `Sine/SineSquared/Triangle/Square/SmoothedSquare`, noise levels); detect `.wav` background file references and AudioStrobe/VisualStimulation flags to populate `ImportReport` without failing; clamp imported values into valid ranges and reject files yielding 0 valid voices with `.noValidVoices` / `.corruptedStructure`.
-- `PresetStore.swift`: load `PresetCatalog.builtInPresets` + persisted `.waveforge` files from `storageDirectory`; `saveEdited(_:)` checks if `isBuiltIn` (or matches a built-in ID) and automatically generates a new `UUID`, sets `isBuiltIn = false`, `category = .custom`, and writes `<id>.waveforge` atomically.
+- `PresetStore.swift`: load `PresetCatalog.builtInPresets` + persisted `.sintonia` files from `storageDirectory`; `saveEdited(_:)` checks if `isBuiltIn` (or matches a built-in ID) and automatically generates a new `UUID`, sets `isBuiltIn = false`, `category = .custom`, and writes `<id>.sintonia` atomically.
 
-- [ ] **Step 4: Run entire `WaveForgeCore` test suite**
+- [ ] **Step 4: Run entire `SintoniaCore` test suite**
 
-Run: `swift test --package-path Packages/WaveForgeCore`
+Run: `swift test --package-path Packages/SintoniaCore`
 Expected: PASS (all tests in `SynthCoreTests` and `PresetKitTests` pass).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add Packages/WaveForgeCore
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(PresetKit): add 18 built-in presets, BWGImporter, and PresetStore"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add Packages/SintoniaCore
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(PresetKit): add 18 built-in presets, BWGImporter, and PresetStore"
 ```
 
 ---
@@ -768,37 +768,37 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(PresetK
 - Create: `App/Resources/Localizable.xcstrings`
 - Create: `App/Resources/Assets.xcassets/Contents.json`
 - Create: `App/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json`
-- Create: `App/Sources/StudioUI/WaveForgeApp.swift`
+- Create: `App/Sources/StudioUI/SintoniaApp.swift`
 
 **Interfaces:**
-- Consumes: `Packages/WaveForgeCore` (`SynthCore`, `PresetKit`)
-- Produces: Build-clean iOS 27.2 Xcode project `WaveForge.xcodeproj` with targets `WaveForge` and `WaveForgeTests`.
+- Consumes: `Packages/SintoniaCore` (`SynthCore`, `PresetKit`)
+- Produces: Build-clean iOS 27.2 Xcode project `Sintonia.xcodeproj` with targets `Sintonia` and `SintoniaTests`.
 
 - [ ] **Step 1: Create `project.yml` and `App/Info.plist`**
 
-- `project.yml`: `WaveForge` iOS app target (`deploymentTarget: iOS: "27.2"`, `SWIFT_VERSION: "6.0"`, `SWIFT_STRICT_CONCURRENCY: complete`, sources `App/Sources` and `App/Resources`, local package `Packages/WaveForgeCore` linking `SynthCore` and `PresetKit`), plus `WaveForgeTests` unit-test target (`App/Tests/AudioRuntimeTests`) hosted by `WaveForge` so `@testable import WaveForge` resolves cleanly.
-- `App/Info.plist`: `UIBackgroundModes` (`audio`), `UISupportedInterfaceOrientations` (portrait + landscapeLeft + landscapeRight), `CFBundleDocumentTypes`, `UTExportedTypeDeclarations` (`com.waveforge.preset` for `.waveforge`), `UTImportedTypeDeclarations` (`com.noromaa.bwg` for `.bwg`), `LSSupportsOpeningDocumentsInPlace = true`.
+- `project.yml`: `Sintonia` iOS app target (`deploymentTarget: iOS: "27.2"`, `SWIFT_VERSION: "6.0"`, `SWIFT_STRICT_CONCURRENCY: complete`, sources `App/Sources` and `App/Resources`, local package `Packages/SintoniaCore` linking `SynthCore` and `PresetKit`), plus `SintoniaTests` unit-test target (`App/Tests/AudioRuntimeTests`) hosted by `Sintonia` so `@testable import Sintonia` resolves cleanly.
+- `App/Info.plist`: `UIBackgroundModes` (`audio`), `UISupportedInterfaceOrientations` (portrait + landscapeLeft + landscapeRight), `CFBundleDocumentTypes`, `UTExportedTypeDeclarations` (`com.sintonia.preset` for `.sintonia`), `UTImportedTypeDeclarations` (`com.noromaa.bwg` for `.bwg`), `LSSupportsOpeningDocumentsInPlace = true`.
 
-- [ ] **Step 2: Create `Assets.xcassets`, `Localizable.xcstrings` (EN + RU), and minimal `WaveForgeApp.swift`**
+- [ ] **Step 2: Create `Assets.xcassets`, `Localizable.xcstrings` (EN + RU), and minimal `SintoniaApp.swift`**
 
 - `Localizable.xcstrings`: include all UI strings for Player, Studio Rack, Curve Editor, Library, Export, Route warnings, Import errors, and the App Store Guideline 1.4.1 non-medical wellness & safe-volume disclaimer in both `en` and `ru`.
-- `WaveForgeApp.swift`: minimal `@main struct WaveForgeApp: App` shell rendering a `NavigationStack` placeholder so the build succeeds cleanly.
+- `SintoniaApp.swift`: minimal `@main struct SintoniaApp: App` shell rendering a `NavigationStack` placeholder so the build succeeds cleanly.
 
 - [ ] **Step 3: Generate Xcode project and build for iOS 27.2 Simulator**
 
 Run:
 ```bash
-cd /Users/andy/.gemini/antigravity/scratch/WaveForge
+cd /Users/andy/.gemini/antigravity/scratch/Sintonia
 xcodegen generate
-xcodebuild build -project WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+xcodebuild build -project Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
 ```
 Expected: `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add project.yml App WaveForge.xcodeproj
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "chore: scaffold XcodeGen iOS 27.2 project, Info.plist, and EN/RU localization"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add project.yml App Sintonia.xcodeproj
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "chore: scaffold XcodeGen iOS 27.2 project, Info.plist, and EN/RU localization"
 ```
 
 ---
@@ -830,7 +830,7 @@ import AVFoundation
 import Testing
 import PresetKit
 import SynthCore
-@testable import WaveForge
+@testable import Sintonia
 
 @Suite("AudioRuntime Policy and Exporter")
 struct AudioRuntimeTests {
@@ -876,8 +876,8 @@ struct AudioRuntimeTests {
             // Expected
         }
         let after = Set((try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path)) ?? [])
-        let leftoverWaveForgeFiles = after.subtracting(before).filter { $0.contains("WaveForge-") }
-        #expect(leftoverWaveForgeFiles.isEmpty)
+        let leftoverSintoniaFiles = after.subtracting(before).filter { $0.contains("Sintonia-") }
+        #expect(leftoverSintoniaFiles.isEmpty)
     }
 }
 ```
@@ -892,8 +892,8 @@ struct AudioRuntimeTests {
 
 Run:
 ```bash
-cd /Users/andy/.gemini/antigravity/scratch/WaveForge
-xcodebuild build-for-testing -project WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+cd /Users/andy/.gemini/antigravity/scratch/Sintonia
+xcodebuild build-for-testing -project Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
 ```
 Note: Also run `xcodebuild test` if Simulator services are active on the host, or verify via a dedicated macOS `swift test` target / simulator runtime check.
 Expected: `** TEST BUILD SUCCEEDED **` (and tests pass).
@@ -901,8 +901,8 @@ Expected: `** TEST BUILD SUCCEEDED **` (and tests pass).
 - [ ] **Step 4: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add App/Sources/AudioRuntime App/Tests/AudioRuntimeTests
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(AudioRuntime): add AVAudioEngine controller, route policy, NowPlaying, and WAV/M4A exporter"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add App/Sources/AudioRuntime App/Tests/AudioRuntimeTests
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(AudioRuntime): add AVAudioEngine controller, route policy, NowPlaying, and WAV/M4A exporter"
 ```
 
 ---
@@ -938,14 +938,14 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(AudioRu
 
 - [ ] **Step 4: Build to verify compilation and zero Swift 6 warnings**
 
-Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/WaveForge/WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
+Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/Sintonia/Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
 Expected: `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add App/Sources/StudioUI/Components
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioUI): add iOS 27 Liquid Glass theme and GarageBand tactile controls"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add App/Sources/StudioUI/Components
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(StudioUI): add iOS 27 Liquid Glass theme and GarageBand tactile controls"
 ```
 
 ---
@@ -977,14 +977,14 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioU
 
 - [ ] **Step 3: Build to verify compilation**
 
-Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/WaveForge/WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
+Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/Sintonia/Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
 Expected: `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add App/Sources/StudioUI/Player
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioUI): add PlayerView, MiniTimelineScrubber, ExportSheetView, and AboutSheetView"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add App/Sources/StudioUI/Player
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(StudioUI): add PlayerView, MiniTimelineScrubber, ExportSheetView, and AboutSheetView"
 ```
 
 ---
@@ -1019,14 +1019,14 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioU
 
 - [ ] **Step 4: Build to verify compilation**
 
-Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/WaveForge/WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
+Run: `xcodebuild build -project /Users/andy/.gemini/antigravity/scratch/Sintonia/Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO`
 Expected: `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add App/Sources/StudioUI/Studio
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioUI): add StudioRackView, Voice/Noise inspectors, and landscape CurveEditorView"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add App/Sources/StudioUI/Studio
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(StudioUI): add StudioRackView, Voice/Noise inspectors, and landscape CurveEditorView"
 ```
 
 ---
@@ -1037,34 +1037,34 @@ git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioU
 - Create: `App/Sources/StudioUI/Library/LibraryView.swift`
 - Create: `App/Sources/StudioUI/Library/PresetSparklineView.swift`
 - Create: `App/Sources/StudioUI/Library/ImportResultAlert.swift`
-- Modify: `App/Sources/StudioUI/WaveForgeApp.swift`
+- Modify: `App/Sources/StudioUI/SintoniaApp.swift`
 
 **Interfaces:**
 - Consumes: `PresetStore`, `PresetCatalog`, `BWGImporter`, `PresetCodec`, `AudioEngineController`, `PlayerView`, `StudioRackView`
-- Produces: Complete end-to-end WaveForge app (`LibraryView`, `PresetSparklineView`, `ImportResultAlert`, wired `WaveForgeApp`).
+- Produces: Complete end-to-end Sintonia app (`LibraryView`, `PresetSparklineView`, `ImportResultAlert`, wired `SintoniaApp`).
 
 - [ ] **Step 1: Implement `PresetSparklineView.swift`, `ImportResultAlert.swift`, and `LibraryView.swift`**
 
 - `PresetSparklineView`: lightweight `Canvas` rendering the primary voice's `beatCurve` contour colored by dominant brainwave band.
-- `LibraryView`: searchable list/grid with category filter chips (`All` + `PresetCategory.allCases`), cards showing name, category, localized summary, duration badge, headphone indicator, and `PresetSparklineView`; `+ New Preset` template button; `.fileImporter` supporting `.bwg` and `.waveforge` UTIs; swipe/context actions (Duplicate, Export `.waveforge` via `ShareLink`, Delete custom); `ImportResultAlert` surfacing `ImportReport` skipped legacy items or typed import error messages.
+- `LibraryView`: searchable list/grid with category filter chips (`All` + `PresetCategory.allCases`), cards showing name, category, localized summary, duration badge, headphone indicator, and `PresetSparklineView`; `+ New Preset` template button; `.fileImporter` supporting `.bwg` and `.sintonia` UTIs; swipe/context actions (Duplicate, Export `.sintonia` via `ShareLink`, Delete custom); `ImportResultAlert` surfacing `ImportReport` skipped legacy items or typed import error messages.
 
-- [ ] **Step 2: Wire `WaveForgeApp.swift` end-to-end**
+- [ ] **Step 2: Wire `SintoniaApp.swift` end-to-end**
 
-- Initialize `PresetStore` in `Application Support/WaveForge/Presets` and `AudioEngineController` loaded with `Deep Focus` (`PresetCatalog.builtInPresets[0]`).
-- Attach `.onOpenURL` handler reading security-scoped `.bwg` / `.waveforge` files from Files/Safari/AirDrop, saving imported presets into `PresetStore`, auto-loading into `AudioEngineController`, and presenting `ImportResultAlert` if legacy features were skipped or the file was invalid.
+- Initialize `PresetStore` in `Application Support/Sintonia/Presets` and `AudioEngineController` loaded with `Deep Focus` (`PresetCatalog.builtInPresets[0]`).
+- Attach `.onOpenURL` handler reading security-scoped `.bwg` / `.sintonia` files from Files/Safari/AirDrop, saving imported presets into `PresetStore`, auto-loading into `AudioEngineController`, and presenting `ImportResultAlert` if legacy features were skipped or the file was invalid.
 
 - [ ] **Step 3: Full verification across SwiftPM tests and iOS 27.2 Simulator build**
 
 Run:
 ```bash
-swift test --package-path /Users/andy/.gemini/antigravity/scratch/WaveForge/Packages/WaveForgeCore
-cd /Users/andy/.gemini/antigravity/scratch/WaveForge && xcodegen generate && xcodebuild build -project WaveForge.xcodeproj -scheme WaveForge -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+swift test --package-path /Users/andy/.gemini/antigravity/scratch/Sintonia/Packages/SintoniaCore
+cd /Users/andy/.gemini/antigravity/scratch/Sintonia && xcodegen generate && xcodebuild build -project Sintonia.xcodeproj -scheme Sintonia -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
 ```
 Expected: All `SynthCoreTests` and `PresetKitTests` pass (`0` failures), and `xcodebuild build` outputs `** BUILD SUCCEEDED **`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge add App/Sources/StudioUI/Library App/Sources/StudioUI/WaveForgeApp.swift WaveForge.xcodeproj
-git -C /Users/andy/.gemini/antigravity/scratch/WaveForge commit -m "feat(StudioUI): add LibraryView, .bwg/.waveforge system import, and full app wiring"
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia add App/Sources/StudioUI/Library App/Sources/StudioUI/SintoniaApp.swift Sintonia.xcodeproj
+git -C /Users/andy/.gemini/antigravity/scratch/Sintonia commit -m "feat(StudioUI): add LibraryView, .bwg/.sintonia system import, and full app wiring"
 ```

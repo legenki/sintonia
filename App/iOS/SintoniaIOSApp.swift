@@ -2,10 +2,10 @@ import Foundation
 import PresetKit
 import SwiftUI
 import SynthCore
-import WaveForgeExport
+import SintoniaExport
 
 @main
-struct WaveForgeApp: App {
+struct SintoniaApp: App {
     private let presetStore: PresetStore
     @State private var engine: AudioEngineController
 
@@ -18,7 +18,7 @@ struct WaveForgeApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WaveForgeRootView(engine: engine, presetStore: presetStore)
+            SintoniaRootView(engine: engine, presetStore: presetStore)
         }
     }
 
@@ -26,13 +26,13 @@ struct WaveForgeApp: App {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return appSupport
-            .appendingPathComponent("WaveForge", isDirectory: true)
+            .appendingPathComponent("Sintonia", isDirectory: true)
             .appendingPathComponent("Presets", isDirectory: true)
     }
 }
 
 /// Root coordinator wiring `PlayerView`, `LibraryView`, `StudioRackView`, and system `.onOpenURL` imports.
-struct WaveForgeRootView: View {
+struct SintoniaRootView: View {
     private enum RootSheet: String, Identifiable {
         case library
         case export
@@ -241,7 +241,7 @@ struct WaveForgeRootView: View {
         }
     }
 
-    // MARK: - System `.bwg` / `.waveforge` Import Handling
+    // MARK: - System `.bwg` / `.sintonia` Import Handling
 
     private func handleIncomingURL(_ url: URL) {
         pendingOpenStudioAfterLibraryDismiss = false

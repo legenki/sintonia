@@ -1,7 +1,7 @@
 import PresetKit
 import SwiftUI
 import SynthCore
-import WaveForgeExport
+import SintoniaExport
 #if os(macOS)
 import UniformTypeIdentifiers
 #endif
@@ -329,7 +329,7 @@ public struct ExportSheetView: View {
                 #if os(macOS)
                 Button {
                     exportDocumentContentType = selectedFormat == .wav ? .wav : .mpeg4Audio
-                    exportDefaultFilename = WaveForgePresetDocument.sanitizedFileName(for: preset.name)
+                    exportDefaultFilename = SintoniaPresetDocument.sanitizedFileName(for: preset.name)
                     exportDocument = ExportedAudioFileDocument(fileURL: url)
                     isShowingFileExporter = true
                 } label: {

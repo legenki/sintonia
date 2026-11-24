@@ -1,5 +1,5 @@
 import SwiftUI
-import WaveForgeExport
+import SintoniaExport
 
 /// Compact Liquid Glass macOS audio output device selector for the Player header and Menu Bar popover.
 public struct MacOutputDeviceMenu: View {

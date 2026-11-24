@@ -1,11 +1,11 @@
 import Foundation
 
-/// Errors thrown by `PresetCodec` when decoding `.waveforge` JSON documents.
+/// Errors thrown by `PresetCodec` when decoding `.sintonia` JSON documents.
 public enum PresetCodecError: Error, Equatable, Sendable {
     case unsupportedSchemaVersion(Int)
 }
 
-/// Versioned `.waveforge` JSON envelope wrapping a `Preset`.
+/// Versioned `.sintonia` JSON envelope wrapping a `Preset`.
 public struct PresetDocument: Codable, Sendable, Equatable {
     public static let currentSchemaVersion = 1
 
@@ -18,16 +18,16 @@ public struct PresetDocument: Codable, Sendable, Equatable {
     }
 }
 
-/// Encodes and decodes `.waveforge` JSON documents deterministically.
+/// Encodes and decodes `.sintonia` JSON documents deterministically.
 public enum PresetCodec {
-    /// Encodes `preset` into pretty-printed, sorted-keys `.waveforge` JSON data.
+    /// Encodes `preset` into pretty-printed, sorted-keys `.sintonia` JSON data.
     public static func encode(_ preset: Preset) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         return try encoder.encode(PresetDocument(preset: preset))
     }
 
-    /// Decodes `.waveforge` JSON `data` into a `Preset`, verifying schema compatibility.
+    /// Decodes `.sintonia` JSON `data` into a `Preset`, verifying schema compatibility.
     public static func decode(_ data: Data) throws -> Preset {
         let decoder = JSONDecoder()
         let document = try decoder.decode(PresetDocument.self, from: data)

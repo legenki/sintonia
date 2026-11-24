@@ -1,7 +1,7 @@
 import PresetKit
 import SwiftUI
 import SynthCore
-import WaveForgeExport
+import SintoniaExport
 
 /// Simplified primary player screen featuring an iOS 27 Liquid Glass header & transport bar,
 /// live oscilloscope + sparkline timeline scrubber, and 4 GarageBand Smart Control knobs.

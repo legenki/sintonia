@@ -4,23 +4,25 @@ import PresetKit
 import SwiftUI
 import SynthCore
 import UniformTypeIdentifiers
-import WaveForgeExport
+import SintoniaExport
 
 // MARK: - Registered Document Content Types
 
 public extension UTType {
-    /// Exported WaveForge JSON preset document (`com.waveforge.preset`, `.waveforge`).
-    static let waveForgePreset = UTType(exportedAs: "com.waveforge.preset", conformingTo: .json)
+    /// Exported Sintonia JSON preset document (`com.sintonia.preset`, `.sintonia`).
+    static let sintoniaPreset = UTType(exportedAs: "com.sintonia.preset", conformingTo: .json)
 
     /// Imported classic BrainWave Generator preset (`com.noromaa.bwg`, `.bwg`).
     static let brainWaveGenerator = UTType(importedAs: "com.noromaa.bwg", conformingTo: .data)
+    /// Presets saved before the WaveForge → Sintonia rename (`.waveforge`, same JSON schema).
+    static let legacyWaveForgePreset = UTType(importedAs: "com.waveforge.preset", conformingTo: .json)
 }
 
-// MARK: - Transferable `.waveforge` Document for ShareLink Export
+// MARK: - Transferable `.sintonia` Document for ShareLink Export
 
-/// `Transferable` wrapper that lazily serializes a `Preset` into a temporary `.waveforge` file
+/// `Transferable` wrapper that lazily serializes a `Preset` into a temporary `.sintonia` file
 /// for system `ShareLink` export.
-public struct WaveForgePresetDocument: Transferable, Sendable {
+public struct SintoniaPresetDocument: Transferable, Sendable {
     public let preset: Preset
 
     public init(preset: Preset) {
@@ -28,11 +30,11 @@ public struct WaveForgePresetDocument: Transferable, Sendable {
     }
 
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(exportedContentType: .waveForgePreset) { item in
+        FileRepresentation(exportedContentType: .sintoniaPreset) { item in
             let data = try PresetCodec.encode(item.preset)
-            let fileName = "\(Self.sanitizedFileName(for: item.preset.name)).waveforge"
+            let fileName = "\(Self.sanitizedFileName(for: item.preset.name)).sintonia"
             let exportDirectory = FileManager.default.temporaryDirectory
-                .appendingPathComponent("WaveForgePresetExports", isDirectory: true)
+                .appendingPathComponent("SintoniaPresetExports", isDirectory: true)
             try FileManager.default.createDirectory(at: exportDirectory, withIntermediateDirectories: true)
             let destinationURL = exportDirectory.appendingPathComponent(fileName, isDirectory: false)
             try data.write(to: destinationURL, options: [.atomic])
@@ -49,20 +51,20 @@ public struct WaveForgePresetDocument: Transferable, Sendable {
         let collapsed = String(cleaned)
             .replacingOccurrences(of: "..", with: ".")
             .trimmingCharacters(in: CharacterSet(charactersIn: ". "))
-        return collapsed.isEmpty ? "WaveForge-Preset" : String(collapsed.prefix(80))
+        return collapsed.isEmpty ? "Sintonia-Preset" : String(collapsed.prefix(80))
     }
 }
 
 // MARK: - Typed Import Errors & Pipeline
 
-/// Typed errors surfaced cleanly in `ImportResultAlert` when importing `.bwg` or `.waveforge` files.
+/// Typed errors surfaced cleanly in `ImportResultAlert` when importing `.bwg` or `.sintonia` files.
 public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
     case unreadableFile
     case fileTooLarge
     case unsupportedFileType
     case bwg(BWGImportError)
     case unsupportedSchemaVersion(Int)
-    case corruptedWaveForgeFile
+    case corruptedSintoniaFile
     case invalidPreset
     case storageFailure(String)
 
@@ -73,7 +75,7 @@ public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
         case .fileTooLarge:
             return String(localized: "Preset file is too large.")
         case .unsupportedFileType:
-            return String(localized: "Unsupported file format. Please choose a .bwg or .waveforge file.")
+            return String(localized: "Unsupported file format. Please choose a .bwg or .sintonia file.")
         case .bwg(let bwgError):
             switch bwgError {
             case .emptyFile:
@@ -88,8 +90,8 @@ public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
                 return String(localized: "No valid synthesis voices found in file.")
             }
         case .unsupportedSchemaVersion(let version):
-            return String(localized: "Unsupported .waveforge schema version (\(version)).")
-        case .corruptedWaveForgeFile:
+            return String(localized: "Unsupported .sintonia schema version (\(version)).")
+        case .corruptedSintoniaFile:
             return String(localized: "Preset file structure is corrupted.")
         case .invalidPreset:
             return String(localized: "Invalid preset configuration")
@@ -99,7 +101,7 @@ public enum PresetImportError: Error, LocalizedError, Equatable, Sendable {
     }
 }
 
-/// Result returned when a `.bwg` or `.waveforge` file is successfully imported and saved.
+/// Result returned when a `.bwg` or `.sintonia` file is successfully imported and saved.
 public struct PresetImportOutcome: Equatable, Sendable {
     public let preset: Preset
     public let report: ImportReport
@@ -115,11 +117,11 @@ public struct PresetImportOutcome: Equatable, Sendable {
     }
 }
 
-/// Security-scoped `.bwg` / `.waveforge` file importer shared between `LibraryView` and `WaveForgeApp`.
+/// Security-scoped `.bwg` / `.sintonia` file importer shared between `LibraryView` and `SintoniaApp`.
 public enum PresetImportCoordinator: Sendable {
     private static let bwgMagicHeader = Array("BrainWave Generator File".utf8)
 
-    /// Reads a security-scoped `.bwg` or `.waveforge` file at `url`, validates and persists it
+    /// Reads a security-scoped `.bwg` or `.sintonia` file at `url`, validates and persists it
     /// into `presetStore`, and returns the saved custom `Preset` along with its `ImportReport`.
     public static func importFile(at url: URL, into presetStore: PresetStore) throws -> PresetImportOutcome {
         let accessed = url.startAccessingSecurityScopedResource()
@@ -159,14 +161,14 @@ public enum PresetImportCoordinator: Sendable {
         if pathExtension == "bwg" {
             return try importBWGData(data, fallbackName: fallbackName, into: presetStore)
         }
-        if pathExtension == "waveforge" {
-            return try importWaveForgeData(data, fallbackName: fallbackName, into: presetStore)
+        if pathExtension == "sintonia" || pathExtension == "waveforge" {
+            return try importSintoniaData(data, fallbackName: fallbackName, into: presetStore)
         }
         if looksLikeBWGHeader(data) {
             return try importBWGData(data, fallbackName: fallbackName, into: presetStore)
         }
         if pathExtension == "json" || looksLikeJSONObject(data) {
-            return try importWaveForgeData(data, fallbackName: fallbackName, into: presetStore)
+            return try importSintoniaData(data, fallbackName: fallbackName, into: presetStore)
         }
 
         throw PresetImportError.unsupportedFileType
@@ -223,7 +225,7 @@ public enum PresetImportCoordinator: Sendable {
         return PresetImportOutcome(preset: preset, report: bwgResult.report)
     }
 
-    private static func importWaveForgeData(
+    private static func importSintoniaData(
         _ data: Data,
         fallbackName: String,
         into presetStore: PresetStore
@@ -237,7 +239,7 @@ public enum PresetImportCoordinator: Sendable {
                 throw PresetImportError.unsupportedSchemaVersion(version)
             }
         } catch {
-            throw PresetImportError.corruptedWaveForgeFile
+            throw PresetImportError.corruptedSintoniaFile
         }
 
         // Assign fresh identifiers so importing a shared/built-in preset never collides or mutates built-ins.
@@ -436,7 +438,7 @@ public struct ImportAlertContent: Identifiable, Equatable, Sendable {
         case let .unrecognizedWaveform(voiceNumber, rawValue):
             return String(localized: "Voice \(voiceNumber): unrecognized waveform '\(rawValue)'; defaulted to sine.")
         case let .skippedExcessVoice(voiceNumber, maxVoices):
-            return String(localized: "Skipped Voice \(voiceNumber): WaveForge supports at most \(maxVoices) voices.")
+            return String(localized: "Skipped Voice \(voiceNumber): Sintonia supports at most \(maxVoices) voices.")
         case let .skippedInvalidVoice(voiceNumber):
             return String(localized: "Skipped Voice \(voiceNumber): no finite carrier or beat parameters.")
         case let .ignoredInvalidTrackingRule(voiceNumber):
@@ -511,7 +513,7 @@ public struct ImportAlertContent: Identifiable, Equatable, Sendable {
     }
 }
 
-/// Reusable alert modifier presenting `ImportAlertContent` for `.bwg` and `.waveforge` imports.
+/// Reusable alert modifier presenting `ImportAlertContent` for `.bwg` and `.sintonia` imports.
 public struct ImportResultAlertModifier: ViewModifier {
     @Binding private var alertContent: ImportAlertContent?
 
@@ -544,7 +546,7 @@ public struct ImportResultAlertModifier: ViewModifier {
 }
 
 public extension View {
-    /// Presents WaveForge's standardized `ImportResultAlert` when `alertContent` is non-nil.
+    /// Presents Sintonia's standardized `ImportResultAlert` when `alertContent` is non-nil.
     func importResultAlert(_ alertContent: Binding<ImportAlertContent?>) -> some View {
         modifier(ImportResultAlertModifier(alertContent: alertContent))
     }

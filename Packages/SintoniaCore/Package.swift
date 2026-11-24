@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "WaveForgeCore",
+    name: "SintoniaCore",
     platforms: [
         .iOS(.v18),
         .macOS(.v15),
@@ -10,7 +10,7 @@ let package = Package(
     products: [
         .library(name: "SynthCore", targets: ["SynthCore"]),
         .library(name: "PresetKit", targets: ["PresetKit"]),
-        .library(name: "WaveForgeExport", targets: ["WaveForgeExport"]),
+        .library(name: "SintoniaExport", targets: ["SintoniaExport"]),
     ],
     targets: [
         .target(
@@ -27,7 +27,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "WaveForgeExport",
+            name: "SintoniaExport",
             dependencies: ["SynthCore", "PresetKit"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
@@ -48,8 +48,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "WaveForgeExportTests",
-            dependencies: ["WaveForgeExport", "SynthCore", "PresetKit"],
+            name: "SintoniaExportTests",
+            dependencies: ["SintoniaExport", "SynthCore", "PresetKit"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
             ]

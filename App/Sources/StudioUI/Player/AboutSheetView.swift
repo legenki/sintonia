@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Modal About sheet presenting WaveForge's App Store Guideline 1.4.1 wellness & safe-listening
+/// Modal About sheet presenting Sintonia's App Store Guideline 1.4.1 wellness & safe-listening
 /// disclaimer, synthesis feature overview, offline privacy guarantee, and `.bwg` compatibility note.
 public struct AboutSheetView: View {
     private let accentColor: Color
@@ -32,7 +32,7 @@ public struct AboutSheetView: View {
                 .padding(16)
             }
             .background(StudioTheme.rackBackgroundGradient.ignoresSafeArea())
-            .navigationTitle("About WaveForge")
+            .navigationTitle("About Sintonia")
             .wfInlineNavigationBarDark()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -75,7 +75,7 @@ public struct AboutSheetView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("WaveForge")
+                Text("Sintonia")
                     .font(.title3.bold())
                     .foregroundStyle(StudioTheme.primaryText)
 

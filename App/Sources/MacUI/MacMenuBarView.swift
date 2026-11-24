@@ -66,7 +66,7 @@ public struct MacMenuBarView: View {
                 NSApplication.shared.terminate(nil)
             } label: {
                 HStack {
-                    Label("Quit WaveForge", systemImage: "power")
+                    Label("Quit Sintonia", systemImage: "power")
                     Spacer()
                     Text(verbatim: "⌘Q")
                         .font(.caption2.monospaced())
@@ -257,19 +257,19 @@ public struct MacMenuBarView: View {
                 titleKey: "Player",
                 systemImage: "waveform.path.ecg",
                 shortcutLabel: "⌘1",
-                windowID: WaveForgeWindowID.player
+                windowID: SintoniaWindowID.player
             )
             windowLaunchButton(
                 titleKey: "Library",
                 systemImage: "books.vertical.fill",
                 shortcutLabel: "⌘L",
-                windowID: WaveForgeWindowID.library
+                windowID: SintoniaWindowID.library
             )
             windowLaunchButton(
                 titleKey: "Studio Rack",
                 systemImage: "slider.horizontal.3",
                 shortcutLabel: "⌘2",
-                windowID: WaveForgeWindowID.studio
+                windowID: SintoniaWindowID.studio
             )
         }
     }

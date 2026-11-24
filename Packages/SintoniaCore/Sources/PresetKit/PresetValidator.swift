@@ -26,7 +26,7 @@ public enum PresetValidationError: Error, Equatable, Sendable {
     case cyclicTracking(voiceIndices: [Int])
 }
 
-/// Validates declarative `Preset` documents against canonical WaveForge bounds and graph invariants.
+/// Validates declarative `Preset` documents against canonical Sintonia bounds and graph invariants.
 public enum PresetValidator {
     /// Returns all validation errors found in `preset`, or an empty array if valid.
     public static func validate(_ preset: Preset) -> [PresetValidationError] {

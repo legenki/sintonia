@@ -255,10 +255,10 @@ public enum SessionExporter {
             .joined(separator: "-")
         let slug = collapsed.isEmpty ? "Session" : String(collapsed.prefix(40))
         let unique = String(UUID().uuidString.prefix(8))
-        return directory.appendingPathComponent("WaveForge-\(slug)-\(unique).\(format.fileExtension)")
+        return directory.appendingPathComponent("Sintonia-\(slug)-\(unique).\(format.fileExtension)")
     }
 
-    /// Removes temporary WaveForge audio export files left in `directory` from previous sessions.
+    /// Removes temporary Sintonia audio export files left in `directory` from previous sessions.
     public static func cleanupStaleTemporaryExports(
         in directory: URL = FileManager.default.temporaryDirectory
     ) {
@@ -273,7 +273,7 @@ public enum SessionExporter {
         for url in urls {
             let name = url.lastPathComponent
             let ext = url.pathExtension.lowercased()
-            if name.hasPrefix("WaveForge-"), (ext == "wav" || ext == "m4a") {
+            if name.hasPrefix("Sintonia-"), (ext == "wav" || ext == "m4a") {
                 try? FileManager.default.removeItem(at: url)
             }
         }

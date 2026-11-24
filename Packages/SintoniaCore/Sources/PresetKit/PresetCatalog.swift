@@ -1,7 +1,7 @@
 import Foundation
 import SynthCore
 
-/// Catalog of WaveForge's 18 original built-in 30–45 minute entrainment presets.
+/// Catalog of Sintonia's 18 original built-in 30–45 minute entrainment presets.
 public enum PresetCatalog {
     /// Deterministic, immutable list of 18 built-in entrainment programs matching Spec Section 6.
     public static let builtInPresets: [Preset] = [

@@ -5,7 +5,7 @@ import Observation
 import PresetKit
 import Synchronization
 import SynthCore
-@_exported import WaveForgeExport
+@_exported import SintoniaExport
 
 /// Thread-safe RAII wrapper removing a `NotificationCenter` block observer on deinit.
 private final class NotificationToken: @unchecked Sendable {
@@ -851,7 +851,7 @@ public final class AudioEngineController {
         let categoryLabel = localizedCategoryTitle(currentPreset.category)
         let info: [String: Any] = [
             MPMediaItemPropertyTitle: currentPreset.name,
-            MPMediaItemPropertyArtist: "WaveForge",
+            MPMediaItemPropertyArtist: "Sintonia",
             MPMediaItemPropertyAlbumTitle: categoryLabel,
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,

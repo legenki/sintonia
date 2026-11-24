@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Native macOS menu bar commands (`WaveForge`, `File`, `Playback`, `Window`) wired to `MacAppCoordinator`.
+/// Native macOS menu bar commands (`Sintonia`, `File`, `Playback`, `Window`) wired to `MacAppCoordinator`.
 public struct MacCommands: Commands {
     @Bindable private var coordinator: MacAppCoordinator
     @Environment(\.openWindow) private var openWindow
@@ -13,7 +13,7 @@ public struct MacCommands: Commands {
 
     public var body: some Commands {
         CommandGroup(replacing: .appInfo) {
-            Button("About WaveForge") {
+            Button("About Sintonia") {
                 registerOpener()
                 coordinator.requestShowAbout()
             }
@@ -102,17 +102,17 @@ public struct MacCommands: Commands {
 
         CommandGroup(after: .windowArrangement) {
             Button("Player") {
-                openAndActivate(WaveForgeWindowID.player)
+                openAndActivate(SintoniaWindowID.player)
             }
             .keyboardShortcut("1", modifiers: .command)
 
             Button("Library") {
-                openAndActivate(WaveForgeWindowID.library)
+                openAndActivate(SintoniaWindowID.library)
             }
             .keyboardShortcut("l", modifiers: .command)
 
             Button("Studio Rack") {
-                openAndActivate(WaveForgeWindowID.studio)
+                openAndActivate(SintoniaWindowID.studio)
             }
             .keyboardShortcut("2", modifiers: .command)
         }

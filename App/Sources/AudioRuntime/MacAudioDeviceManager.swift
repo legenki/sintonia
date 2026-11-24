@@ -5,7 +5,7 @@ import CoreAudio
 import Foundation
 import Observation
 import Synchronization
-import WaveForgeExport
+import SintoniaExport
 
 /// Represents an enumerated macOS CoreAudio output device.
 public struct AudioOutputDevice: Identifiable, Hashable, Sendable {
@@ -167,7 +167,7 @@ private final class CoreAudioListenerRegistry: @unchecked Sendable {
 @MainActor
 @Observable
 public final class MacAudioDeviceManager {
-    public static let selectedDeviceUIDDefaultsKey = "waveforge.mac.selectedOutputDeviceUID"
+    public static let selectedDeviceUIDDefaultsKey = "sintonia.mac.selectedOutputDeviceUID"
     private static let headphonesDataSource: UInt32 = 0x6864_706E // 'hdpn'
     private static let internalSpeakerDataSource: UInt32 = 0x6973_706B // 'ispk'
 

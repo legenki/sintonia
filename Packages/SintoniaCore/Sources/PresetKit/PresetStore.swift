@@ -6,7 +6,7 @@ public enum PresetStoreError: Error, Equatable, Sendable {
     case invalidPreset([PresetValidationError])
 }
 
-/// Thread-safe local `.waveforge` preset repository combining the 18 immutable built-in presets
+/// Thread-safe local `.sintonia` preset repository combining the 18 immutable built-in presets
 /// with user-created, imported, and edited custom presets persisted on disk.
 public final class PresetStore: @unchecked Sendable {
     private static let builtInIDs: Set<UUID> = Set(PresetCatalog.builtInPresets.map(\.id))
@@ -16,7 +16,7 @@ public final class PresetStore: @unchecked Sendable {
     private var customPresetsByID: [UUID: Preset]
     private var customFileURLsByID: [UUID: URL]
 
-    /// Creates a store rooted at `storageDirectory`, loading any valid persisted `.waveforge` files.
+    /// Creates a store rooted at `storageDirectory`, loading any valid persisted `.sintonia` files.
     public init(storageDirectory: URL) {
         self.storageDirectory = storageDirectory
         let loaded = Self.loadCustomPresets(from: storageDirectory)
@@ -38,7 +38,7 @@ public final class PresetStore: @unchecked Sendable {
         return PresetCatalog.builtInPresets + custom
     }
 
-    /// Persists a custom preset atomically to `<id>.waveforge`.
+    /// Persists a custom preset atomically to `<id>.sintonia`.
     /// Rejects built-in presets or presets failing `PresetValidator`.
     public func saveCustom(_ preset: Preset) throws {
         guard !preset.isBuiltIn, !Self.builtInIDs.contains(preset.id) else {
@@ -107,7 +107,7 @@ public final class PresetStore: @unchecked Sendable {
     }
 
     private func fileURL(for id: UUID) -> URL {
-        storageDirectory.appendingPathComponent("\(id.uuidString).waveforge", isDirectory: false)
+        storageDirectory.appendingPathComponent("\(id.uuidString).sintonia", isDirectory: false)
     }
 
     private static func loadCustomPresets(from directory: URL) -> (presets: [UUID: Preset], fileURLs: [UUID: URL]) {
@@ -121,7 +121,7 @@ public final class PresetStore: @unchecked Sendable {
 
         var loadedPresets: [UUID: Preset] = [:]
         var loadedURLs: [UUID: URL] = [:]
-        for url in urls.sorted(by: { $0.path < $1.path }) where url.pathExtension.lowercased() == "waveforge" {
+        for url in urls.sorted(by: { $0.path < $1.path }) where url.pathExtension.lowercased() == "sintonia" {
             let resourceValues = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
             guard resourceValues?.isRegularFile == true,
                   (resourceValues?.fileSize ?? 0) <= PresetLimits.maxImportFileBytes,

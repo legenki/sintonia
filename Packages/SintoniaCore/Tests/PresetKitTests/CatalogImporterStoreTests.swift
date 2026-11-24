@@ -236,7 +236,7 @@ struct CatalogImporterStoreTests {
     }
 
     @Test func presetStoreForksBuiltInOnEditLeavingBuiltInImmutable() throws {
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStore-\(UUID().uuidString)")
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SintoniaStore-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }
         let store = PresetStore(storageDirectory: dir)
         var builtIn = PresetCatalog.builtInPresets[0]
@@ -253,11 +253,11 @@ struct CatalogImporterStoreTests {
     }
 
     @Test func presetStorePersistsReloadsEditsInPlaceAndDeletesCustomPresets() throws {
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStorePersist-\(UUID().uuidString)")
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SintoniaStorePersist-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }
 
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let corruptURL = dir.appendingPathComponent("corrupt.waveforge")
+        let corruptURL = dir.appendingPathComponent("corrupt.sintonia")
         try Data("not valid json".utf8).write(to: corruptURL)
 
         let store = PresetStore(storageDirectory: dir)
@@ -386,8 +386,8 @@ struct CatalogImporterStoreTests {
         #expect(emptySegmentResult.preset.durationSec == 1800.0)
     }
 
-    @Test func presetStoreDeletesExternallyNamedWaveForgeFiles() throws {
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStoreExternal-\(UUID().uuidString)")
+    @Test func presetStoreDeletesExternallyNamedSintoniaFiles() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SintoniaStoreExternal-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
@@ -396,7 +396,7 @@ struct CatalogImporterStoreTests {
         custom.isBuiltIn = false
         custom.category = .custom
         custom.name = "Externally Named Session"
-        let externalURL = dir.appendingPathComponent("external-custom-session.waveforge")
+        let externalURL = dir.appendingPathComponent("external-custom-session.sintonia")
         try PresetCodec.encode(custom).write(to: externalURL)
 
         let store = PresetStore(storageDirectory: dir)
@@ -427,10 +427,10 @@ struct CatalogImporterStoreTests {
         let validationErrors = PresetValidator.validate(excessivePreset)
         #expect(validationErrors.contains(.tooManyCurvePoints(voiceIndex: 0)))
 
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WaveForgeStoreOversized-\(UUID().uuidString)")
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SintoniaStoreOversized-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let oversizedURL = dir.appendingPathComponent("oversized.waveforge")
+        let oversizedURL = dir.appendingPathComponent("oversized.sintonia")
         try oversizedData.write(to: oversizedURL)
 
         let store = PresetStore(storageDirectory: dir)

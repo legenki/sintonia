@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Primary macOS Player window hosting `PlayerView`, output device routing menu,
-/// Export/About sheets, `.fileImporter` (`⌘O`), Finder `.bwg`/`.waveforge` drop import, and import alerts/toasts.
+/// Export/About sheets, `.fileImporter` (`⌘O`), Finder `.bwg`/`.sintonia` drop import, and import alerts/toasts.
 public struct MacPlayerWindowView: View {
     @Bindable private var coordinator: MacAppCoordinator
     @Environment(\.openWindow) private var openWindow
@@ -31,10 +31,10 @@ public struct MacPlayerWindowView: View {
             PlayerView(
                 engine: coordinator.engine,
                 onOpenLibrary: {
-                    coordinator.openWindow(id: WaveForgeWindowID.library)
+                    coordinator.openWindow(id: SintoniaWindowID.library)
                 },
                 onOpenStudio: {
-                    coordinator.openWindow(id: WaveForgeWindowID.studio)
+                    coordinator.openWindow(id: SintoniaWindowID.studio)
                 },
                 onOpenExport: {
                     coordinator.requestShowExport()
@@ -93,7 +93,7 @@ public struct MacPlayerWindowView: View {
         }
         .fileImporter(
             isPresented: $coordinator.isShowingFileImporter,
-            allowedContentTypes: [.waveForgePreset, .brainWaveGenerator],
+            allowedContentTypes: [.sintoniaPreset, .legacyWaveForgePreset, .brainWaveGenerator],
             allowsMultipleSelection: true
         ) { result in
             coordinator.handleFileImporterResult(result, source: .player)

@@ -4,10 +4,10 @@ import PresetKit
 import Synchronization
 import SynthCore
 import Testing
-@testable import WaveForgeExport
+@testable import SintoniaExport
 
-@Suite("WaveForgeExport Policy and Exporter", .serialized)
-struct WaveForgeExportTests {
+@Suite("SintoniaExport Policy and Exporter", .serialized)
+struct SintoniaExportTests {
     @Test func audioRoutePolicyAutoPausesBinauralOnHeadphoneDisconnect() {
         #expect(AudioRoutePolicy.shouldAutoPauseOnRouteChange(reasonIsOldDeviceUnavailable: true, presetHasActiveBinaural: true))
         #expect(!AudioRoutePolicy.shouldAutoPauseOnRouteChange(reasonIsOldDeviceUnavailable: true, presetHasActiveBinaural: false))
@@ -113,7 +113,7 @@ struct WaveForgeExportTests {
         }
         defer { try? FileManager.default.removeItem(at: wavURL) }
 
-        #expect(wavURL.lastPathComponent.hasPrefix("WaveForge-"))
+        #expect(wavURL.lastPathComponent.hasPrefix("Sintonia-"))
         #expect(wavURL.pathExtension == "wav")
 
         let wavFile = try AVAudioFile(forReading: wavURL)
@@ -133,7 +133,7 @@ struct WaveForgeExportTests {
         }
         defer { try? FileManager.default.removeItem(at: m4aURL) }
 
-        #expect(m4aURL.lastPathComponent.hasPrefix("WaveForge-"))
+        #expect(m4aURL.lastPathComponent.hasPrefix("Sintonia-"))
         #expect(m4aURL.pathExtension == "m4a")
 
         let m4aFile = try AVAudioFile(forReading: m4aURL)
@@ -164,8 +164,8 @@ struct WaveForgeExportTests {
         }
 
         let after = Set((try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path)) ?? [])
-        let leftoverWaveForgeFiles = after.subtracting(before).filter { $0.contains("WaveForge-") }
-        #expect(leftoverWaveForgeFiles.isEmpty)
+        let leftoverSintoniaFiles = after.subtracting(before).filter { $0.contains("Sintonia-") }
+        #expect(leftoverSintoniaFiles.isEmpty)
     }
 
     @Test func sessionExporterRejectsInvalidDurationWithoutLeavingTempFiles() async throws {
@@ -181,8 +181,8 @@ struct WaveForgeExportTests {
         }
 
         let after = Set((try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path)) ?? [])
-        let leftoverWaveForgeFiles = after.subtracting(before).filter { $0.contains("WaveForge-") }
-        #expect(leftoverWaveForgeFiles.isEmpty)
+        let leftoverSintoniaFiles = after.subtracting(before).filter { $0.contains("Sintonia-") }
+        #expect(leftoverSintoniaFiles.isEmpty)
     }
 
     @Test func sessionExporterRejectsOverflowingDurationWithoutTrapping() async throws {

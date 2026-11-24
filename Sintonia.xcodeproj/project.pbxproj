@@ -1,0 +1,1031 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		092B73A15BC1DDDF14D804DD /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A068A6B00C9102C81DAFE5C /* PlayerView.swift */; };
+		0AF5D1565275CD605086E98B /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA873F8C87B099C83A12F979 /* OscilloscopeView.swift */; };
+		0D70D3FBE92E1B80FCC89B57 /* ImportResultAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7751DF6BA98AC5A1DE717167 /* ImportResultAlert.swift */; };
+		0E0140ED4E5DC554A799B539 /* AboutSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E910FC999E908346E2FE2CB /* AboutSheetView.swift */; };
+		14130645B8C064736759CA37 /* SintoniaExport in Frameworks */ = {isa = PBXBuildFile; productRef = BE0C3FB5F39A0465019F401E /* SintoniaExport */; };
+		1487E19D1CB1FF172C87A92B /* ImportResultAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7751DF6BA98AC5A1DE717167 /* ImportResultAlert.swift */; };
+		15ECAB80806E51C1990990D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40B14C21E1C06646586434BF /* Assets.xcassets */; };
+		185D247D6FEAC747F24C793B /* MacOutputDeviceMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35C43993F5377D3781EEF88 /* MacOutputDeviceMenu.swift */; };
+		18C5BF12A646E45CBB333E9D /* StudioKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7DB56685E55AB5D5B8C21 /* StudioKnob.swift */; };
+		1902A552C4D89C496A75F400 /* VoiceInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CCAB7B54DDE3AA24161D9C /* VoiceInspectorView.swift */; };
+		1AA734940182A01D03C4D82B /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BE19AC5B50AB1375995307 /* MiniTimelineScrubber.swift */; };
+		1D1E07DF8739620DD913C6DA /* VoiceInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CCAB7B54DDE3AA24161D9C /* VoiceInspectorView.swift */; };
+		1F82B81E5E6DFBDBE3D7E069 /* SintoniaMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4D13D9F000BE8B879C12E0 /* SintoniaMacApp.swift */; };
+		2A9B68F53EA692FC5840FF27 /* PresetSparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95F16FB4542C375606A30AF /* PresetSparklineView.swift */; };
+		2C32367E03B0D5F21C48039B /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0CDAFC137C50942A825E7 /* StudioFader.swift */; };
+		2DA111F491204D68040DD784 /* HardwarePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1528C8427A899218CE21A6B9 /* HardwarePickers.swift */; };
+		3364A9A2B0D1C604A6E253EA /* PlatformViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9E9F6242369AC824D27F43 /* PlatformViewModifiers.swift */; };
+		37724CEA8EB8723C4FA6A2CC /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = AB9AD5E01D3DFC2C2FC80719 /* SynthCore */; };
+		39FCDACB8E4BC7827AF3BE88 /* LEDMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8983DE9F8C212EC36E390C16 /* LEDMeterView.swift */; };
+		405F0103CE72ED4739ABC977 /* MacAudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1BF7F31F485B29BD6BBDD7 /* MacAudioDeviceManager.swift */; };
+		4410D431B7597D3E1B82D976 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3641D7F0C4FA57E7A63DAA /* LibraryView.swift */; };
+		469532289B8CF15D35DE322B /* SintoniaExport in Frameworks */ = {isa = PBXBuildFile; productRef = 1EDC7FC31181A4DB884F6566 /* SintoniaExport */; };
+		49AFC640101869642B635185 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1862B11D291B33785E632459 /* SynthCore */; };
+		554C5E327D2FF93E8900D5D2 /* NoiseInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF349B6E35EA4A8B2A4684D8 /* NoiseInspectorView.swift */; };
+		58811CC53BE2A7E1636BBCE8 /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 704CA0F0AD47E91F0E8885AB /* PresetKit */; };
+		591B3F06204170EB84529D40 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0C8E5880E1833C75B816BCAB /* Localizable.xcstrings */; };
+		5F0443D71876875AA8A2F818 /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A854CB39D381B936026392EA /* ExportSheetView.swift */; };
+		627C447D688D1A7D140679F6 /* AboutSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E910FC999E908346E2FE2CB /* AboutSheetView.swift */; };
+		650A62D4F0E526CE7FA61640 /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD66BED663CB0D86B2FA64F0 /* AudioEngineController.swift */; };
+		77EC63FE6B8890107252F9D9 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A068A6B00C9102C81DAFE5C /* PlayerView.swift */; };
+		810D54FDFDE0F3B533A469B8 /* SintoniaExport in Frameworks */ = {isa = PBXBuildFile; productRef = 3594F37196F26FB6592E957D /* SintoniaExport */; };
+		84B39E85B1BB9462F6A70238 /* StudioRackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687DFF99BB12C6E28CAAB667 /* StudioRackView.swift */; };
+		8A15710B21AA031D7D8568BF /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = D7A38261B8640F08F4C8BF1C /* PresetKit */; };
+		8AFF6AD9E8042E53AB98DBB5 /* MacStudioWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F3CB18894267457BA31AF8 /* MacStudioWindowView.swift */; };
+		8C33BED7EE14B0AE77069C30 /* CurveEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CB6ED51912F8FD95D66BE3 /* CurveEditorView.swift */; };
+		9D0332F00734A42435B5ADD6 /* PlatformViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9E9F6242369AC824D27F43 /* PlatformViewModifiers.swift */; };
+		A0CAF1484673C2EF56C96228 /* StudioRackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687DFF99BB12C6E28CAAB667 /* StudioRackView.swift */; };
+		A38241605068BE5EC984B04B /* HardwarePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1528C8427A899218CE21A6B9 /* HardwarePickers.swift */; };
+		A64EFA1B9F27E22782ACA165 /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1AAD78390FC6DD24418B86 /* StudioTheme.swift */; };
+		A82F7C46527300DFE88617DA /* StudioKnob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A7DB56685E55AB5D5B8C21 /* StudioKnob.swift */; };
+		A86B4E970299110D69817347 /* StudioTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1AAD78390FC6DD24418B86 /* StudioTheme.swift */; };
+		AAB54D973AF972FCE6488490 /* LEDMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8983DE9F8C212EC36E390C16 /* LEDMeterView.swift */; };
+		B0B2027566FF4545D9AAEF28 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 693223CD045EC822E70B9AC4 /* SynthCore */; };
+		B1DDA73BA41EECDCAA878F0D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6BCEA4BFB1AE6A50A0EB4596 /* PrivacyInfo.xcprivacy */; };
+		B3437D3BC58028E873B4E0BB /* MacCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF51DB7BF060A59B81A7698A /* MacCommands.swift */; };
+		B5838E8B9A82F23B26353F09 /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1253595FB85E23E7AF91947C /* SynthCore */; };
+		B7B4C6ED0C67EC267A45F020 /* SintoniaIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92372BE18AA53F09625439A /* SintoniaIOSApp.swift */; };
+		B801D598B5C146E41E76B424 /* NoiseInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF349B6E35EA4A8B2A4684D8 /* NoiseInspectorView.swift */; };
+		BB1D318E114AC4594A7C66CB /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BE19AC5B50AB1375995307 /* MiniTimelineScrubber.swift */; };
+		BBA61672F541860AEDEFD36F /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0C8E5880E1833C75B816BCAB /* Localizable.xcstrings */; };
+		BBC149800A80E037D02879CE /* MacMenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E871D486CE3E33995B422E /* MacMenuBarView.swift */; };
+		BCFF60367E05F2E003ECB659 /* MacLibraryWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15571F41CEF70049FE23AA61 /* MacLibraryWindowView.swift */; };
+		BE602AC71003E6C7BADA3DE2 /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = D9B7A6FACA575D534F966EAC /* PresetKit */; };
+		BF569CF59611C38C74AE87F8 /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A854CB39D381B936026392EA /* ExportSheetView.swift */; };
+		BFD0F7468084F0284A4D7B40 /* CurveEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CB6ED51912F8FD95D66BE3 /* CurveEditorView.swift */; };
+		C0BD186BEDE82EC978BDCD36 /* MacRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9E5EB217135C20131AC36F /* MacRuntimeTests.swift */; };
+		C67CF87BFA082F530C4A4CB1 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3641D7F0C4FA57E7A63DAA /* LibraryView.swift */; };
+		C6F67C446A6BF24042AB4213 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6BCEA4BFB1AE6A50A0EB4596 /* PrivacyInfo.xcprivacy */; };
+		D03FBCFE391B79209B68767D /* MacAppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73937B3EF7E71BEE1E41FCB1 /* MacAppCoordinator.swift */; };
+		D6C2EA31B6FAA5D2A30B37CC /* CurveEditorCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB39C81234A377A119DA2E /* CurveEditorCanvas.swift */; };
+		D7EED91433D469A60A759B75 /* CurveEditorCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB39C81234A377A119DA2E /* CurveEditorCanvas.swift */; };
+		E8BFD1A950FAEFD68B67DC3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 40B14C21E1C06646586434BF /* Assets.xcassets */; };
+		E91DA56906C4171568E2DE93 /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0CDAFC137C50942A825E7 /* StudioFader.swift */; };
+		F01EB8F3F51F92570EB99A5D /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD66BED663CB0D86B2FA64F0 /* AudioEngineController.swift */; };
+		F2C5A1F7F07DB32D22CE7A3D /* MacPlayerWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1085BC05C040CEE9DFC7F40 /* MacPlayerWindowView.swift */; };
+		F4EE9F657D49F47D636900B2 /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA873F8C87B099C83A12F979 /* OscilloscopeView.swift */; };
+		F60DB1817D2BFC2AAF27EB01 /* PresetSparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95F16FB4542C375606A30AF /* PresetSparklineView.swift */; };
+		F81762BD63542FF2B64A9800 /* MacAudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1BF7F31F485B29BD6BBDD7 /* MacAudioDeviceManager.swift */; };
+		F8B44A1381905165643BD060 /* AudioRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04B7E264208168B0A47B844 /* AudioRuntimeTests.swift */; };
+		F98E4E19745342E2B219A082 /* PresetKit in Frameworks */ = {isa = PBXBuildFile; productRef = D8E88CE8E5C1BE6531C3F22F /* PresetKit */; };
+		FE36C743E938553DC33A4251 /* SintoniaExport in Frameworks */ = {isa = PBXBuildFile; productRef = 3336AD9E25AC6C2E82C6E1F6 /* SintoniaExport */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		60AD1D9196D422B423B1E58E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0173B2B85AB75D36049CD939 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E20E47A5F0CC574D886B78B0;
+			remoteInfo = SintoniaMac;
+		};
+		C66F0DC02B15985BFF5341B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0173B2B85AB75D36049CD939 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F20F1AC87FC7640BD471134E;
+			remoteInfo = Sintonia;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		02F3CB18894267457BA31AF8 /* MacStudioWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacStudioWindowView.swift; sourceTree = "<group>"; };
+		0787D5E5E1D767C983B39F5D /* Sintonia.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Sintonia.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C8E5880E1833C75B816BCAB /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		1528C8427A899218CE21A6B9 /* HardwarePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwarePickers.swift; sourceTree = "<group>"; };
+		15571F41CEF70049FE23AA61 /* MacLibraryWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLibraryWindowView.swift; sourceTree = "<group>"; };
+		16AB39C81234A377A119DA2E /* CurveEditorCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorCanvas.swift; sourceTree = "<group>"; };
+		2B7BE612C97F29926561A7DA /* SintoniaMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SintoniaMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F3641D7F0C4FA57E7A63DAA /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		3F4D13D9F000BE8B879C12E0 /* SintoniaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintoniaMacApp.swift; sourceTree = "<group>"; };
+		40A3708C1B1904A0D1005899 /* SintoniaMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SintoniaMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		40B14C21E1C06646586434BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		64E871D486CE3E33995B422E /* MacMenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBarView.swift; sourceTree = "<group>"; };
+		66CB6ED51912F8FD95D66BE3 /* CurveEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorView.swift; sourceTree = "<group>"; };
+		67A7DB56685E55AB5D5B8C21 /* StudioKnob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioKnob.swift; sourceTree = "<group>"; };
+		687DFF99BB12C6E28CAAB667 /* StudioRackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioRackView.swift; sourceTree = "<group>"; };
+		6A068A6B00C9102C81DAFE5C /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		6A1BF7F31F485B29BD6BBDD7 /* MacAudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAudioDeviceManager.swift; sourceTree = "<group>"; };
+		6BCEA4BFB1AE6A50A0EB4596 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6E9E5EB217135C20131AC36F /* MacRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRuntimeTests.swift; sourceTree = "<group>"; };
+		73937B3EF7E71BEE1E41FCB1 /* MacAppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppCoordinator.swift; sourceTree = "<group>"; };
+		76BE19AC5B50AB1375995307 /* MiniTimelineScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniTimelineScrubber.swift; sourceTree = "<group>"; };
+		7751DF6BA98AC5A1DE717167 /* ImportResultAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportResultAlert.swift; sourceTree = "<group>"; };
+		7E910FC999E908346E2FE2CB /* AboutSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSheetView.swift; sourceTree = "<group>"; };
+		8983DE9F8C212EC36E390C16 /* LEDMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEDMeterView.swift; sourceTree = "<group>"; };
+		8B7F0FE0345AFCB4237F6818 /* SintoniaCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SintoniaCore; path = Packages/SintoniaCore; sourceTree = SOURCE_ROOT; };
+		A1085BC05C040CEE9DFC7F40 /* MacPlayerWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPlayerWindowView.swift; sourceTree = "<group>"; };
+		A35C43993F5377D3781EEF88 /* MacOutputDeviceMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOutputDeviceMenu.swift; sourceTree = "<group>"; };
+		A854CB39D381B936026392EA /* ExportSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheetView.swift; sourceTree = "<group>"; };
+		A8A0CDAFC137C50942A825E7 /* StudioFader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioFader.swift; sourceTree = "<group>"; };
+		B95F16FB4542C375606A30AF /* PresetSparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetSparklineView.swift; sourceTree = "<group>"; };
+		BE1AAD78390FC6DD24418B86 /* StudioTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioTheme.swift; sourceTree = "<group>"; };
+		C04B7E264208168B0A47B844 /* AudioRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRuntimeTests.swift; sourceTree = "<group>"; };
+		C92372BE18AA53F09625439A /* SintoniaIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintoniaIOSApp.swift; sourceTree = "<group>"; };
+		CD9E9F6242369AC824D27F43 /* PlatformViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformViewModifiers.swift; sourceTree = "<group>"; };
+		DA873F8C87B099C83A12F979 /* OscilloscopeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OscilloscopeView.swift; sourceTree = "<group>"; };
+		DD66BED663CB0D86B2FA64F0 /* AudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineController.swift; sourceTree = "<group>"; };
+		DF349B6E35EA4A8B2A4684D8 /* NoiseInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseInspectorView.swift; sourceTree = "<group>"; };
+		DF51DB7BF060A59B81A7698A /* MacCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacCommands.swift; sourceTree = "<group>"; };
+		E4A5CDD14C867E1EAAB776CB /* SintoniaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SintoniaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F7CCAB7B54DDE3AA24161D9C /* VoiceInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInspectorView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		25E29F42244048C0643F2C3C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				37724CEA8EB8723C4FA6A2CC /* SynthCore in Frameworks */,
+				BE602AC71003E6C7BADA3DE2 /* PresetKit in Frameworks */,
+				810D54FDFDE0F3B533A469B8 /* SintoniaExport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2A1DAF65242EF9CB6EFDBFBD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5838E8B9A82F23B26353F09 /* SynthCore in Frameworks */,
+				58811CC53BE2A7E1636BBCE8 /* PresetKit in Frameworks */,
+				469532289B8CF15D35DE322B /* SintoniaExport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7D054A8B676820468AF2A784 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49AFC640101869642B635185 /* SynthCore in Frameworks */,
+				8A15710B21AA031D7D8568BF /* PresetKit in Frameworks */,
+				FE36C743E938553DC33A4251 /* SintoniaExport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		94C298CB3C1FD5AFF292B8DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0B2027566FF4545D9AAEF28 /* SynthCore in Frameworks */,
+				F98E4E19745342E2B219A082 /* PresetKit in Frameworks */,
+				14130645B8C064736759CA37 /* SintoniaExport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0501D7BB5CDC324DA61704B0 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				37581C79DEF2321E99C9788D /* iOS */,
+				4B87BA654D132FF822386000 /* Mac */,
+				889B653E1E49FC54B9C0431E /* Resources */,
+				AF4452091BD684E8050859ED /* Sources */,
+				76B29453D22C4333377DBD7B /* Tests */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		0BDC78EB0C7EDB68F85E1D9B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				1528C8427A899218CE21A6B9 /* HardwarePickers.swift */,
+				8983DE9F8C212EC36E390C16 /* LEDMeterView.swift */,
+				DA873F8C87B099C83A12F979 /* OscilloscopeView.swift */,
+				A8A0CDAFC137C50942A825E7 /* StudioFader.swift */,
+				67A7DB56685E55AB5D5B8C21 /* StudioKnob.swift */,
+				BE1AAD78390FC6DD24418B86 /* StudioTheme.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		1D97EA31EF87B7F42CBB8F34 /* AudioRuntime */ = {
+			isa = PBXGroup;
+			children = (
+				DD66BED663CB0D86B2FA64F0 /* AudioEngineController.swift */,
+				6A1BF7F31F485B29BD6BBDD7 /* MacAudioDeviceManager.swift */,
+			);
+			path = AudioRuntime;
+			sourceTree = "<group>";
+		};
+		332770290D071FCEEE5BF38D /* MacRuntimeTests */ = {
+			isa = PBXGroup;
+			children = (
+				6E9E5EB217135C20131AC36F /* MacRuntimeTests.swift */,
+			);
+			path = MacRuntimeTests;
+			sourceTree = "<group>";
+		};
+		34E45859E01257BC7949FEEA /* StudioUI */ = {
+			isa = PBXGroup;
+			children = (
+				CD9E9F6242369AC824D27F43 /* PlatformViewModifiers.swift */,
+				0BDC78EB0C7EDB68F85E1D9B /* Components */,
+				F1E2C95B1742F33285E7F380 /* Library */,
+				88EA8EC8A0B3220B12D84885 /* Player */,
+				A8E46705A11779B4359E0838 /* Studio */,
+			);
+			path = StudioUI;
+			sourceTree = "<group>";
+		};
+		37581C79DEF2321E99C9788D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				C92372BE18AA53F09625439A /* SintoniaIOSApp.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		4B87BA654D132FF822386000 /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				3F4D13D9F000BE8B879C12E0 /* SintoniaMacApp.swift */,
+			);
+			path = Mac;
+			sourceTree = "<group>";
+		};
+		52A3AF9D47BB224FC8B3CF9B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0787D5E5E1D767C983B39F5D /* Sintonia.app */,
+				40A3708C1B1904A0D1005899 /* SintoniaMac.app */,
+				2B7BE612C97F29926561A7DA /* SintoniaMacTests.xctest */,
+				E4A5CDD14C867E1EAAB776CB /* SintoniaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6F0976009989DD79F019268C = {
+			isa = PBXGroup;
+			children = (
+				0501D7BB5CDC324DA61704B0 /* App */,
+				952455356F6CFEDBD9F2B924 /* Packages */,
+				52A3AF9D47BB224FC8B3CF9B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		76B29453D22C4333377DBD7B /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A2F5F966E7DBD31CF3D6F299 /* AudioRuntimeTests */,
+				332770290D071FCEEE5BF38D /* MacRuntimeTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		889B653E1E49FC54B9C0431E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				40B14C21E1C06646586434BF /* Assets.xcassets */,
+				0C8E5880E1833C75B816BCAB /* Localizable.xcstrings */,
+				6BCEA4BFB1AE6A50A0EB4596 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		88EA8EC8A0B3220B12D84885 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				7E910FC999E908346E2FE2CB /* AboutSheetView.swift */,
+				A854CB39D381B936026392EA /* ExportSheetView.swift */,
+				76BE19AC5B50AB1375995307 /* MiniTimelineScrubber.swift */,
+				6A068A6B00C9102C81DAFE5C /* PlayerView.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		952455356F6CFEDBD9F2B924 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				8B7F0FE0345AFCB4237F6818 /* SintoniaCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		A2F5F966E7DBD31CF3D6F299 /* AudioRuntimeTests */ = {
+			isa = PBXGroup;
+			children = (
+				C04B7E264208168B0A47B844 /* AudioRuntimeTests.swift */,
+			);
+			path = AudioRuntimeTests;
+			sourceTree = "<group>";
+		};
+		A8E46705A11779B4359E0838 /* Studio */ = {
+			isa = PBXGroup;
+			children = (
+				16AB39C81234A377A119DA2E /* CurveEditorCanvas.swift */,
+				66CB6ED51912F8FD95D66BE3 /* CurveEditorView.swift */,
+				DF349B6E35EA4A8B2A4684D8 /* NoiseInspectorView.swift */,
+				687DFF99BB12C6E28CAAB667 /* StudioRackView.swift */,
+				F7CCAB7B54DDE3AA24161D9C /* VoiceInspectorView.swift */,
+			);
+			path = Studio;
+			sourceTree = "<group>";
+		};
+		AD13228FF4D24FE524F45EAA /* MacUI */ = {
+			isa = PBXGroup;
+			children = (
+				73937B3EF7E71BEE1E41FCB1 /* MacAppCoordinator.swift */,
+				DF51DB7BF060A59B81A7698A /* MacCommands.swift */,
+				15571F41CEF70049FE23AA61 /* MacLibraryWindowView.swift */,
+				64E871D486CE3E33995B422E /* MacMenuBarView.swift */,
+				A35C43993F5377D3781EEF88 /* MacOutputDeviceMenu.swift */,
+				A1085BC05C040CEE9DFC7F40 /* MacPlayerWindowView.swift */,
+				02F3CB18894267457BA31AF8 /* MacStudioWindowView.swift */,
+			);
+			path = MacUI;
+			sourceTree = "<group>";
+		};
+		AF4452091BD684E8050859ED /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				1D97EA31EF87B7F42CBB8F34 /* AudioRuntime */,
+				AD13228FF4D24FE524F45EAA /* MacUI */,
+				34E45859E01257BC7949FEEA /* StudioUI */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		F1E2C95B1742F33285E7F380 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				7751DF6BA98AC5A1DE717167 /* ImportResultAlert.swift */,
+				2F3641D7F0C4FA57E7A63DAA /* LibraryView.swift */,
+				B95F16FB4542C375606A30AF /* PresetSparklineView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		506EDAF09076603FABAA8E8F /* SintoniaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ADF9DEFCC42C0C0AD5164880 /* Build configuration list for PBXNativeTarget "SintoniaTests" */;
+			buildPhases = (
+				9E5F261DC1E79CC09C6944AD /* Sources */,
+				7D054A8B676820468AF2A784 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				63344AE97CB1146FC046D8B3 /* PBXTargetDependency */,
+			);
+			name = SintoniaTests;
+			packageProductDependencies = (
+				1862B11D291B33785E632459 /* SynthCore */,
+				D7A38261B8640F08F4C8BF1C /* PresetKit */,
+				3336AD9E25AC6C2E82C6E1F6 /* SintoniaExport */,
+			);
+			productName = SintoniaTests;
+			productReference = E4A5CDD14C867E1EAAB776CB /* SintoniaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A4108012C0F2EC2BB93410A4 /* SintoniaMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 300BDD21600C22950C83D164 /* Build configuration list for PBXNativeTarget "SintoniaMacTests" */;
+			buildPhases = (
+				EB5910BE61DC6690C5C7CDB3 /* Sources */,
+				2A1DAF65242EF9CB6EFDBFBD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D1CE92B1BFEC41CEAD96D9B /* PBXTargetDependency */,
+			);
+			name = SintoniaMacTests;
+			packageProductDependencies = (
+				1253595FB85E23E7AF91947C /* SynthCore */,
+				704CA0F0AD47E91F0E8885AB /* PresetKit */,
+				1EDC7FC31181A4DB884F6566 /* SintoniaExport */,
+			);
+			productName = SintoniaMacTests;
+			productReference = 2B7BE612C97F29926561A7DA /* SintoniaMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E20E47A5F0CC574D886B78B0 /* SintoniaMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8CE85F56B656C9A3B40E5600 /* Build configuration list for PBXNativeTarget "SintoniaMac" */;
+			buildPhases = (
+				E9870D11BDBE5C92405DA998 /* Sources */,
+				7C2E8A7804CE535410A0D20C /* Resources */,
+				94C298CB3C1FD5AFF292B8DE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SintoniaMac;
+			packageProductDependencies = (
+				693223CD045EC822E70B9AC4 /* SynthCore */,
+				D8E88CE8E5C1BE6531C3F22F /* PresetKit */,
+				BE0C3FB5F39A0465019F401E /* SintoniaExport */,
+			);
+			productName = SintoniaMac;
+			productReference = 40A3708C1B1904A0D1005899 /* SintoniaMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F20F1AC87FC7640BD471134E /* Sintonia */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D943F5A8A1C7CAD52A6B810D /* Build configuration list for PBXNativeTarget "Sintonia" */;
+			buildPhases = (
+				719911E25A6FF3F63FDDD277 /* Sources */,
+				6DC69A06EFADBD7148C4F443 /* Resources */,
+				25E29F42244048C0643F2C3C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Sintonia;
+			packageProductDependencies = (
+				AB9AD5E01D3DFC2C2FC80719 /* SynthCore */,
+				D9B7A6FACA575D534F966EAC /* PresetKit */,
+				3594F37196F26FB6592E957D /* SintoniaExport */,
+			);
+			productName = Sintonia;
+			productReference = 0787D5E5E1D767C983B39F5D /* Sintonia.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0173B2B85AB75D36049CD939 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					F20F1AC87FC7640BD471134E = {
+						DevelopmentTeam = Y6A9LRQDH7;
+					};
+				};
+			};
+			buildConfigurationList = D36DEC2A0EDAC46546E9FAA0 /* Build configuration list for PBXProject "Sintonia" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				ru,
+			);
+			mainGroup = 6F0976009989DD79F019268C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E5BE61B2CEFC554B8E02AD49 /* XCLocalSwiftPackageReference "Packages/SintoniaCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 52A3AF9D47BB224FC8B3CF9B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F20F1AC87FC7640BD471134E /* Sintonia */,
+				506EDAF09076603FABAA8E8F /* SintoniaTests */,
+				E20E47A5F0CC574D886B78B0 /* SintoniaMac */,
+				A4108012C0F2EC2BB93410A4 /* SintoniaMacTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6DC69A06EFADBD7148C4F443 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				15ECAB80806E51C1990990D1 /* Assets.xcassets in Resources */,
+				BBA61672F541860AEDEFD36F /* Localizable.xcstrings in Resources */,
+				B1DDA73BA41EECDCAA878F0D /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7C2E8A7804CE535410A0D20C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E8BFD1A950FAEFD68B67DC3C /* Assets.xcassets in Resources */,
+				591B3F06204170EB84529D40 /* Localizable.xcstrings in Resources */,
+				C6F67C446A6BF24042AB4213 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		719911E25A6FF3F63FDDD277 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				627C447D688D1A7D140679F6 /* AboutSheetView.swift in Sources */,
+				F01EB8F3F51F92570EB99A5D /* AudioEngineController.swift in Sources */,
+				D7EED91433D469A60A759B75 /* CurveEditorCanvas.swift in Sources */,
+				8C33BED7EE14B0AE77069C30 /* CurveEditorView.swift in Sources */,
+				5F0443D71876875AA8A2F818 /* ExportSheetView.swift in Sources */,
+				A38241605068BE5EC984B04B /* HardwarePickers.swift in Sources */,
+				0D70D3FBE92E1B80FCC89B57 /* ImportResultAlert.swift in Sources */,
+				AAB54D973AF972FCE6488490 /* LEDMeterView.swift in Sources */,
+				4410D431B7597D3E1B82D976 /* LibraryView.swift in Sources */,
+				F81762BD63542FF2B64A9800 /* MacAudioDeviceManager.swift in Sources */,
+				BB1D318E114AC4594A7C66CB /* MiniTimelineScrubber.swift in Sources */,
+				B801D598B5C146E41E76B424 /* NoiseInspectorView.swift in Sources */,
+				F4EE9F657D49F47D636900B2 /* OscilloscopeView.swift in Sources */,
+				9D0332F00734A42435B5ADD6 /* PlatformViewModifiers.swift in Sources */,
+				77EC63FE6B8890107252F9D9 /* PlayerView.swift in Sources */,
+				F60DB1817D2BFC2AAF27EB01 /* PresetSparklineView.swift in Sources */,
+				B7B4C6ED0C67EC267A45F020 /* SintoniaIOSApp.swift in Sources */,
+				2C32367E03B0D5F21C48039B /* StudioFader.swift in Sources */,
+				A82F7C46527300DFE88617DA /* StudioKnob.swift in Sources */,
+				84B39E85B1BB9462F6A70238 /* StudioRackView.swift in Sources */,
+				A64EFA1B9F27E22782ACA165 /* StudioTheme.swift in Sources */,
+				1902A552C4D89C496A75F400 /* VoiceInspectorView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E5F261DC1E79CC09C6944AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8B44A1381905165643BD060 /* AudioRuntimeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9870D11BDBE5C92405DA998 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0E0140ED4E5DC554A799B539 /* AboutSheetView.swift in Sources */,
+				650A62D4F0E526CE7FA61640 /* AudioEngineController.swift in Sources */,
+				D6C2EA31B6FAA5D2A30B37CC /* CurveEditorCanvas.swift in Sources */,
+				BFD0F7468084F0284A4D7B40 /* CurveEditorView.swift in Sources */,
+				BF569CF59611C38C74AE87F8 /* ExportSheetView.swift in Sources */,
+				2DA111F491204D68040DD784 /* HardwarePickers.swift in Sources */,
+				1487E19D1CB1FF172C87A92B /* ImportResultAlert.swift in Sources */,
+				39FCDACB8E4BC7827AF3BE88 /* LEDMeterView.swift in Sources */,
+				C67CF87BFA082F530C4A4CB1 /* LibraryView.swift in Sources */,
+				D03FBCFE391B79209B68767D /* MacAppCoordinator.swift in Sources */,
+				405F0103CE72ED4739ABC977 /* MacAudioDeviceManager.swift in Sources */,
+				B3437D3BC58028E873B4E0BB /* MacCommands.swift in Sources */,
+				BCFF60367E05F2E003ECB659 /* MacLibraryWindowView.swift in Sources */,
+				BBC149800A80E037D02879CE /* MacMenuBarView.swift in Sources */,
+				185D247D6FEAC747F24C793B /* MacOutputDeviceMenu.swift in Sources */,
+				F2C5A1F7F07DB32D22CE7A3D /* MacPlayerWindowView.swift in Sources */,
+				8AFF6AD9E8042E53AB98DBB5 /* MacStudioWindowView.swift in Sources */,
+				1AA734940182A01D03C4D82B /* MiniTimelineScrubber.swift in Sources */,
+				554C5E327D2FF93E8900D5D2 /* NoiseInspectorView.swift in Sources */,
+				0AF5D1565275CD605086E98B /* OscilloscopeView.swift in Sources */,
+				3364A9A2B0D1C604A6E253EA /* PlatformViewModifiers.swift in Sources */,
+				092B73A15BC1DDDF14D804DD /* PlayerView.swift in Sources */,
+				2A9B68F53EA692FC5840FF27 /* PresetSparklineView.swift in Sources */,
+				1F82B81E5E6DFBDBE3D7E069 /* SintoniaMacApp.swift in Sources */,
+				E91DA56906C4171568E2DE93 /* StudioFader.swift in Sources */,
+				18C5BF12A646E45CBB333E9D /* StudioKnob.swift in Sources */,
+				A0CAF1484673C2EF56C96228 /* StudioRackView.swift in Sources */,
+				A86B4E970299110D69817347 /* StudioTheme.swift in Sources */,
+				1D1E07DF8739620DD913C6DA /* VoiceInspectorView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB5910BE61DC6690C5C7CDB3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0BD186BEDE82EC978BDCD36 /* MacRuntimeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3D1CE92B1BFEC41CEAD96D9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E20E47A5F0CC574D886B78B0 /* SintoniaMac */;
+			targetProxy = 60AD1D9196D422B423B1E58E /* PBXContainerItemProxy */;
+		};
+		63344AE97CB1146FC046D8B3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F20F1AC87FC7640BD471134E /* Sintonia */;
+			targetProxy = C66F0DC02B15985BFF5341B6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		04D18C677D2C383ACABB8BAA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.tests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Sintonia";
+			};
+			name = Debug;
+		};
+		296EFE063203B2355E16AAD2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/Mac/SintoniaMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.mac;
+				PRODUCT_MODULE_NAME = SintoniaMac;
+				PRODUCT_NAME = Sintonia;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		3E292ED3D9F0BFF8DFB2E6B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6A9LRQDH7;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		44FEF6A9F141CB27201A04C1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		62409375E956398CBE73C22B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.mac.tests;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Contents/MacOS/Sintonia";
+			};
+			name = Release;
+		};
+		75D04ED86930EAF9080F6794 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/Mac/SintoniaMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.mac;
+				PRODUCT_MODULE_NAME = SintoniaMac;
+				PRODUCT_NAME = Sintonia;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CCC9C161393A5E8588A44544 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		D3CEF63CA38AB59232829FBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.mac.tests;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Contents/MacOS/Sintonia";
+			};
+			name = Debug;
+		};
+		D7528376361EBDF21AC73D67 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.tests;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Sintonia";
+			};
+			name = Release;
+		};
+		F06CF3ED1C9628100F796379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Y6A9LRQDH7;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sintonia.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		300BDD21600C22950C83D164 /* Build configuration list for PBXNativeTarget "SintoniaMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3CEF63CA38AB59232829FBB /* Debug */,
+				62409375E956398CBE73C22B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8CE85F56B656C9A3B40E5600 /* Build configuration list for PBXNativeTarget "SintoniaMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				296EFE063203B2355E16AAD2 /* Debug */,
+				75D04ED86930EAF9080F6794 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		ADF9DEFCC42C0C0AD5164880 /* Build configuration list for PBXNativeTarget "SintoniaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04D18C677D2C383ACABB8BAA /* Debug */,
+				D7528376361EBDF21AC73D67 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D36DEC2A0EDAC46546E9FAA0 /* Build configuration list for PBXProject "Sintonia" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCC9C161393A5E8588A44544 /* Debug */,
+				44FEF6A9F141CB27201A04C1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D943F5A8A1C7CAD52A6B810D /* Build configuration list for PBXNativeTarget "Sintonia" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3E292ED3D9F0BFF8DFB2E6B1 /* Debug */,
+				F06CF3ED1C9628100F796379 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E5BE61B2CEFC554B8E02AD49 /* XCLocalSwiftPackageReference "Packages/SintoniaCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SintoniaCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1253595FB85E23E7AF91947C /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		1862B11D291B33785E632459 /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		1EDC7FC31181A4DB884F6566 /* SintoniaExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SintoniaExport;
+		};
+		3336AD9E25AC6C2E82C6E1F6 /* SintoniaExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SintoniaExport;
+		};
+		3594F37196F26FB6592E957D /* SintoniaExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SintoniaExport;
+		};
+		693223CD045EC822E70B9AC4 /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		704CA0F0AD47E91F0E8885AB /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+		AB9AD5E01D3DFC2C2FC80719 /* SynthCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SynthCore;
+		};
+		BE0C3FB5F39A0465019F401E /* SintoniaExport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SintoniaExport;
+		};
+		D7A38261B8640F08F4C8BF1C /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+		D8E88CE8E5C1BE6531C3F22F /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+		D9B7A6FACA575D534F966EAC /* PresetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresetKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0173B2B85AB75D36049CD939 /* Project object */;
+}

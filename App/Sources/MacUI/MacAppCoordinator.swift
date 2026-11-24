@@ -6,17 +6,17 @@ import SwiftUI
 import Synchronization
 import SynthCore
 import UniformTypeIdentifiers
-import WaveForgeExport
+import SintoniaExport
 
-/// Canonical SwiftUI `Window` scene identifiers for the WaveForge macOS desktop app.
-public enum WaveForgeWindowID: Sendable {
+/// Canonical SwiftUI `Window` scene identifiers for the Sintonia macOS desktop app.
+public enum SintoniaWindowID: Sendable {
     public static let player = "player"
     public static let library = "library"
     public static let studio = "studio"
 }
 
 /// Coordinates multi-window macOS state, menu commands, menu bar popover controls,
-/// drag-and-drop / Finder `.bwg` & `.waveforge` imports, and Studio unsaved-edit conflict guards.
+/// drag-and-drop / Finder `.bwg` & `.sintonia` imports, and Studio unsaved-edit conflict guards.
 @MainActor
 @Observable
 public final class MacAppCoordinator {
@@ -34,7 +34,7 @@ public final class MacAppCoordinator {
         case library
     }
 
-    /// Origin of an incoming `.bwg` or `.waveforge` URL import request.
+    /// Origin of an incoming `.bwg` or `.sintonia` URL import request.
     public enum ImportSource: Sendable, Equatable {
         case external
         case player
@@ -130,7 +130,7 @@ public final class MacAppCoordinator {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return appSupport
-            .appendingPathComponent("WaveForge", isDirectory: true)
+            .appendingPathComponent("Sintonia", isDirectory: true)
             .appendingPathComponent("Presets", isDirectory: true)
     }
 
@@ -196,7 +196,7 @@ public final class MacAppCoordinator {
     public func requestLoadPreset(_ preset: Preset, autoPlay: Bool = false) {
         if studioHasUnsavedChanges {
             pendingConflict = .loadPreset(preset, autoPlay: autoPlay)
-            activateAndOpenWindow(WaveForgeWindowID.studio)
+            activateAndOpenWindow(SintoniaWindowID.studio)
             return
         }
 
@@ -212,31 +212,31 @@ public final class MacAppCoordinator {
         let template = LibraryView.makeTemplatePreset()
         if studioHasUnsavedChanges {
             pendingConflict = .createNewTemplate(template)
-            activateAndOpenWindow(WaveForgeWindowID.studio)
+            activateAndOpenWindow(SintoniaWindowID.studio)
             return
         }
 
         engine.load(template)
         studioSyncToken = UUID()
-        activateAndOpenWindow(WaveForgeWindowID.studio)
+        activateAndOpenWindow(SintoniaWindowID.studio)
     }
 
     /// Brings the Player window forward and presents the macOS `.fileImporter` panel (`⌘O`).
     public func requestOpenImportPanel() {
         importPresentationTarget = .player
-        activateAndOpenWindow(WaveForgeWindowID.player)
+        activateAndOpenWindow(SintoniaWindowID.player)
         isShowingFileImporter = true
     }
 
     /// Brings the Player window forward and presents `ExportSheetView` (`⌘E`).
     public func requestShowExport() {
-        activateAndOpenWindow(WaveForgeWindowID.player)
+        activateAndOpenWindow(SintoniaWindowID.player)
         activePlayerSheet = .export
     }
 
-    /// Brings the Player window forward and presents `AboutSheetView` (`About WaveForge`).
+    /// Brings the Player window forward and presents `AboutSheetView` (`About Sintonia`).
     public func requestShowAbout() {
-        activateAndOpenWindow(WaveForgeWindowID.player)
+        activateAndOpenWindow(SintoniaWindowID.player)
         activePlayerSheet = .about
     }
 
@@ -259,20 +259,20 @@ public final class MacAppCoordinator {
     public func requestCloseStudioWindow() {
         if studioHasUnsavedChanges {
             pendingConflict = .closeStudio
-            activateAndOpenWindow(WaveForgeWindowID.studio)
+            activateAndOpenWindow(SintoniaWindowID.studio)
             return
         }
         studioCloseHandler?()
     }
 
-    /// Validates, imports, and saves `.bwg` / `.waveforge` URLs from Finder (`onOpenURL`), `⌘O`, or drag-and-drop.
+    /// Validates, imports, and saves `.bwg` / `.sintonia` URLs from Finder (`onOpenURL`), `⌘O`, or drag-and-drop.
     /// File I/O and parsing run off the main actor; the returned task completes once UI state is updated.
     @discardableResult
     public func handleIncomingURLs(_ urls: [URL]) -> Task<Void, Never> {
         handleIncomingURLs(urls, source: .external)
     }
 
-    /// Validates, imports, and saves `.bwg` / `.waveforge` URLs with an explicit source window for modal routing.
+    /// Validates, imports, and saves `.bwg` / `.sintonia` URLs with an explicit source window for modal routing.
     @discardableResult
     public func handleIncomingURLs(_ urls: [URL], source: ImportSource) -> Task<Void, Never> {
         guard !urls.isEmpty else { return Task {} }
@@ -308,7 +308,7 @@ public final class MacAppCoordinator {
             dismissImportToast()
             importAlert = buildFailureAlert(from: failures)
             if source == .external {
-                activateAndOpenWindow(WaveForgeWindowID.player)
+                activateAndOpenWindow(SintoniaWindowID.player)
             }
             return
         }
@@ -327,7 +327,7 @@ public final class MacAppCoordinator {
                 toastPresetName: alertContent == nil ? lastOutcome.preset.name : nil,
                 target: target
             )
-            activateAndOpenWindow(WaveForgeWindowID.studio)
+            activateAndOpenWindow(SintoniaWindowID.studio)
             return
         }
 
@@ -344,7 +344,7 @@ public final class MacAppCoordinator {
         }
 
         if source == .external {
-            activateAndOpenWindow(WaveForgeWindowID.player)
+            activateAndOpenWindow(SintoniaWindowID.player)
         }
     }
 
@@ -415,7 +415,7 @@ public final class MacAppCoordinator {
         case .createNewTemplate(let template):
             engine.load(template)
             studioSyncToken = UUID()
-            activateAndOpenWindow(WaveForgeWindowID.studio)
+            activateAndOpenWindow(SintoniaWindowID.studio)
 
         case .importPreset(let preset, let toastPresetName, let target):
             engine.load(preset)
@@ -431,7 +431,7 @@ public final class MacAppCoordinator {
         }
 
         if importAlert != nil && importPresentationTarget == .player {
-            activateAndOpenWindow(WaveForgeWindowID.player)
+            activateAndOpenWindow(SintoniaWindowID.player)
         }
     }
 
@@ -848,7 +848,7 @@ internal struct MacPresetDropOverlay: View {
                     .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(accentColor)
 
-                Text("Drop .bwg or .waveforge to Import")
+                Text("Drop .bwg or .sintonia to Import")
                     .font(.headline)
                     .foregroundStyle(StudioTheme.primaryText)
                     .multilineTextAlignment(.center)

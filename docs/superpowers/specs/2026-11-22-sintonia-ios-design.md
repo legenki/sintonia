@@ -1,20 +1,20 @@
-# Спецификация дизайна WaveForge (iOS 27)
+# Спецификация дизайна Sintonia (iOS 27)
 
 **Дата:** 2026-11-22  
 **Статус:** На ревью у пользователя  
-**Рабочее название проекта:** WaveForge (название для App Store можно изменить перед релизом)
+**Рабочее название проекта:** Sintonia (название для App Store можно изменить перед релизом)
 
 ---
 
 ## 1. Обзор и цель проекта
 
-**WaveForge** — нативное iOS-приложение с прицелом на публикацию в App Store, воссоздающее все синтезаторные возможности классического Windows-приложения **BrainWave Generator** (`bwgen.com`) в современном визуальном языке **iOS 27 (Liquid Glass)** с тактильными студийными аудиоконтролами в традициях **GarageBand**.
+**Sintonia** — нативное iOS-приложение с прицелом на публикацию в App Store, воссоздающее все синтезаторные возможности классического Windows-приложения **BrainWave Generator** (`bwgen.com`) в современном визуальном языке **iOS 27 (Liquid Glass)** с тактильными студийными аудиоконтролами в традициях **GarageBand**.
 
 ### Ключевые задачи продукта
 - **Упрощённый основной экран плеера:** пользователь открывает библиотеку, запускает 30–45-минутную программу и в реальном времени корректирует баланс ручками (`Master`, `Tones`, `Noise`, `Noise Color`), наблюдая за живым осциллографом и текущей фазой мозговых волн.
 - **Полная глубина BrainWave Generator «под капотом»:** в один тап раскрывается студийная стойка до **10 одновременных голосов-осцилляторов**, выбор режимов (**Binaural**, **Monaural**, **Isochronic**), **5 форм волн**, привязка трекинга между голосами, непрерывный спектр шума (`white → pink → brown`) и интерактивный редактор кривых по времени (частоты, биения, громкости, параметры шума).
 - **Полностью оффлайн-архитектура:** весь звук синтезируется в реальном времени на устройстве; нет аккаунтов, подписок, аналитики, рекламы и сетевых зависимостей.
-- **Пресеты и совместимость:** 18 оригинальных встроенных 30–45-минутных программ + импорт классических `.bwg` файлов (`bwgen.com/presets.html`) и собственного открытого JSON-формата `.waveforge` + быстрый оффлайн-экспорт любой сессии в **WAV** и **M4A**.
+- **Пресеты и совместимость:** 18 оригинальных встроенных 30–45-минутных программ + импорт классических `.bwg` файлов (`bwgen.com/presets.html`) и собственного открытого JSON-формата `.sintonia` + быстрый оффлайн-экспорт любой сессии в **WAV** и **M4A**.
 
 ### Целевая платформа и ограничения
 - **ОС и инструментарий:** iOS 27.2+ (Xcode 27.2), Swift 6, SwiftUI + AVFoundation / Core Audio.
@@ -31,18 +31,18 @@
 
 ## 2. Архитектура модулей и структура проекта
 
-Проект разделён на 4 изолированных модуля с явными границами ответственности. Платформонезависимое ядро (`SynthCore` и `PresetKit`) вынесено в локальный Swift Package `Packages/WaveForgeCore`, что позволяет гонять быстрые юнит-тесты командой `swift test` независимо от симулятора, а обвязка iOS и UI собираются через `xcodegen`.
+Проект разделён на 4 изолированных модуля с явными границами ответственности. Платформонезависимое ядро (`SynthCore` и `PresetKit`) вынесено в локальный Swift Package `Packages/SintoniaCore`, что позволяет гонять быстрые юнит-тесты командой `swift test` независимо от симулятора, а обвязка iOS и UI собираются через `xcodegen`.
 
 ### Структура каталогов
 ```text
-WaveForge/
-├── project.yml                         # Конфигурация XcodeGen (генерация WaveForge.xcodeproj)
+Sintonia/
+├── project.yml                         # Конфигурация XcodeGen (генерация Sintonia.xcodeproj)
 ├── docs/
 │   └── superpowers/
 │       └── specs/
-│           └── 2026-11-22-waveforge-ios-design.md
+│           └── 2026-11-22-sintonia-ios-design.md
 ├── Packages/
-│   └── WaveForgeCore/
+│   └── SintoniaCore/
 │       ├── Package.swift
 │       ├── Sources/
 │       │   ├── SynthCore/              # Lock-free real-time DSP-движок
@@ -57,7 +57,7 @@ WaveForge/
     ├── Resources/
     │   ├── Localizable.xcstrings       # Локализация EN + RU
     │   └── Assets.xcassets
-    ├── Info.plist                      # Background Audio + UTType (.bwg, .waveforge)
+    ├── Info.plist                      # Background Audio + UTType (.bwg, .sintonia)
     └── Tests/
         └── AudioRuntimeTests/          # Интеграционные тесты экспорта WAV/M4A
 ```
@@ -67,9 +67,9 @@ WaveForge/
 | Модуль | Ответственность | Зависимости | Публичный интерфейс |
 |---|---|---|---|
 | **`SynthCore`** | По-сэмпловый синтез, интерполяция кривых, 5 форм волн, 3 режима стимуляции, генерация стерео-шума, лимитер | Только `Foundation` / C-математика (`Darwin`) | `SynthRenderer`, `SynthSnapshot`, `LiveOverrides`, `TelemetryRingBuffer` |
-| **`PresetKit`** | Каноническая модель пресета, валидация, JSON-кодек `.waveforge`, 18 встроенных сессий, парсер `.bwg`, локальное хранилище | `Foundation`, `SynthCore` (только value-типы конфигурации) | `Preset`, `Voice`, `NoiseLayer`, `EnvelopeCurve`, `PresetCatalog`, `BWGImporter`, `PresetStore` |
+| **`PresetKit`** | Каноническая модель пресета, валидация, JSON-кодек `.sintonia`, 18 встроенных сессий, парсер `.bwg`, локальное хранилище | `Foundation`, `SynthCore` (только value-типы конфигурации) | `Preset`, `Voice`, `NoiseLayer`, `EnvelopeCurve`, `PresetCatalog`, `BWGImporter`, `PresetStore` |
 | **`AudioRuntime`** | Аудиосессия iOS, `AVAudioEngine` + `AVAudioSourceNode`, фон и прерывания, экран блокировки, оффлайн-экспорт WAV/M4A | `AVFoundation`, `MediaPlayer`, `SynthCore`, `PresetKit` | `AudioEngineController`, `SessionExporter`, `AudioRouteStatus`, `ExportFormat` |
-| **`StudioUI`** | Все экраны SwiftUI (Player, Studio Rack & Curve Editor, Library, Export, About), тактильные контролы GarageBand и осциллограф | `SwiftUI`, `UIKit` (хаптика/Share), `AudioRuntime`, `PresetKit` | `WaveForgeApp`, `PlayerView`, `StudioRackView`, `CurveEditorView`, `LibraryView` |
+| **`StudioUI`** | Все экраны SwiftUI (Player, Studio Rack & Curve Editor, Library, Export, About), тактильные контролы GarageBand и осциллограф | `SwiftUI`, `UIKit` (хаптика/Share), `AudioRuntime`, `PresetKit` | `SintoniaApp`, `PlayerView`, `StudioRackView`, `CurveEditorView`, `LibraryView` |
 
 ### Поток данных и аудио
 ```text
@@ -266,7 +266,7 @@ OscilloscopeView + LEDMeterView (StudioUI)
 #### Экран 3: Library & Import
 - Горизонтальные чипы категорий (`All`, `Focus`, `Relax`, `Sleep`, `Meditation`, `Study`, `Creative`, `Custom`) + строка поиска.
 - Карточки пресетов: название, категория, краткое описание, длительность, иконка наушников, мини-спарклайн кривой ритма за всю сессию.
-- Действия: `+ Новый пресет` (открывает пустой шаблон в Studio), `Импорт (.bwg / .waveforge)` через системный `fileImporter`, дублирование и экспорт пользовательских пресетов в `.waveforge` (JSON).
+- Действия: `+ Новый пресет` (открывает пустой шаблон в Studio), `Импорт (.bwg / .sintonia)` через системный `fileImporter`, дублирование и экспорт пользовательских пресетов в `.sintonia` (JSON).
 
 ---
 
@@ -297,7 +297,7 @@ OscilloscopeView + LEDMeterView (StudioUI)
 | 18 | **Problem Solving Sprint** | Creative | 30 мин | 2 голоса: Beta 16 Гц (`Binaural`) + лёгкий Gamma-акцент 38 Гц (`Isochronic` в середине 10–25 мин) + чистый `Pink` шум |
 
 ### Импорт оригинальных `.bwg` файлов (`BWGImporter`)
-- **Системная интеграция (`Info.plist`):** регистрация `UTImportedTypeDeclarations` / `UTExportedTypeDeclarations` и `CFBundleDocumentTypes` для расширений `.bwg` и `.waveforge` — файлы открываются напрямую из приложения «Файлы», Safari, AirDrop и системного Share Sheet.
+- **Системная интеграция (`Info.plist`):** регистрация `UTImportedTypeDeclarations` / `UTExportedTypeDeclarations` и `CFBundleDocumentTypes` для расширений `.bwg` и `.sintonia` — файлы открываются напрямую из приложения «Файлы», Safari, AirDrop и системного Share Sheet.
 - **Алгоритм парсинга `.bwg`:**
   1. Проверка заголовка `BrainWave Generator File` (ASCII-сигнатура). При несовпадении возвращается типизированная ошибка `BWGImportError.invalidHeader`.
   2. Чтение версии формата и метаданных (название, комментарий, общая длительность).
@@ -318,7 +318,7 @@ OscilloscopeView + LEDMeterView (StudioUI)
 
 ### Обработка ошибок экспорта и импорта
 - **Оффлайн-экспорт:** проверка свободного места перед записью, обработка ошибок `AVAudioFile` и отмены задачи; в блоке `defer` / отмены гарантированно удаляются незавершённые временные файлы, а UI получает локализованное сообщение.
-- **Импорт файлов:** повреждённые, пустые или не относящиеся к `.bwg` / `.waveforge` файлы отклоняются с понятным объяснением причины на языке интерфейса (EN/RU), не затрагивая текущее воспроизведение и базу пресетов.
+- **Импорт файлов:** повреждённые, пустые или не относящиеся к `.bwg` / `.sintonia` файлы отклоняются с понятным объяснением причины на языке интерфейса (EN/RU), не затрагивая текущее воспроизведение и базу пресетов.
 
 ### Соответствие требованиям App Store (Guideline 1.4.1)
 - Приложение позиционируется как инструмент для релаксации, концентрации и личного комфорта (wellness / audio synthesizer), **не является медицинским изделием** и не предназначено для диагностики, лечения или профилактики каких-либо заболеваний.
@@ -343,12 +343,12 @@ OscilloscopeView + LEDMeterView (StudioUI)
 
 ### 2. Юнит-тесты `PresetKitTests` (`swift test`)
 - **Встроенный каталог:** валидация всех 18 пресетов — длительность `1800...2700` с, от `1` до `10` голосов, все значения частот/громкостей в допустимых границах, отсутствие циклических ссылок в `trackingRule`.
-- **JSON Round-Trip:** кодирование и декодирование `Preset` в `.waveforge` с полным побайтовым/полевым совпадением.
+- **JSON Round-Trip:** кодирование и декодирование `Preset` в `.sintonia` с полным побайтовым/полевым совпадением.
 - **Парсер `.bwg` (`BWGImporter`):**
   - корректный разбор валидного `.bwg` пресета;
   - разбор пресета с внешним `.wav` фоном и флагом визуальной стимуляции — пресет успешно загружается, а `ImportReport` содержит оба пропущенных элемента;
   - отклонение повреждённого файла и файла с неверным заголовком с ожидаемым типом `BWGImportError`.
 
 ### 3. Сборка и интеграционные проверки (iOS 27.2)
-- Генерация Xcode-проекта (`xcodegen generate`) и чистая сборка `xcodebuild build -scheme WaveForge -sdk iphonesimulator`.
+- Генерация Xcode-проекта (`xcodegen generate`) и чистая сборка `xcodebuild build -scheme Sintonia -sdk iphonesimulator`.
 - Интеграционный тест `SessionExporter`: экспорт тестовой сессии в `.wav` и `.m4a`, чтение полученных файлов через `AVAudioFile` и проверка частоты дискретизации (`48000 Hz`), количества каналов (`2`), ненулевого аудиосигнала и точной длительности файла.
