@@ -3,14 +3,24 @@
 **Brainwave entrainment studio for iPhone, iPad and Mac.** Sintonia generates binaural, monaural and isochronic tones with colored noise in real time, lets you shape every parameter over the session with automation curves, and exports finished sessions as audio files.
 
 <p align="center">
-  <img src="docs/screenshots/ios-player.png" width="240" alt="Player with live stereo oscilloscope and smart controls">
-  <img src="docs/screenshots/ios-library.png" width="240" alt="Preset library with beat-frequency sparklines">
-  <img src="docs/screenshots/ios-studio.png" width="240" alt="Studio rack with voice channels and inspector">
+  <img src="docs/appstore/marketing/en/iphone-1-player.jpg" width="200" alt="Player: Tune in to your rhythm. Binaural, monaural and isochronic tones, generated live">
+  <img src="docs/appstore/marketing/en/iphone-2-library.jpg" width="200" alt="Library: 18 sessions ready to play">
+  <img src="docs/appstore/marketing/en/iphone-3-studio.jpg" width="200" alt="Studio: design your own sound with up to 10 voices">
+  <img src="docs/appstore/marketing/en/iphone-4-curves.jpg" width="200" alt="Automation: shape every minute with curves">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/ios-curves.png" width="240" alt="Curve editor automating the beat frequency across brainwave bands">
+  <img src="docs/appstore/marketing/en/mac-1-studio.jpg" width="410" alt="Sintonia for Mac: a full studio on your desktop">
+  <img src="docs/appstore/marketing/en/mac-2-player.jpg" width="410" alt="Mac Player and Library windows">
 </p>
+
+<p align="center">
+  <img src="docs/appstore/marketing/en/ipad-1-player.jpg" width="270" alt="iPad player with a large live oscilloscope">
+  <img src="docs/appstore/marketing/en/ipad-2-library.jpg" width="270" alt="iPad library with a session for every moment">
+  <img src="docs/appstore/marketing/en/ipad-3-studio.jpg" width="270" alt="iPad Studio with the rack and curve editor side by side">
+</p>
+
+<p align="center"><sub>App Store artwork in English and Russian, plus metadata and the submission checklist, is in <a href="docs/appstore"><code>docs/appstore</code></a>.</sub></p>
 
 ## Features
 
