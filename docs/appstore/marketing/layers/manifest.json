@@ -1,0 +1,233 @@
+[
+  {
+    "accent" : "#1AD9C5",
+    "background" : "iphone-1-player-background.jpg",
+    "devices" : [
+      {
+        "height" : 2343.718122215877,
+        "width" : 1243.9680000000001,
+        "x" : 38.015999999999963,
+        "y" : 562.40647401484864
+      }
+    ],
+    "en" : {
+      "eyebrow" : "LISTEN",
+      "subtitle" : "Binaural, monaural and isochronic\ntones, generated live",
+      "title" : "Tune in to\nyour rhythm"
+    },
+    "height" : 2868,
+    "id" : "iphone-1-player",
+    "ru" : {
+      "eyebrow" : "СЛУШАЙТЕ",
+      "subtitle" : "Бинауральные, монауральные\nи изохронные тоны вживую",
+      "title" : "Настройтесь\nна свой ритм"
+    },
+    "width" : 1320
+  },
+  {
+    "accent" : "#F5A623",
+    "background" : "iphone-2-library-background.jpg",
+    "devices" : [
+      {
+        "height" : 2343.718122215877,
+        "width" : 1243.9680000000001,
+        "x" : 38.015999999999963,
+        "y" : 562.40647401484864
+      }
+    ],
+    "en" : {
+      "eyebrow" : "18 SESSIONS",
+      "subtitle" : "Focus, relax, sleep, meditate,\nstudy and create",
+      "title" : "Ready when\nyou are"
+    },
+    "height" : 2868,
+    "id" : "iphone-2-library",
+    "ru" : {
+      "eyebrow" : "18 СЕССИЙ",
+      "subtitle" : "Фокус, отдых, сон, медитация,\nучёба и творчество",
+      "title" : "Всё готово\nк прослушиванию"
+    },
+    "width" : 1320
+  },
+  {
+    "accent" : "#1AD9C5",
+    "background" : "iphone-3-studio-background.jpg",
+    "devices" : [
+      {
+        "height" : 2343.718122215877,
+        "width" : 1243.9680000000001,
+        "x" : 38.015999999999963,
+        "y" : 562.40647401484864
+      }
+    ],
+    "en" : {
+      "eyebrow" : "STUDIO",
+      "subtitle" : "Up to 10 voices, five waveforms\nand colored noise",
+      "title" : "Design your\nown sound"
+    },
+    "height" : 2868,
+    "id" : "iphone-3-studio",
+    "ru" : {
+      "eyebrow" : "СТУДИЯ",
+      "subtitle" : "До 10 голосов, пять форм волны\nи цветной шум",
+      "title" : "Создайте\nсвой звук"
+    },
+    "width" : 1320
+  },
+  {
+    "accent" : "#1AD9C5",
+    "background" : "iphone-4-curves-background.jpg",
+    "devices" : [
+      {
+        "height" : 2343.718122215877,
+        "width" : 1243.9680000000001,
+        "x" : 38.015999999999963,
+        "y" : 562.40647401484864
+      }
+    ],
+    "en" : {
+      "eyebrow" : "AUTOMATION",
+      "subtitle" : "Draw how beat, carrier and\nvolume evolve over time",
+      "title" : "Shape every\nminute"
+    },
+    "height" : 2868,
+    "id" : "iphone-4-curves",
+    "ru" : {
+      "eyebrow" : "АВТОМАТИЗАЦИЯ",
+      "subtitle" : "Задайте кривыми, как меняются\nбиения, несущая и громкость",
+      "title" : "Управляйте\nкаждой минутой"
+    },
+    "width" : 1320
+  },
+  {
+    "accent" : "#1AD9C5",
+    "background" : "ipad-1-player-background.jpg",
+    "devices" : [
+      {
+        "height" : 2504.6112923760179,
+        "width" : 1996.3008,
+        "x" : 33.849600000000009,
+        "y" : 389.69521835677267
+      }
+    ],
+    "en" : {
+      "eyebrow" : "LISTEN",
+      "subtitle" : "A live stereo oscilloscope follows every beat",
+      "title" : "See the sound you hear"
+    },
+    "height" : 2752,
+    "id" : "ipad-1-player",
+    "ru" : {
+      "eyebrow" : "СЛУШАЙТЕ",
+      "subtitle" : "Живой стереоосциллограф следит за каждым биением",
+      "title" : "Смотрите, что слышите"
+    },
+    "width" : 2064
+  },
+  {
+    "accent" : "#F5A623",
+    "background" : "ipad-2-library-background.jpg",
+    "devices" : [
+      {
+        "height" : 2504.6112923760179,
+        "width" : 1996.3008,
+        "x" : 33.849600000000009,
+        "y" : 389.69521835677267
+      }
+    ],
+    "en" : {
+      "eyebrow" : "18 SESSIONS",
+      "subtitle" : "30 to 45 minutes, from deep focus to deep sleep",
+      "title" : "A session for every moment"
+    },
+    "height" : 2752,
+    "id" : "ipad-2-library",
+    "ru" : {
+      "eyebrow" : "18 СЕССИЙ",
+      "subtitle" : "От 30 до 45 минут — от глубокого фокуса до сна",
+      "title" : "Сессия на любой случай"
+    },
+    "width" : 2064
+  },
+  {
+    "accent" : "#1AD9C5",
+    "background" : "ipad-3-studio-background.jpg",
+    "devices" : [
+      {
+        "height" : 2504.6112923760179,
+        "width" : 1996.3008,
+        "x" : 33.849600000000009,
+        "y" : 389.69521835677267
+      }
+    ],
+    "en" : {
+      "eyebrow" : "STUDIO",
+      "subtitle" : "Mixer rack and curve editor on one screen",
+      "title" : "Your studio, side by side"
+    },
+    "height" : 2752,
+    "id" : "ipad-3-studio",
+    "ru" : {
+      "eyebrow" : "СТУДИЯ",
+      "subtitle" : "Микшерный рэк и редактор кривых рядом",
+      "title" : "Вся студия на одном экране"
+    },
+    "width" : 2064
+  },
+  {
+    "accent" : "#1AD9C5",
+    "background" : "mac-1-studio-background.jpg",
+    "devices" : [
+      {
+        "height" : 880,
+        "width" : 1300,
+        "x" : 70,
+        "y" : 175
+      }
+    ],
+    "en" : {
+      "eyebrow" : "SINTONIA FOR MAC",
+      "subtitle" : "",
+      "title" : "A full studio on your desktop"
+    },
+    "height" : 900,
+    "id" : "mac-1-studio",
+    "ru" : {
+      "eyebrow" : "SINTONIA ДЛЯ MAC",
+      "subtitle" : "",
+      "title" : "Полноценная студия на рабочем столе"
+    },
+    "width" : 1440
+  },
+  {
+    "accent" : "#F5A623",
+    "background" : "mac-2-player-background.jpg",
+    "devices" : [
+      {
+        "height" : 780,
+        "width" : 920,
+        "x" : 493,
+        "y" : 150
+      },
+      {
+        "height" : 840,
+        "width" : 570,
+        "x" : 27,
+        "y" : 110
+      }
+    ],
+    "en" : {
+      "eyebrow" : "PLAYER + LIBRARY",
+      "subtitle" : "",
+      "title" : "Play, browse, focus"
+    },
+    "height" : 900,
+    "id" : "mac-2-player",
+    "ru" : {
+      "eyebrow" : "ПЛЕЕР И БИБЛИОТЕКА",
+      "subtitle" : "",
+      "title" : "Слушайте, выбирайте, работайте"
+    },
+    "width" : 1440
+  }
+]

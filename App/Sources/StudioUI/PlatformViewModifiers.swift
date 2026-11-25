@@ -48,3 +48,15 @@ public extension View {
         wfSearchable(text: text, prompt: Text(prompt))
     }
 }
+
+public extension View {
+    /// Renders a `Menu` as just its custom label. On macOS the default style draws a bordered
+    /// pull-down with its own disclosure arrow, which widens compact labels and squeezes their neighbors.
+    func studioMenuButtonStyle() -> some View {
+        self
+            .menuStyle(.button)
+            .buttonStyle(.plain)
+            .menuIndicator(.hidden)
+            .fixedSize()
+    }
+}

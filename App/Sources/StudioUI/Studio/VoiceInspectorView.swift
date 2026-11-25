@@ -509,6 +509,7 @@ public struct VoiceInspectorView: View {
             .background(Capsule().fill(StudioTheme.recessedWell))
             .overlay(Capsule().strokeBorder(StudioTheme.hairlineHighlight, lineWidth: 0.75))
         }
+        .studioMenuButtonStyle()
         .accessibilityLabel(Text("Source Voice"))
     }
 

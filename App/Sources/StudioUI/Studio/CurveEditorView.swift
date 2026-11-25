@@ -459,6 +459,7 @@ public struct CurveEditorView: View {
             .background(Capsule().fill(StudioTheme.elevatedSurface))
             .overlay(Capsule().strokeBorder(StudioTheme.hairlineHighlight, lineWidth: 0.75))
         }
+        .studioMenuButtonStyle()
     }
 
     private var interpolationSwitcher: some View {

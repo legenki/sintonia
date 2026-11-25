@@ -175,15 +175,21 @@ Background audio (UIBackgroundModes: audio) is used only to keep a session playi
 
 ## Screenshots
 
-| Display | Size (px) | Files |
+**Upload the marketing posters** from `marketing/en/` (English) and `marketing/ru/` (Russian). They combine an abstract background, a device frame, the real app screenshot and a headline.
+
+| Display | Size (px) | Posters |
 |---|---|---|
-| iPhone 6.9″ (required) | 1320 × 2868 | `screenshots/iphone-6.9/` — player, library, studio, curves |
-| iPad 13″ (required, the app supports iPad) | 2064 × 2752 | `screenshots/ipad-13/` — player, library, studio |
-| Mac (required for the macOS app) | 2880 × 1800 (16:10) | _not captured yet, see below_ |
+| iPhone 6.9″ (required) | 1320 × 2868 | `iphone-1-player`, `iphone-2-library`, `iphone-3-studio`, `iphone-4-curves` |
+| iPad 13″ (required, the app supports iPad) | 2064 × 2752 | `ipad-1-player`, `ipad-2-library`, `ipad-3-studio` |
+| Mac (required for the macOS app) | 1440 × 900 (16:10, accepted by App Store Connect) | `mac-1-studio`, `mac-2-player` |
 
-App Store Connect scales the 6.9″ and 13″ sets down for smaller devices.
+App Store Connect scales the 6.9″ and 13″ sets down for smaller devices. The Mac posters use 1440 × 900 so the windows, captured on a non-Retina display, stay at 1:1 pixels instead of being upscaled.
 
-**Mac screenshots:** run the macOS app, start a preset, and open the Player, Library and Studio windows. Press `⌘⇧4`, then `Space`, and click a window to capture it. Place the captures on a 2880 × 1800 canvas, either with a dark background or by arranging the three windows side by side.
+- **Editable layouts:** [Figma — Sintonia App Store Screenshots](https://www.figma.com/design/Is7n48qrEkQLSNONBsgyB0) has EN and RU pages with separate layers for the background, device and text. Figma uses Inter because it cannot lay out the local SF Pro font in the cloud. If SF Pro is installed, select the text and switch the font family.
+- **Regenerate the posters** after changing the copy or the screenshots:
+  `swiftc -O Tools/AppStoreArt/*.swift -o /tmp/sintonia-art && /tmp/sintonia-art`
+  The generator reads `screenshots/iphone-6.9`, `screenshots/ipad-13` and `screenshots/mac`. It writes the posters plus `marketing/layers/` (backgrounds and `manifest.json`).
+- **Raw captures** without backgrounds are in `screenshots/` if you prefer plain screenshots.
 
 ## Submission checklist
 

@@ -1090,6 +1090,8 @@ private struct VoiceChannelStrip: View {
             HStack(spacing: 4) {
                 Text("Ch \(index + 1)")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .lineLimit(1)
+                    .fixedSize()
                     .foregroundStyle(isSelected ? StudioTheme.chassisGraphite : StudioTheme.secondaryText)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
@@ -1120,6 +1122,7 @@ private struct VoiceChannelStrip: View {
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
+                .studioMenuButtonStyle()
                 .padding(.vertical, -11)
                 .padding(.horizontal, -10)
                 .accessibilityLabel(Text("Voice"))

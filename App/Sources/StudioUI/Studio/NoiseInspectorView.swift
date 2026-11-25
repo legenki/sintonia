@@ -211,6 +211,7 @@ public struct NoiseInspectorView: View {
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(StudioTheme.recessedWell))
             .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(StudioTheme.hairlineHighlight, lineWidth: 0.75))
         }
+        .studioMenuButtonStyle()
         .accessibilityLabel(Text("Pulse Source"))
     }
 
