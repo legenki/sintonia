@@ -216,6 +216,22 @@ func drawText(_ ctx: CGContext, _ text: String, font: NSFont, color: CGColor, x:
     return height
 }
 
+/// Largest size ≤ `size` at which `text` keeps its explicit line breaks (no extra wrapping) within `width`.
+func fittedTitleSize(_ text: String, size: CGFloat, width: CGFloat, tracking: CGFloat) -> CGFloat {
+    let lines = CGFloat(text.split(separator: "\n", omittingEmptySubsequences: false).count)
+    var s = size
+    while s > 20 {
+        let attr = NSAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: s, weight: .bold), .kern: -s * tracking])
+        let setter = CTFramesetterCreateWithAttributedString(attr)
+        let fit = CTFramesetterSuggestFrameSizeWithConstraints(setter, CFRange(), nil, CGSize(width: width, height: .greatestFiniteMagnitude), nil)
+        if fit.height <= lines * s * 1.3 { return s }
+        s -= 2
+    }
+    return s
+}
+
+var fittedTitles: [String: CGFloat] = [:]
+
 // MARK: - Compose
 
 let langs = ["en", "ru"]
@@ -276,7 +292,9 @@ for poster in posters {
         // Text block.
         let unit = isMac ? H / 900 : W / 1320 * (poster.size == tablet ? 0.82 : 1)
         let eyebrowSize = (isMac ? 18 : 40) * unit
-        let titleSize = (isMac ? 46 : 112) * unit
+        let textWidthForFit = W * 0.86
+        let titleSize = fittedTitleSize(copy.title, size: (isMac ? 46 : 112) * unit, width: textWidthForFit, tracking: 0.015)
+        fittedTitles["\(lang)/\(poster.id)"] = titleSize
         let subSize = (isMac ? 0 : 50) * unit
         let textWidth = W * 0.86
         var y = isMac ? 52 * unit : H * 0.052
@@ -307,6 +325,7 @@ for poster in posters {
     print("rendered \(poster.id)")
 }
 
+for key in fittedTitles.keys.sorted() { print("title size \(key): \(fittedTitles[key]!)") }
 let json = try JSONSerialization.data(withJSONObject: manifest, options: [.prettyPrinted, .sortedKeys])
 try json.write(to: layersDir.appendingPathComponent("manifest.json"))
 print("done")
