@@ -12,7 +12,7 @@ Copy these fields into App Store Connect. Character limits are checked by `docs/
 | Privacy Policy URL | https://github.com/legenki/sintonia/blob/main/PRIVACY.md |
 | Support URL | https://github.com/legenki/sintonia/issues |
 | Marketing URL (optional) | https://github.com/legenki/sintonia |
-| Copyright | 2026 _your legal name or company_ |
+| Copyright | 2026 legenki.com |
 
 ## App Privacy (nutrition label)
 
@@ -22,7 +22,7 @@ No tracking, no third-party SDKs, no network access.
 ## Age rating questionnaire
 
 Answer **None / No** to every content question: violence, sexual content, profanity, drugs, gambling, horror, medical information, user-generated content, unrestricted web access, messaging, contests.
-Expected rating: **4+**.
+Rating set in App Store Connect: **9+**.
 
 ## Export compliance
 
@@ -178,13 +178,14 @@ Background audio (UIBackgroundModes: audio) is used only to keep a session playi
 
 | Display | Size (px) | Posters |
 |---|---|---|
-| iPhone 6.9″ (required) | 1320 × 2868 | `iphone-1-player`, `iphone-2-library`, `iphone-3-studio`, `iphone-4-curves` |
+| iPhone 6.9″ | 1320 × 2868 | `iphone-1-player`, `iphone-2-library`, `iphone-3-studio`, `iphone-4-curves` |
+| iPhone 6.3″ (uploaded: the iPhone slot accepts only 6.1/6.3″ sizes) | 1206 × 2622 | same posters, in `marketing/{en,ru}/iphone-6.3/` |
 | iPad 13″ (required, the app supports iPad) | 2064 × 2752 | `ipad-1-player`, `ipad-2-library`, `ipad-3-studio` |
 | Mac (required for the macOS app) | 1440 × 900 (16:10, accepted by App Store Connect) | `mac-1-studio`, `mac-2-player` |
 
-App Store Connect scales the 6.9″ and 13″ sets down for smaller devices. The Mac posters use 1440 × 900 so the windows, captured on a non-Retina display, stay at 1:1 pixels instead of being upscaled.
+The 6.3″ set is the 6.9″ posters resized with `sips -z 2622 1206`. App Store Connect scales the 13″ set down for smaller devices. The Mac posters use 1440 × 900 so the windows, captured on a non-Retina display, stay at 1:1 pixels instead of being upscaled.
 
-- **Editable layouts:** [Figma — Sintonia App Store Screenshots](https://www.figma.com/design/Is7n48qrEkQLSNONBsgyB0) has EN and RU pages with separate layers for the background, device and text. Figma uses Inter because it cannot lay out the local SF Pro font in the cloud. If SF Pro is installed, select the text and switch the font family.
+- **Editable layouts:** [Figma — Sintonia App Store Screenshots](https://www.figma.com/design/Is7n48qrEkQLSNONBsgyB0) has EN and RU pages with separate layers for the background, device and text. Text uses SF Pro in auto-layout stacks, so the Figma desktop app reflows it when SF Pro is installed locally.
 - **Regenerate the posters** after changing the copy or the screenshots:
   `swiftc -O Tools/AppStoreArt/*.swift -o /tmp/sintonia-art && /tmp/sintonia-art`
   The generator reads `screenshots/iphone-6.9`, `screenshots/ipad-13` and `screenshots/mac`. It writes the posters plus `marketing/layers/` (backgrounds and `manifest.json`).
