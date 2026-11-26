@@ -4,9 +4,8 @@ Copy these fields into App Store Connect. Character limits are checked by `docs/
 
 | Field | Value |
 |---|---|
-| Bundle ID (iOS / iPadOS) | `com.sintonia.app` |
-| Bundle ID (macOS) | `com.sintonia.mac` |
-| SKU | `sintonia-ios`, `sintonia-mac` |
+| Bundle ID (iOS, iPadOS and macOS, Universal Purchase) | `com.legenki.sintonia` |
+| SKU | `sintonia` |
 | Version / build | 1.0.0 (1) |
 | Primary category | Health & Fitness |
 | Secondary category | Music |
@@ -193,8 +192,8 @@ App Store Connect scales the 6.9″ and 13″ sets down for smaller devices. The
 
 ## Submission checklist
 
-1. **developer.apple.com → Identifiers:** register the App IDs `com.sintonia.app` and `com.sintonia.mac`. No extra capabilities are needed.
-2. **App Store Connect → My Apps → New App:** create one record for iOS and one for macOS with those bundle IDs. Check that the name "Sintonia" is available. If it is taken, use a fallback such as "Sintonia: Brainwave Studio".
+1. **developer.apple.com → Identifiers:** register the App ID `com.legenki.sintonia` (shared by iOS and macOS for Universal Purchase). No extra capabilities are needed.
+2. **App Store Connect → My Apps → New App:** create one record with the iOS and macOS platforms and bundle ID `com.legenki.sintonia`. Check that the name "Sintonia" is available. If it is taken, use a fallback such as "Sintonia: Brainwave Studio".
 3. Fill in the fields above: privacy policy URL, App Privacy ("Data Not Collected"), age rating, categories, EN and RU texts, and screenshots.
 4. **Xcode:** run `xcodegen generate`, open `Sintonia.xcodeproj`, choose *Any iOS Device*, then **Product → Archive** → **Distribute App → App Store Connect**. Repeat with the `SintoniaMac` scheme on *Any Mac*.
 5. When the builds finish processing, attach them to version 1.0.0, paste the App Review notes, set price and availability, and **Submit for Review**.

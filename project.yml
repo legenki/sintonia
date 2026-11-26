@@ -1,6 +1,6 @@
 name: Sintonia
 options:
-  bundleIdPrefix: com.sintonia
+  bundleIdPrefix: com.legenki
   deploymentTarget:
     iOS: "27.2"
     macOS: "27.2"
@@ -50,7 +50,7 @@ targets:
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
-              - com.sintonia.preset
+              - com.legenki.sintonia.preset
               - com.waveforge.preset
           - CFBundleTypeName: BrainWave Generator Preset
             CFBundleTypeRole: Viewer
@@ -58,7 +58,7 @@ targets:
             LSItemContentTypes:
               - com.noromaa.bwg
         UTExportedTypeDeclarations:
-          - UTTypeIdentifier: com.sintonia.preset
+          - UTTypeIdentifier: com.legenki.sintonia.preset
             UTTypeDescription: Sintonia Preset
             UTTypeConformsTo:
               - public.json
@@ -91,7 +91,7 @@ targets:
                 - application/x-bwg
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.legenki.sintonia
         DEVELOPMENT_TEAM: Y6A9LRQDH7
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0.0"
@@ -122,7 +122,7 @@ targets:
       - path: App/Tests/AudioRuntimeTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.legenki.sintonia.tests
         IPHONEOS_DEPLOYMENT_TARGET: "27.2"
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "6.0"
@@ -163,7 +163,7 @@ targets:
             CFBundleTypeRole: Editor
             LSHandlerRank: Owner
             LSItemContentTypes:
-              - com.sintonia.preset
+              - com.legenki.sintonia.preset
               - com.waveforge.preset
           - CFBundleTypeName: BrainWave Generator Preset
             CFBundleTypeRole: Viewer
@@ -171,7 +171,7 @@ targets:
             LSItemContentTypes:
               - com.noromaa.bwg
         UTExportedTypeDeclarations:
-          - UTTypeIdentifier: com.sintonia.preset
+          - UTTypeIdentifier: com.legenki.sintonia.preset
             UTTypeDescription: Sintonia Preset
             UTTypeConformsTo:
               - public.json
@@ -211,7 +211,7 @@ targets:
       base:
         PRODUCT_NAME: Sintonia
         PRODUCT_MODULE_NAME: SintoniaMac
-        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.mac
+        PRODUCT_BUNDLE_IDENTIFIER: com.legenki.sintonia # Universal Purchase: same ID as iOS
         DEVELOPMENT_TEAM: Y6A9LRQDH7
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0.0"
@@ -243,7 +243,7 @@ targets:
       - path: App/Tests/MacRuntimeTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.sintonia.mac.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.legenki.sintonia.mac.tests
         MACOSX_DEPLOYMENT_TARGET: "27.2"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Sintonia.app/Contents/MacOS/Sintonia"
         GENERATE_INFOPLIST_FILE: YES

@@ -17,7 +17,7 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.sintonia.preset</string>
+				<string>com.legenki.sintonia.preset</string>
 				<string>com.waveforge.preset</string>
 			</array>
 		</dict>
@@ -67,7 +67,7 @@
 			<key>UTTypeDescription</key>
 			<string>Sintonia Preset</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.sintonia.preset</string>
+			<string>com.legenki.sintonia.preset</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

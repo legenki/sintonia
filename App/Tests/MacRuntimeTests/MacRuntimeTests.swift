@@ -10,7 +10,7 @@ import SintoniaExport
 @Suite("SintoniaMac Runtime & Review Focus Tests", .serialized)
 struct MacRuntimeTests {
     @Test func appBundleContainsPrivacyManifestWithRequiredDiskSpaceReason() throws {
-        let hostBundle = try #require(Bundle(identifier: "com.sintonia.mac"))
+        let hostBundle = try #require(Bundle(identifier: "com.legenki.sintonia"))
         let privacyURL = try #require(
             hostBundle.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
         )
@@ -587,7 +587,7 @@ struct MacRuntimeTests {
     }
 
     @Test func macBundleContainsPrivacyManifestE174_1AndRussianTranslations() throws {
-        let hostBundle = try #require(Bundle(identifier: "com.sintonia.mac"))
+        let hostBundle = try #require(Bundle(identifier: "com.legenki.sintonia"))
         let privacyURL = try #require(
             hostBundle.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
         )
@@ -671,7 +671,7 @@ struct MacRuntimeTests {
     }
 
     private func makeIsolatedDefaults() throws -> (UserDefaults, () -> Void) {
-        let suiteName = "com.sintonia.mac.tests.\(UUID().uuidString)"
+        let suiteName = "com.legenki.sintonia.mac.tests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         return (defaults, {

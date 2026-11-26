@@ -9,8 +9,8 @@ import SintoniaExport
 // MARK: - Registered Document Content Types
 
 public extension UTType {
-    /// Exported Sintonia JSON preset document (`com.sintonia.preset`, `.sintonia`).
-    static let sintoniaPreset = UTType(exportedAs: "com.sintonia.preset", conformingTo: .json)
+    /// Exported Sintonia JSON preset document (`com.legenki.sintonia.preset`, `.sintonia`).
+    static let sintoniaPreset = UTType(exportedAs: "com.legenki.sintonia.preset", conformingTo: .json)
 
     /// Imported classic BrainWave Generator preset (`com.noromaa.bwg`, `.bwg`).
     static let brainWaveGenerator = UTType(importedAs: "com.noromaa.bwg", conformingTo: .data)
