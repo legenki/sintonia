@@ -1,0 +1,26 @@
+Sintonia works fully offline. There is no account, sign-in, in-app purchase, user-generated content or network access.
+
+1. SCREEN RECORDING
+Attached in App Review Information. It was recorded on a physical iPhone running the latest iOS. It starts with launching the app and shows playback, the preset library, the Studio editor, curve automation and audio export. The app has no login, account, user-generated content or paid content inside the app (it is a paid-upfront app with no in-app purchases).
+
+2. PURPOSE AND TARGET AUDIENCE
+Sintonia is a brainwave entrainment studio. It synthesizes binaural, monaural and isochronic tones with stereo colored noise in real time on the device. It is for people who use rhythmic audio for relaxation, focus, meditation, study or sleep, and for hobbyists who design their own sessions. It solves a practical problem: the classic BrainWave Generator presets are tied to old desktop software, and Sintonia lets users play 18 ready-made sessions, design their own with automation curves, import legacy .bwg presets, and export sessions as WAV or M4A for listening anywhere. It is an audio tool, not a medical device, and makes no medical claims. The description includes a safety note.
+
+3. HOW TO REVIEW
+No login, setup or sample files are needed.
+a) Launch the app and tap Play. The default "Deep Focus" preset starts, the oscilloscope animates and the current brainwave band is shown. Headphones are recommended for binaural presets, but the speaker works too.
+b) Tap the library icon (top left) to browse the 18 built-in presets by category. Tap one to load it.
+c) Tap the sliders icon to open Studio. Edit voices (type, waveform, carrier, beat, volume) and noise. Changes are heard instantly.
+d) In Studio, open a curve to edit beat, carrier or volume automation over time.
+e) Use the share icon to export the session as WAV or M4A.
+Optional: .bwg or .sintonia preset files can be imported from the Files app, but every feature can be reviewed with the built-in presets. On iPad, Studio uses a two-pane layout.
+Background audio (UIBackgroundModes: audio) is used only to keep a session playing while the screen is locked, with Lock Screen and Control Center controls.
+
+4. EXTERNAL SERVICES
+None. The app uses only Apple frameworks (SwiftUI, AVFoundation/AVAudioEngine, MediaPlayer for Now Playing). There are no third-party SDKs, analytics, ads, AI services, authentication services, payment processors or servers. All audio is generated on the device.
+
+5. REGIONAL DIFFERENCES
+None. The app works the same in all regions. The interface is localized in English and Russian.
+
+6. REGULATED INDUSTRY OR THIRD-PARTY MATERIAL
+Not applicable. The app does not operate in a regulated industry and makes no health or medical claims. It contains no protected third-party material: all presets and sounds are original and generated in real time. The .bwg importer reads a plain-text preset format and includes no third-party code or assets.
