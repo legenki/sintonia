@@ -204,6 +204,25 @@ public struct StudioRackView: View {
     // MARK: - Top Studio Navigation & Transport Bar
 
     private var topStudioBar: some View {
+        VStack(spacing: 6) {
+            topStudioControls
+
+            // The band pill gets its own row so the transport capsule never squeezes it into wrapped text.
+            if !isCompactLandscape {
+                BrainwaveBandBadge(
+                    band: engine.dominantBand,
+                    beatHz: engine.dominantBeatHz,
+                    compact: true
+                )
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .studioGlassSurface(cornerRadius: 16, tint: accentColor.opacity(0.1), interactive: true)
+    }
+
+    private var topStudioControls: some View {
         HStack(spacing: 8) {
             Button {
                 requestDismiss()
@@ -211,6 +230,8 @@ public struct StudioRackView: View {
                 let cancelOrDoneKey: LocalizedStringKey = isDirty ? "Cancel" : "Done"
                 Text(cancelOrDoneKey)
                     .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .foregroundStyle(isDirty ? StudioTheme.secondaryText : StudioTheme.primaryText)
                     .padding(.horizontal, 11)
                     .padding(.vertical, 6)
@@ -239,14 +260,8 @@ public struct StudioRackView: View {
                 Text(verbatim: "\(StudioTheme.formatTime(engine.currentTime)) / \(StudioTheme.formatTime(draft.durationSec))")
                     .font(.caption2.weight(.semibold).monospacedDigit())
                     .foregroundStyle(StudioTheme.primaryText)
-
-                if !isCompactLandscape {
-                    BrainwaveBandBadge(
-                        band: engine.dominantBand,
-                        beatHz: engine.dominantBeatHz,
-                        compact: true
-                    )
-                }
+                    .lineLimit(1)
+                    .fixedSize()
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -276,9 +291,6 @@ public struct StudioRackView: View {
 
             saveButton
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
-        .studioGlassSurface(cornerRadius: 16, tint: accentColor.opacity(0.1), interactive: true)
     }
 
     private var saveButton: some View {
@@ -301,6 +313,8 @@ public struct StudioRackView: View {
                 }
                 Text(labelKey)
                     .font(.caption.weight(.bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
             .foregroundStyle(showSavedBadge ? StudioTheme.chassisGraphite : (isHighlighted ? StudioTheme.chassisGraphite : StudioTheme.secondaryText))
             .padding(.horizontal, 12)

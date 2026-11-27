@@ -338,6 +338,8 @@ public struct BrainwaveBandBadge: View {
                     .foregroundStyle(StudioTheme.primaryText)
             }
         }
+        .lineLimit(1)
+        .fixedSize()
         .padding(.horizontal, compact ? 8 : 10)
         .padding(.vertical, compact ? 4 : 5)
         .background {
