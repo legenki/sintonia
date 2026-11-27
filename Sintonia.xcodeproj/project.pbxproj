@@ -20,9 +20,11 @@
 		1AA734940182A01D03C4D82B /* MiniTimelineScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BE19AC5B50AB1375995307 /* MiniTimelineScrubber.swift */; };
 		1D1E07DF8739620DD913C6DA /* VoiceInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CCAB7B54DDE3AA24161D9C /* VoiceInspectorView.swift */; };
 		1F82B81E5E6DFBDBE3D7E069 /* SintoniaMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4D13D9F000BE8B879C12E0 /* SintoniaMacApp.swift */; };
+		278263A5F82B854591E8E16B /* NowPlayingArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF0AE83BA083873DD10BB4 /* NowPlayingArtwork.swift */; };
 		2A9B68F53EA692FC5840FF27 /* PresetSparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95F16FB4542C375606A30AF /* PresetSparklineView.swift */; };
 		2C32367E03B0D5F21C48039B /* StudioFader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0CDAFC137C50942A825E7 /* StudioFader.swift */; };
 		2DA111F491204D68040DD784 /* HardwarePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1528C8427A899218CE21A6B9 /* HardwarePickers.swift */; };
+		309D512EB1522922F5E4EC50 /* NowPlayingArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF0AE83BA083873DD10BB4 /* NowPlayingArtwork.swift */; };
 		3364A9A2B0D1C604A6E253EA /* PlatformViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9E9F6242369AC824D27F43 /* PlatformViewModifiers.swift */; };
 		37724CEA8EB8723C4FA6A2CC /* SynthCore in Frameworks */ = {isa = PBXBuildFile; productRef = AB9AD5E01D3DFC2C2FC80719 /* SynthCore */; };
 		39FCDACB8E4BC7827AF3BE88 /* LEDMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8983DE9F8C212EC36E390C16 /* LEDMeterView.swift */; };
@@ -109,6 +111,7 @@
 		3F4D13D9F000BE8B879C12E0 /* SintoniaMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintoniaMacApp.swift; sourceTree = "<group>"; };
 		40A3708C1B1904A0D1005899 /* SintoniaMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SintoniaMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		40B14C21E1C06646586434BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		58AF0AE83BA083873DD10BB4 /* NowPlayingArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingArtwork.swift; sourceTree = "<group>"; };
 		64E871D486CE3E33995B422E /* MacMenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMenuBarView.swift; sourceTree = "<group>"; };
 		66CB6ED51912F8FD95D66BE3 /* CurveEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveEditorView.swift; sourceTree = "<group>"; };
 		67A7DB56685E55AB5D5B8C21 /* StudioKnob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioKnob.swift; sourceTree = "<group>"; };
@@ -214,6 +217,7 @@
 			children = (
 				DD66BED663CB0D86B2FA64F0 /* AudioEngineController.swift */,
 				6A1BF7F31F485B29BD6BBDD7 /* MacAudioDeviceManager.swift */,
+				58AF0AE83BA083873DD10BB4 /* NowPlayingArtwork.swift */,
 			);
 			path = AudioRuntime;
 			sourceTree = "<group>";
@@ -542,6 +546,7 @@
 				F81762BD63542FF2B64A9800 /* MacAudioDeviceManager.swift in Sources */,
 				BB1D318E114AC4594A7C66CB /* MiniTimelineScrubber.swift in Sources */,
 				B801D598B5C146E41E76B424 /* NoiseInspectorView.swift in Sources */,
+				278263A5F82B854591E8E16B /* NowPlayingArtwork.swift in Sources */,
 				F4EE9F657D49F47D636900B2 /* OscilloscopeView.swift in Sources */,
 				9D0332F00734A42435B5ADD6 /* PlatformViewModifiers.swift in Sources */,
 				77EC63FE6B8890107252F9D9 /* PlayerView.swift in Sources */,
@@ -586,6 +591,7 @@
 				8AFF6AD9E8042E53AB98DBB5 /* MacStudioWindowView.swift in Sources */,
 				1AA734940182A01D03C4D82B /* MiniTimelineScrubber.swift in Sources */,
 				554C5E327D2FF93E8900D5D2 /* NoiseInspectorView.swift in Sources */,
+				309D512EB1522922F5E4EC50 /* NowPlayingArtwork.swift in Sources */,
 				0AF5D1565275CD605086E98B /* OscilloscopeView.swift in Sources */,
 				3364A9A2B0D1C604A6E253EA /* PlatformViewModifiers.swift in Sources */,
 				092B73A15BC1DDDF14D804DD /* PlayerView.swift in Sources */,
@@ -650,7 +656,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Mac/SintoniaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = Y6A9LRQDH7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -677,7 +683,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = Y6A9LRQDH7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -780,7 +786,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/Mac/SintoniaMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = Y6A9LRQDH7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -911,7 +917,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = Y6A9LRQDH7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;

@@ -762,6 +762,8 @@ public final class AudioEngineController {
         }
         if dominantBand != nextBand {
             dominantBand = nextBand
+            // A band change swaps the Lock Screen artwork right away instead of waiting for the next refresh.
+            updateNowPlayingInfo(force: true)
         }
     }
 
@@ -849,15 +851,20 @@ public final class AudioEngineController {
         lastNowPlayingSyncTime = currentTime
 
         let categoryLabel = localizedCategoryTitle(currentPreset.category)
-        let info: [String: Any] = [
+        // The subtitle line shows the live band and beat, e.g. "θ Theta · 5.8 Hz · Sintonia".
+        let bandLine = "\(NowPlayingArtwork.glyph(for: dominantBand)) \(dominantBand.localizedTitle) · \(StudioTheme.formatFrequency(dominantBeatHz)) · Sintonia"
+        var info: [String: Any] = [
             MPMediaItemPropertyTitle: currentPreset.name,
-            MPMediaItemPropertyArtist: "Sintonia",
+            MPMediaItemPropertyArtist: bandLine,
             MPMediaItemPropertyAlbumTitle: categoryLabel,
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
             MPNowPlayingInfoPropertyDefaultPlaybackRate: 1.0,
         ]
+        if let artwork = NowPlayingArtwork.artwork(for: dominantBand) {
+            info[MPMediaItemPropertyArtwork] = artwork
+        }
         let nowPlayingCenter = MPNowPlayingInfoCenter.default()
         nowPlayingCenter.nowPlayingInfo = info
         #if os(macOS)
